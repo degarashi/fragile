@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"target": "ES6",
+		"outDir": "dist",
+		"typeRoots": [
+			"typings/index.d.ts"
+		]
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
