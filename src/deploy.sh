@@ -16,5 +16,7 @@ for file in `\find . -maxdepth 1 -name "*.?sh" -type f`; do
 		exit 1
 	fi
 done
-rsync -auv --delete ./ pi@raspi:/var/www/gl
-scp ../dist/* pi@raspi:/var/www/gl
+rsync -auv --delete ./resource/ ../dist/resource/
+cp ./*.html ../dist
+cp ./*.css ../dist
+rsync -auv --delete ../dist/ pi@raspi:/var/www/gl/

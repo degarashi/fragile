@@ -1,0 +1,9 @@
+{
+	"boolset": [
+		"Blend", "DepthTest", "DepthMask"
+	],
+	"valueset": {
+		"DepthFunc": "LessEqual",
+		"BlendFunc": ["SrcAlpha", "OneMinusSrcAlpha"]
+	}
+}
