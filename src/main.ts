@@ -66,7 +66,9 @@ class StText extends State<MyScene> {
 		self.drawGroup().add(t);
 		self._text = t;
 
-		self.updateGroup().add(new FPSCamera());
+		const fpsc = new FPSCamera();
+		engine.sys3d().camera = fpsc.camera;
+		self.updateGroup().add(fpsc);
 		engine.addTechnique(resource.getResource("prog"));
 		self.drawGroup().add(new Clear(0, new Vec4(0,0,0,1)));
 	}
