@@ -3,9 +3,10 @@ import Vec2 from "./vector2";
 import Vec3 from "./vector3";
 import Vec4 from "./vector4";
 import Mat44 from "./matrix44";
+import TM from "./tmath";
 
 export default class Camera3D extends Pose3D {
-	fov: number = 90;
+	fov: number = TM.Deg2rad(90);
 	aspect: number = 1;
 	nearZ: number = 1e-2;
 	farZ: number = 10;
