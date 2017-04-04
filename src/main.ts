@@ -82,24 +82,12 @@ class StText extends State<MyScene> {
 class MyScene extends Scene<MyScene> {
 	_text: TextDraw;
 }
+import Alias from "./_alias";
 window.onload = function() {
-	const alias = {
-		prog: "prog.prog",
-		vtest: "test.vsh",
-		ftest: "test.fsh",
-		valueset: "valueset.def",
-		valuesetP: "valuesetP.def",
-		vtestP: "testP.vsh",
-		ftestP: "testP.fsh",
-		textvsh: "text.vsh",
-		textfsh: "text.fsh",
-		sphere: "sphere.png",
-		textvalueset: "textvalueset.def",
-	};
-	const base = "resource";
+	const base = ".";
 	const res = ["sphere", "prog"];
 	const sc = new MyScene(0, new StText());
-	MainLoop_RF(alias, base, ()=> {
+	MainLoop_RF(Alias, base, ()=> {
 		return new LoadingScene(res, sc);
 	});
 };
