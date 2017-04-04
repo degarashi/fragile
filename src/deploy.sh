@@ -1,3 +1,8 @@
+npm run makealias
+if [ $? -gt 1 ]; then
+	echo "makealias.js ERROR"
+	exit 1
+fi
 tsc
 if [ $? -gt 1 ]; then
 	echo "typescript ERROR"

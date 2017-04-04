@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+	"makealias": "node src/makealias.js src/resource resource src/_alias.ts"
   },
   "devDependencies": {
     "rollup-plugin-uglify": "^1.0.1"
