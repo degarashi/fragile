@@ -100,7 +100,7 @@ export default class GLTexture implements Bindable, Discardable {
 	}
 	setImage(
 		level:number, fmt:InterFormat,
-		srcFmt:InterFormat, srcFmtType:TexDataFormat, obj:any
+		srcFmt:InterFormat, srcFmtType:TexDataFormat, obj:HTMLImageElement
 	): void {
 		this.bind();
 		gl.texImage2D(
@@ -115,7 +115,7 @@ export default class GLTexture implements Bindable, Discardable {
 		this._width = obj.width;
 		this._height = obj.height;
 	}
-	setSubImage(level:number, x:number, y:number, srcFmt:InterFormat, srcFmtType:TexDataFormat, obj:any): void {
+	setSubImage(level:number, x:number, y:number, srcFmt:InterFormat, srcFmtType:TexDataFormat, obj:HTMLImageElement): void {
 		this.bind();
 		gl.texSubImage2D(
 			this._typeId(),

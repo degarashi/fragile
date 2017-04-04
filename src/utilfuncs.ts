@@ -3,9 +3,10 @@ import Vector from "./vector";
 import Matrix from "./matrix";
 import Geometry from "./geometry";
 import {gl, engine} from "./global";
+import FontChar from "./fontchar";
 
 // 一行分を切り出す
-export function GetLine(fp: any[], from: number) {
+export function GetLine(fp: FontChar[], from: number) {
 	const len = fp.length;
 	let i = from;
 	for(; i<len ; i++) {

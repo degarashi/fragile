@@ -10,7 +10,7 @@ import Vector from "./vector";
 
 export class ProgramError extends Error {
 	constructor(id: WebGLProgram | null) {
-		super(<any>gl.getProgramInfoLog(id));
+		super(<string>gl.getProgramInfoLog(id));
 	}
 	get name() {
 		return "ProgramError";

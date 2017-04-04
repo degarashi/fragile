@@ -3,7 +3,7 @@ import {EnumBase, BoolSetting, BoolString} from "./gl_const";
 import {gl} from "./global";
 
 function ToLowercaseKeys(ar: any): any {
-	const ret:any = {};
+	const ret:{[key: string]: any;} = {};
 	Object.keys(ar).forEach(
 		function(k: string) {
 			let val = ar[k];

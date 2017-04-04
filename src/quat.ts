@@ -164,6 +164,7 @@ export default class Quat extends Vec4Impl<Quat> {
 	}
 	divSelf(q: Quat|Vec3|number): Quat;
 	divSelf(q: any): any {
+		return this.set(this.div(q));
 	}
 
 	add(q: Quat): Quat {

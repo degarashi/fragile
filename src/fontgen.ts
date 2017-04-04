@@ -10,11 +10,11 @@ import {gl} from "./global";
 class FontLane {
 	private _width: number;
 	private _cur: number;
-	private _map: any;
+	// CharCode -> Range(X)
+	private _map: {[key: number]: Range;};
 	constructor(w: number) {
 		this._width = w;
 		this._cur = 0;
-		// CharCode -> Range(X)
 		this._map = {};
 	}
 	get(code: number, str: string, ctx:CanvasRenderingContext2D, fw: number, fh: Range, baseY: number, tex: GLTexture2D) {
@@ -121,10 +121,9 @@ class FontPlane {
 import FontChar from "./fontchar";
 // フォントファミリと一体一で対応
 class FontCache {
-	// FontPlane配列
-	private _plane: any[] = [];
-	// CharCode -> [Texture, UVRect, Size]
-	private _map: any = {};
+	private _plane: FontPlane[] = [];
+	// CharCode -> FontChar
+	private _map:{[key: number]: FontChar;} = {};
 	constructor(
 		private _width: number,
 		private _height: number,

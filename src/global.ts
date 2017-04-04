@@ -4,7 +4,7 @@ import SceneMgr from "./scenemgr";
 import ResStack from "./resstack";
 
 export let gl: WebGLRenderingContext;
-export function SetGL(g: any) { gl = g; }
+export function SetGL(g: WebGLRenderingContext) { gl = g; }
 export let engine: Engine;
 export function SetEngine(e: Engine) { engine = e; }
 export let resource: ResStack;

@@ -83,7 +83,7 @@ export class TextLines extends Text {
 	// 行ディレイ(1行毎に何秒遅らせるか)
 	lineDelay: number = 0;
 
-	_refresh_fontplane():any {
+	_refresh_fontplane():any[] {
 		const fa = super._makeFontA();
 		return CharPlaceLines(fa.fontA, fa.fh.to, this.size());
 	}
