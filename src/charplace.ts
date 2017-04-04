@@ -34,12 +34,13 @@ class PlaneSingleDraw implements Geometry {
 		};
 		this.ibuffer = ib;
 	}
-	draw(offset: Vec3, time: number, alpha: number) {
+	draw(offset: Vec2, time: number, timeDelay: number, alpha: number): void {
 		engine.setUniform("u_texture", this.texture);
 		engine.setUniform("u_screenSize", new Vec2(engine.width(), engine.height()));
 		engine.setUniform("u_offset", offset);
 		engine.setUniform("u_time", time);
 		engine.setUniform("u_alpha", alpha);
+		engine.setUniform("u_delay", timeDelay);
 		engine.draw(()=> { DrawWithGeom(this, gl.TRIANGLES); });
 	}
 }
@@ -61,7 +62,7 @@ class PlaneSingle {
 		this._accumTime = 0;		// 総時間
 		this._tpix = new Vec2(0.5/tex.width(), 0.5/tex.height());
 	}
-	add(ofs: Vec2, fc: FontChar, t: number) {
+	add(ofs: Vec2, fc: FontChar, t: number): void {
 		const fw = <number>fc.width;
 		const fh = <Range>fc.height;
 		const idxBase = this.position.length;
@@ -100,8 +101,14 @@ class PlaneSingle {
 		return new PlaneSingleDraw(this);
 	}
 }
+export interface CharPlaceResult {
+	length: number;
+	plane: PlaneSingleDraw[];
+	inplace: boolean;
+	resultSize: Size;
+}
 // 行毎に文字列を配置
-export function CharPlaceLines(fp: FontChar[], lineH: number, width: number) {
+export function CharPlaceLines(fp: FontChar[], lineH: number, width: number): CharPlaceResult[] {
 	const ret = [];
 	let cur = 0;
 	for(;;) {
@@ -116,7 +123,7 @@ export function CharPlaceLines(fp: FontChar[], lineH: number, width: number) {
 	return ret;
 }
 // 指定された矩形に文字列を配置
-export function CharPlace(fp: FontChar[], lineH: number, size: Size, from: number=0, to:number=fp.length) {
+export function CharPlace(fp: FontChar[], lineH: number, size: Size, from: number=0, to:number=fp.length): CharPlaceResult {
 	// {[texture]: PlaneSingle}
 	const vi = new Map();
 	const cur = new Vec2(0,0);
