@@ -1,13 +1,14 @@
 import {Assert, ExtractExtension} from "./utilfuncs";
+import ResourceLoader from "./resource_loader";
 
 export const ResourceExtToType:{[key: string]: string;} = {};
-interface ResourceLoadDef {
+export interface ResourceLoadDef {
 	makeLoader(url: string): any;
 	makeResource(src: any): any;
 }
 export const ResourceInfo:{[key: string]: ResourceLoadDef;} = {};
 
-export function GetResourceInfo(fpath: string) {
+export function GetResourceInfo(fpath: string): ResourceLoadDef {
 	// 拡張子でリソースタイプを判断
 	const ext = ExtractExtension(fpath);
 	if(!ext)
@@ -26,10 +27,10 @@ export class MoreResource {
 		this.array = arg;
 	}
 }
-export function ASyncGet(loaders:any[], maxConnection:number, cbComplete:()=>void, cbError:()=>void) {
-	let lastCur = 0;
-	let nComp = 0;
-	let task:any = [];
+export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:()=>void): void {
+	let lastCur:number = 0;
+	let nComp:number = 0;
+	const task:(number|null)[] = [];
 	function Request(taskIndex: number): void {
 		const cur = lastCur++;
 		Assert(cur < loaders.length);

@@ -1,29 +1,34 @@
 import {Assert} from "./utilfuncs";
-import {GetResourceInfo, ASyncGet, MoreResource} from "./resource_aux";
+import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
+import Discardable from "./discardable";
+import ResourceLoader from "./resource_loader";
 
+class ResLayer {
+	resource: {[key: string]: Discardable} = {};
+}
 export default class ResStack {
-	private _resource: any;
+	private _resource: ResLayer[];
 	private _base: string;
-	private _alias: any;
+	private _alias: {[key: string]: string;};
 	private _onLoading: boolean;
 
 	constructor(base: string) {
 		this._resource = [];
 		this._base = base;
 		this._alias = {};
-		this.pushFrame();
+		this._pushFrame();
 	}
-	addAlias(alias: any): void {
+	addAlias(alias: {[key: string]: string;}): void {
 		const a = this._alias;
 		Object.keys(alias).forEach((k)=> {
 			a[k] = alias[k];
 		});
 	}
-	_makeFPath(name: string): string {
+	private _makeFPath(name: string): string {
 		return `${this._base}/${this._alias[name]}`;
 	}
-	pushFrame() {
-		const dst = {};
+	private _pushFrame() {
+		const dst = new ResLayer();
 		this._resource.push(dst);
 		return dst;
 	}
@@ -31,7 +36,7 @@ export default class ResStack {
 	/*
 		\param[in] res ["AliasName", ...]
 	*/
-	loadFrame(res: any, cbComplete:()=>void, cbError:()=>void, bSame:boolean=false) {
+	loadFrame(res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean=false) {
 		Assert(
 			res instanceof Array
 			&& cbComplete instanceof Function
@@ -42,7 +47,7 @@ export default class ResStack {
 
 		// 重複してるリソースはロード対象に入れない
 		{
-			const res2 = [];
+			const res2:string[] = [];
 			for(let i=0 ; i<res.length ; i++) {
 				if(!this.getResource(res[i])) {
 					res2.push(res[i]);
@@ -50,15 +55,15 @@ export default class ResStack {
 			}
 			res = res2;
 		}
-		let dst:any;
+		let dst:ResLayer;
 		if(bSame) {
 			dst = this._resource.back();
 		} else {
-			dst = this.pushFrame();
+			dst = this._pushFrame();
 		}
 
-		const loaderL:any = [];
-		const infoL:any = [];
+		const loaderL:ResourceLoader[] = [];
+		const infoL:ResourceLoadDef[] = [];
 		for(let i=0 ; i<res.length ; i++) {
 			const url = this._makeFPath(res[i]);
 			if(!url)
@@ -70,8 +75,8 @@ export default class ResStack {
 		const fb = ()=> {
 			Assert(this._onLoading);
 			this._onLoading = false;
-			let later:any = [];
-			let laterId:any = [];
+			let later:string[] = [];
+			let laterId:number[] = [];
 			for(let i=0 ; i<infoL.length ; i++) {
 				const r = infoL[i].makeResource(loaderL[i].result());
 				// MoreResourceが来たらまだ読み込みが終わってない
@@ -79,7 +84,7 @@ export default class ResStack {
 					later = later.concat(...r.array);
 					laterId.push(i);
 				} else
-					dst[res[i]] = r;
+					dst.resource[res[i]] = r;
 			}
 			if(!later.empty()) {
 				// 再度リソース読み込みをかける
@@ -88,7 +93,7 @@ export default class ResStack {
 						const id = laterId[i];
 						const r = infoL[id].makeResource(loaderL[id].result());
 						Assert(!(r instanceof MoreResource));
-						dst[res[id]] = r;
+						dst.resource[res[id]] = r;
 					}
 					// すべてのリソース読み込み完了
 					cbComplete();
@@ -125,19 +130,18 @@ export default class ResStack {
 	getResource(name: string):any {
 		const resA = this._resource;
 		for(let i=resA.length-1 ; i>=0 ; --i) {
-			let res = resA[i];
-			let r = res[name];
+			const res = resA[i];
+			const r = res.resource[name];
 			if(r)
 				return r;
 		}
 		return null;
 	}
-	addResource(key: string, val: any): void {
-		Assert(<boolean>val);
+	addResource(key: string, val: Discardable): void {
 		// リソース名の重複は許容
 		if(this.getResource(key))
 			return;
-		this._resource[this._resource.length-1][key] = val;
+		this._resource[this._resource.length-1].resource[key] = val;
 	}
 	popFrame(n: number = 1): void {
 		Assert(!this._onLoading);
@@ -145,9 +149,9 @@ export default class ResStack {
 		Assert(resA.length >= n);
 		// 明示的な開放処理
 		while(n > 0) {
-			let res = resA.pop();
-			Object.keys(res).forEach((k)=> {
-				res[k].discard();
+			let res = <ResLayer>resA.pop();
+			Object.keys(res.resource).forEach((k)=> {
+				res.resource[k].discard();
 			});
 			--n;
 		}

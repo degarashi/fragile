@@ -1,7 +1,7 @@
 import {resource} from "./global";
 import ResourceParam from "./resourcegen/param";
 
-export let ResourceGenSrc:any = {};
+export let ResourceGenSrc:{[key:string]: (rp: ResourceParam)=>any;} = {};
 const ResourceGen = (function(){
 	return {
 		get: function(rp: ResourceParam) {
