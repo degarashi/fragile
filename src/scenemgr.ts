@@ -51,7 +51,7 @@ export default class SceneMgr extends GObject {
 			b = true;
 
 			const t = <IScene>this._scene.pop();
-			t.destroy();
+			t.discard();
 			if(this._scene.length === 0) {
 				this._nPop = 0;
 				break;

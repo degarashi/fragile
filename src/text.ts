@@ -151,12 +151,8 @@ export default class TextDraw extends DObject {
 		this.time += dt;
 		return false;
 	}
-	onUpdate(dt: number): boolean {
-		if(super.onUpdate(dt)) {
-			engine.setTechnique("text");
-			this.text.draw(this.offset, this.time, this.delay, this.alpha);
-			return true;
-		}
-		return false;
+	onDraw(): void {
+		engine.setTechnique("text");
+		this.text.draw(this.offset, this.time, this.delay, this.alpha);
 	}
 }

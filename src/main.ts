@@ -22,7 +22,7 @@ class StParticle extends State<MyScene> {
 	onEnter(self: MyScene, prev:State<MyScene>): void {
 		const psp = new PSpriteDraw();
 		psp.alpha = 0;
-		self.drawGroup().add(psp);
+		self.drawGroup().group.add(psp);
 		this._alpha = 0;
 		this._psp = psp;
 	}
@@ -51,7 +51,7 @@ class StFadeout extends State<MyScene> {
 class StText extends State<MyScene> {
 	onUp(self: MyScene): void {
 		const t = new TextDraw(new Text());
-		t.priority = 10;
+		t.drawtag.priority = 10;
 		const str = "HELLO WORLD";
 		t.text.setText(str);
 		t.text.setSize(new Size(1024, 512));
@@ -63,14 +63,14 @@ class StText extends State<MyScene> {
 			Math.floor(h/2 - rs.height/2)
 		);
 
-		self.drawGroup().add(t);
+		self.drawGroup().group.add(t);
 		self._text = t;
 
 		const fpsc = new FPSCamera();
 		engine.sys3d().camera = fpsc.camera;
-		self.updateGroup().add(fpsc);
+		self.updateGroup().group.add(fpsc);
 		engine.addTechnique(resource.getResource("prog"));
-		self.drawGroup().add(new Clear(0, new Vec4(0,0,0,1)));
+		self.drawGroup().group.add(new Clear(new Vec4(0,0,0,1)));
 	}
 	onUpdate(self: MyScene, dt: number): boolean {
 		if(self._text.advance(dt*15)) {

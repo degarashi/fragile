@@ -97,12 +97,8 @@ export class PSpriteDraw extends DObject {
 	advance(dt: number) {
 		this._psprite.advance(dt/2);
 	}
-	onUpdate(dt: number): boolean {
-		if(super.onUpdate(dt)) {
-			this._psprite.draw(this.alpha);
-			return true;
-		}
-		return false;
+	onDraw(): void {
+		this._psprite.draw(this.alpha);
 	}
 }
 class PSpriteObj extends GObject {
@@ -110,15 +106,15 @@ class PSpriteObj extends GObject {
 
 	onConnected() {
 		this._draw = new PSpriteDraw();
-		scene.top().drawGroup().add(this._draw);
+		scene.top().drawGroup().group.add(this._draw);
 	}
 	onUpdate(dt: number) {
 		this._draw.advance(dt);
 		return true;
 	}
 	destroy(): boolean {
-		if(super.destroy()) {
-			this._draw.destroy();
+		if(super.discard()) {
+			this._draw.discard();
 			return true;
 		}
 		return false;

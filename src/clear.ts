@@ -1,18 +1,16 @@
-import GObject from "./gobject";
-import Vec3 from "./vector3";
+import DObject from "./dobject";
 import Vec4 from "./vector4";
 import {gl} from "./global";
 
-export default class Clear extends GObject {
+export default class Clear extends DObject {
 	constructor(
-		p: number,
 		public color?:Vec4,
 		public depth?:number,
 		public stencil?:number
 	) {
-		super(p);
+		super();
 	}
-	onUpdate(dt: number): boolean {
+	onDraw(): void {
 		let flag = 0;
 		if(this.color) {
 			const c = this.color;
@@ -28,6 +26,5 @@ export default class Clear extends GObject {
 			flag |= gl.STENCIL_BUFFER_BIT;
 		}
 		gl.clear(flag);
-		return super.onUpdate(dt);
 	}
 }

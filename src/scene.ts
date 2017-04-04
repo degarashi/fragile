@@ -1,20 +1,22 @@
 import FSMachine from "./fsmachine";
 import UpdGroup from "./updgroup";
+import DrawGroup from "./drawgroup";
 import GObject from "./gobject";
+import Drawable from "./drawable";
 
 export interface IScene extends GObject {
 	updateGroup(): UpdGroup;
-	drawGroup(): UpdGroup;
+	drawGroup(): DrawGroup;
 	onDraw(): void;
 }
-export default class Scene<T> extends FSMachine<T> implements IScene {
+export default class Scene<T> extends FSMachine<T> implements IScene, Drawable {
 	private _update: UpdGroup = new UpdGroup(0);
-	private _draw: UpdGroup = new UpdGroup(0);
+	private _draw: DrawGroup = new DrawGroup();
 
 	updateGroup(): UpdGroup {
 		return this._update;
 	}
-	drawGroup(): UpdGroup {
+	drawGroup(): DrawGroup {
 		return this._draw;
 	}
 	onUpdate(dt: number): boolean {
@@ -23,6 +25,8 @@ export default class Scene<T> extends FSMachine<T> implements IScene {
 		return true;
 	}
 	onDraw(): void {
-		this._draw.onUpdate(0);
+		this._draw.doAddRemove();
+		this._draw.onDraw();
+		this._draw.doAddRemove();
 	}
 }
