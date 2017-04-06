@@ -12,13 +12,13 @@ class Loop {
 	constructor() {
 		this._resetCounter();
 	}
-	_resetCounter() {
+	private _resetCounter() {
 		this._timerId = null;
 		this._currentFps = 0;
 		this._accum = 0;
 		this._accumFps = 0;
 	}
-	_resetTime(now: number) {
+	private _resetTime(now: number) {
 		this._prevTime = now;
 		this._prevFpsTime = now;
 		this._beginTime = now;
