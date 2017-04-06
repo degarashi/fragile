@@ -6,7 +6,7 @@ import RPCanvas from "./resourcegen/canvas";
 import RPWebGLCtx from "./resourcegen/webglctx";
 import {BlendFunc} from "./gl_const";
 import GLConst from "./gl_const";
-import {gl, SetGL} from "./global";
+import {resource, gl, SetGL} from "./global";
 import Vec2 from "./vector2";
 import GLProgram from "./gl_program";
 import Technique from "./technique";
@@ -47,11 +47,13 @@ export default class Engine {
 		SetGL((<ResourceWrap<WebGLRenderingContext>>ResourceGen.get(new RPWebGLCtx(Engine.CanvasName))).data);
 		if(!gl)
 			throw new Error("WebGL not supported.");
-		// const canvas = ResourceGen.get(new RPCanvas(Engine.CanvasName));
-		// canvas.addEventListener("webglcontextlost", function(e){
-		// });
-		// canvas.addEventListener("webglcontextrestored", function(e){
-		// });
+		const canvas = <ResourceWrap<HTMLCanvasElement>>ResourceGen.get(new RPCanvas(Engine.CanvasName));
+		canvas.data.addEventListener("webglcontextlost", function(e: Event){
+			resource.onContextLost();
+		});
+		canvas.data.addEventListener("webglcontextrestored", function(e: Event){
+			resource.onContextRestored();
+		});
 
 		window.onresize = () => {
 			this._onResized();
