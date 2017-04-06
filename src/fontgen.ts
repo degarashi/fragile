@@ -79,7 +79,7 @@ class FontPlane {
 		// ビットマップを保持するテクスチャ
 		const tex = new GLTexture2D();
 		tex.setData(0, InterFormat.Alpha, w, h,
-			InterFormat.Alpha, TexDataFormat.UB, null);
+			InterFormat.Alpha, TexDataFormat.UB, undefined);
 		tex.setLinear(true, true, 0);
 		this.texture = tex;
 		// hをlaneHの高さで埋められるだけのサイズ(FontLane)配列

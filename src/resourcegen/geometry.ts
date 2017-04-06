@@ -8,8 +8,10 @@ import {DrawType} from "../gl_const";
 import RPString from "./string";
 import ResourceParam from "./param";
 import Geometry from "../geometry";
+import Resource from "../resource";
+import ResourceWrap from "../resource_wrap";
 
-ResourceGenSrc.Rect01 = function(rp: ResourceParam):Geometry {
+ResourceGenSrc.Rect01 = function(rp: ResourceParam):Resource {
 	const buff = {
 		vbuffer: {
 			a_position: new GLVBuffer()
@@ -22,15 +24,16 @@ ResourceGenSrc.Rect01 = function(rp: ResourceParam):Geometry {
 		new Vec2(-h,h),
 		new Vec2(h,h),
 		new Vec2(h,-h)
-	], DrawType.Static);
+	], DrawType.Static, true);
 	buff.ibuffer.setDataRaw(
 		new Uint16Array([0,1,2, 2,3,0]),
 		1,
-		DrawType.Static
+		DrawType.Static,
+		true
 	);
-	return buff;
+	return new ResourceWrap<Geometry>(buff);
 };
-ResourceGenSrc.Trihedron = function():Geometry {
+ResourceGenSrc.Trihedron = function():Resource {
 	const buff = {
 		vbuffer: {
 			a_position: new GLVBuffer(),
@@ -44,13 +47,13 @@ ResourceGenSrc.Trihedron = function():Geometry {
 		new Vec3(0, -1, -1),
 		new Vec3(1, -1, 1),
 		new Vec3(0, 1, 0)
-	], DrawType.Static);
+	], DrawType.Static, true);
 	buff.vbuffer.a_uv.setData([
 		new Vec4(1,1,1,1),
 		new Vec4(1,0,0,1),
 		new Vec4(0,0,1,1),
 		new Vec4(0,1,0,1)
-	], DrawType.Static);
+	], DrawType.Static, true);
 	buff.ibuffer.setDataRaw(
 		new Uint16Array([
 			2,1,0,
@@ -59,8 +62,9 @@ ResourceGenSrc.Trihedron = function():Geometry {
 			0,3,2
 		]),
 		1,
-		DrawType.Static
+		DrawType.Static,
+		true
 	);
-	return buff;
+	return new ResourceWrap<Geometry>(buff);
 };
 export default class RPGeometry extends RPString {}

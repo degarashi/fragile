@@ -1,6 +1,8 @@
 import {default as ResourceGen, ResourceGenSrc} from "../resourcegen";
 import RPCanvas from "./canvas";
 import ResourceParam from "./param";
+import Resource from "../resource";
+import ResourceWrap from "../resource_wrap";
 
 export default class RPWebGLCtx implements ResourceParam {
 	constructor(public canvasId: string) {}
@@ -8,8 +10,8 @@ export default class RPWebGLCtx implements ResourceParam {
 	get key() { return `WebGL_${this.canvasId}`; }
 }
 
-ResourceGenSrc.WebGL = function(rp: RPWebGLCtx): WebGLRenderingContext|null {
-	const canvas = ResourceGen.get(new RPCanvas(rp.canvasId));
+ResourceGenSrc.WebGL = function(rp: RPWebGLCtx): Resource {
+	const canvas = <ResourceWrap<HTMLCanvasElement>>ResourceGen.get(new RPCanvas(rp.canvasId));
 	const param = {
 		preserveDrawingBuffer: false
 	};
@@ -21,9 +23,9 @@ ResourceGenSrc.WebGL = function(rp: RPWebGLCtx): WebGLRenderingContext|null {
 		"3d"
 	];
 	for(let i=0 ; i<webgl_text.length ; i++) {
-		const gl = canvas.getContext(webgl_text[i], param);
+		const gl = canvas.data.getContext(webgl_text[i], param);
 		if(gl)
-			return gl;
+			return new ResourceWrap<WebGLRenderingContext>(<WebGLRenderingContext>gl);
 	}
-	return null;
+	throw Error("webgl not found");
 };

@@ -65,7 +65,7 @@ class PSprite {
 		this._alg = alg;
 		this._vpos = alg.initialize();
 		const vb = new GLVBuffer();
-		vb.setData(this._vpos, DrawType.Dynamic);
+		vb.setData(this._vpos, DrawType.Dynamic, true);
 		this._geom = {
 			vbuffer: {
 				a_position: vb
@@ -74,7 +74,7 @@ class PSprite {
 	}
 	advance(dt: number): void {
 		this._alg.advance(this._vpos, dt);
-		this._geom.vbuffer.a_position.setData(this._vpos, DrawType.Dynamic);
+		this._geom.vbuffer.a_position.setData(this._vpos, DrawType.Dynamic, true);
 	}
 	draw(alpha: number): void {
 		engine.setTechnique("psprite");

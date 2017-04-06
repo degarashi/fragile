@@ -1,76 +1,163 @@
 import Discardable from "./discardable";
 import Bindable from "./bindable";
+import GLContext from "./gl_context";
 import {Assert, VectorToArray} from "./utilfuncs";
 import {gl} from "./global";
-import {DrawType, GLTypeInfoItem, default as glc} from "./gl_const";
+import {DataFormat, DrawType, GLTypeInfoItem, default as glc} from "./gl_const";
 import Vector from "./vector";
+import TypedArray from "./typedarray";
+import ResourceFlag from "./resource_flag";
 
-abstract class GLBuffer implements Discardable, Bindable {
-	private _id: WebGLBuffer|null;
-	private _bBind: boolean;
-	private _usage: DrawType;
-	private _typeinfo: GLTypeInfoItem;
-	// 頂点の個数
-	private _length: number;
-	// 要素何個分で頂点一つ分か
-	private _dim: number;
+class GLBufferInfo {
+	constructor(
+		public usage: DrawType,
+		public typeinfo: GLTypeInfoItem,
+		// 頂点の個数
+		public nElem: number,
+		// 要素何個分で頂点一つ分か
+		public dim: number,
+		// バックアップ用のデータ
+		public backup?: ArrayBuffer
+	) {}
+}
+abstract class GLBuffer implements Discardable, Bindable, GLContext {
+	private _rf: ResourceFlag = new ResourceFlag();
+	private _id: WebGLBuffer|null = null;
+	private _bBind: boolean = false;
+	private _info: GLBufferInfo;
 
 	public abstract typeId(): number;
-
+	public abstract typeQueryId(): number;
 	constructor() {
-		this._id = gl.createBuffer();
+		if(!gl.isContextLost())
+			this.onContextRestored();
 	}
-	id() { return this._id; }
-	usage() { return this._usage; }
-	typeinfo() { return this._typeinfo; }
-	length() { return this._length; }
-	dim() { return this._dim; }
 
-	bind() {
-		Assert(<boolean>this._id, "already discarded");
+	id() {
+		return this._id;
+	}
+	usage() {
+		return this._info.usage;
+	}
+	typeinfo() {
+		return this._info.typeinfo;
+	}
+	nElem() {
+		return this._info.nElem;
+	}
+	dim() {
+		return this._info.dim;
+	}
+	private _typeId(): number {
+		return glc.BufferTypeC.convert(this.typeId());
+	}
+	private _typeQueryId(): number {
+		return glc.BufferQueryC.convert(this.typeQueryId());
+	}
+	private _usage(): number {
+		return glc.DrawTypeC.convert(this.usage());
+	}
+	allocate(fmt: DataFormat, nElem: number, dim: number, usage: DrawType, bRestore: boolean): void {
+		const t = glc.GLTypeInfo[glc.DataFormatC.convert(fmt)];
+		Assert(Boolean(t));
+		const bytelen = nElem * dim * t.bytesize;
+		this._info = new GLBufferInfo(
+						usage,
+						t,
+						nElem,
+						dim,
+						bRestore ? new ArrayBuffer(bytelen) : undefined
+					);
+		this.proc(()=>{
+			gl.bufferData(this._typeId(), bytelen, this._usage());
+		});
+	}
+	private _setDataRaw(data: ArrayBuffer, info: GLTypeInfoItem, nElem: number, dim: number,  usage: DrawType, bRestore: boolean): void {
+		let restoreData: ArrayBuffer|undefined;
+		if(bRestore) {
+			restoreData = data.slice(0);
+		}
+		this._info = new GLBufferInfo(
+						usage,
+						info,
+						nElem,
+						dim,
+						restoreData
+					);
+		this.proc(()=>{
+			gl.bufferData(this._typeId(), data, this._usage());
+		});
+	}
+	setDataRaw(data: TypedArray, dim: number, usage: DrawType, bRestore: boolean): void {
+		const t = glc.Type2GLType[data.constructor.name];
+		this._setDataRaw(data.buffer, t, data.length/dim, dim, usage, bRestore);
+	}
+	setData(data: Vector[], usage: DrawType, bRestore: boolean) {
+		const ar = VectorToArray(...data);
+		if(ar) {
+			const dim = data[0].dim();
+			this.setDataRaw(ar, dim, usage, bRestore);
+		}
+	}
+	setSubData(offset_elem: number, data: ArrayBuffer) {
+		this.proc(()=>{
+			gl.bufferSubData(
+				this._typeId(),
+				this._info.typeinfo.bytesize * offset_elem,
+				data
+			);
+		});
+	}
+	// --------- from Bindable ---------
+	bind(): void {
+		Assert(!this.isDiscarded(), "already discarded");
 		Assert(!this._bBind, "already binded");
-		gl.bindBuffer(glc.BufferTypeC.convert(this.typeId()), this.id());
+		gl.bindBuffer(this._typeId(), this.id());
 		this._bBind = true;
 	}
-	unbind() {
+	unbind(id: WebGLBuffer|null = null): void {
 		Assert(this._bBind, "not binded yet");
-		gl.bindBuffer(glc.BufferTypeC.convert(this.typeId()), null);
+		gl.bindBuffer(this._typeId(), id);
 		this._bBind = false;
 	}
-	setDataRaw(data: any, dim: number, usage: DrawType) {
-		this._usage = usage;
-		this._typeinfo = glc.Type2GLType[data.constructor.name];
-		this._dim = dim;
-		this._length = data.length / dim;
-
+	proc(cb: ()=>void): void {
+		if(this.contextLost())
+			return;
+		const prev:WebGLBuffer|null = gl.getParameter(this._typeQueryId());
 		this.bind();
-		gl.bufferData(
-			glc.BufferTypeC.convert(this.typeId()),
-			data,
-			glc.DrawTypeC.convert(usage)
-		);
-		this.unbind();
+		cb();
+		this.unbind(prev);
 	}
-	setData(data: Vector[], usage: DrawType) {
-		const ar = VectorToArray(...data);
-		if(ar)
-			this.setDataRaw(ar, data[0].dim(), usage);
-	}
-	setSubData(offset_elem: number, data: any) {
-		this.bind();
-		gl.bufferSubData(
-			glc.BufferTypeC.convert(this.typeId()),
-			this._typeinfo.bytesize * offset_elem, data);
-		this.unbind();
-	}
+	// --------- from Discardable ---------
 	discard() {
 		Assert(!this._bBind, "still binding somewhere");
-		Assert(<boolean>this.id(), "already discarded");
-		gl.deleteBuffer(this.id());
-		this._id = null;
+		this.onContextLost();
+		this._rf.discard();
 	}
 	isDiscarded(): boolean {
-		return this._id === null;
+		return this._rf.isDiscarded();
+	}
+	// --------- from GLContext ---------
+	onContextLost(): void {
+		this._rf.onContextLost((): void => {
+			gl.deleteBuffer(this.id());
+			this._id = null;
+		});
+	}
+	onContextRestored(): void {
+		this._rf.onContextRestored((): void => {
+			this._id = gl.createBuffer();
+			if(this._info) {
+				// 必要ならデータを復元
+				const bd = this._info.backup;
+				if(bd) {
+					this._setDataRaw(bd, this.typeinfo(), this.nElem(), this.dim(), this.usage(), true);
+				}
+			}
+		});
+	}
+	contextLost(): boolean {
+		return this._rf.contextLost();
 	}
 }
 export default GLBuffer;

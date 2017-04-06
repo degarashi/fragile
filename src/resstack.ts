@@ -1,22 +1,26 @@
 import {Assert} from "./utilfuncs";
 import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
-import Discardable from "./discardable";
 import ResourceLoader from "./resource_loader";
+import Resource from "./resource";
 
 class ResLayer {
-	resource: {[key: string]: Discardable} = {};
+	resource: {[key: string]: Resource} = {};
 }
+export class NoSuchResource extends Error {}
+// リソースをレイヤに分けて格納
 export default class ResStack {
 	private _resource: ResLayer[];
 	private _base: string;
 	private _alias: {[key: string]: string;};
 	private _onLoading: boolean;
+	private _bLost: boolean;
 
 	constructor(base: string) {
 		this._resource = [];
 		this._base = base;
 		this._alias = {};
 		this._pushFrame();
+		this._bLost = false;
 	}
 	addAlias(alias: {[key: string]: string;}): void {
 		const a = this._alias;
@@ -49,7 +53,7 @@ export default class ResStack {
 		{
 			const res2:string[] = [];
 			for(let i=0 ; i<res.length ; i++) {
-				if(!this.getResource(res[i])) {
+				if(!this.checkResource(res[i])) {
 					res2.push(res[i]);
 				}
 			}
@@ -81,7 +85,7 @@ export default class ResStack {
 				const r = infoL[i].makeResource(loaderL[i].result());
 				// MoreResourceが来たらまだ読み込みが終わってない
 				if(r instanceof MoreResource) {
-					later = later.concat(...r.array);
+					later = later.concat(...r.data);
 					laterId.push(i);
 				} else
 					dst.resource[res[i]] = r;
@@ -111,23 +115,33 @@ export default class ResStack {
 			}
 		);
 	}
+	// リソースレイヤの数
 	resourceLength(): number {
 		let diff = 0;
 		if(this._onLoading)
 			diff = -1;
 		return this._resource.length + diff;
 	}
+	private _checkResourceSingle(name: string): boolean {
+		try {
+			this.getResource(name);
+		} catch(e) {
+			return false;
+		}
+		return true;
+	}
+	// あるリソースを持っているかの確認(リスト対応)
 	checkResource(name: string|string[]): boolean {
 		if(name instanceof Array) {
 			for(let i=0 ; i<name.length ; i++) {
-				if(!this.getResource(name[i]))
+				if(!this._checkResourceSingle(name[i]))
 					return false;
 			}
 			return true;
 		}
-		return Boolean(this.getResource(name));
+		return this._checkResourceSingle(name);
 	}
-	getResource(name: string):any {
+	getResource(name: string): any {
 		const resA = this._resource;
 		for(let i=resA.length-1 ; i>=0 ; --i) {
 			const res = resA[i];
@@ -135,17 +149,18 @@ export default class ResStack {
 			if(r)
 				return r;
 		}
-		return null;
+		throw new NoSuchResource(`no such resource "${name}"`);
 	}
-	addResource(key: string, val: Discardable): void {
+	// 外部で生成したリソースをレイヤーに格納
+	addResource(key: string, val: Resource): void {
 		// リソース名の重複は許容
-		if(this.getResource(key))
+		if(this.checkResource(key))
 			return;
 		this._resource[this._resource.length-1].resource[key] = val;
 	}
 	popFrame(n: number = 1): void {
 		Assert(!this._onLoading);
-		let resA = this._resource;
+		const resA = this._resource;
 		Assert(resA.length >= n);
 		// 明示的な開放処理
 		while(n > 0) {
@@ -154,6 +169,30 @@ export default class ResStack {
 				res.resource[k].discard();
 			});
 			--n;
+		}
+	}
+	private _forEach(n: number, cb: (r: Resource)=>void): void {
+		const r = this._resource[n].resource;
+		Object.keys(r).forEach((k: string)=> {
+			cb(r[k]);
+		});
+	}
+	onContextLost(): void {
+		// スタック先端から順に呼ぶ
+		const len = this._resource.length;
+		for(let i=len-1 ; i>=0 ; --i) {
+			this._forEach(i, (r: Resource)=> {
+				r.onContextLost();
+			});
+		}
+	}
+	onContextRestored(): void {
+		// ルートから順に呼ぶ
+		const len = this._resource.length;
+		for(let i=0 ; i<len ; ++i) {
+			this._forEach(i, (r: Resource)=> {
+				r.onContextRestored();
+			});
 		}
 	}
 }

@@ -11,6 +11,7 @@ import Vec2 from "./vector2";
 import GLProgram from "./gl_program";
 import Technique from "./technique";
 import {TechDef} from "./technique";
+import ResourceWrap from "./resource_wrap";
 
 export default class Engine {
 	private _doubling: number;
@@ -20,16 +21,17 @@ export default class Engine {
 	private _height: number;
 	private _unif: {[key: string]: any;};
 	private _active: TechDef;
+	static CanvasName: string = "maincanvas";
 
 	private _onResized(): void {
-		const canvas = ResourceGen.get(new RPCanvas("maincanvas"));
+		const canvas = <ResourceWrap<HTMLCanvasElement>>ResourceGen.get(new RPCanvas(Engine.CanvasName));
 		const w = window.innerWidth,
 			h = window.innerHeight;
 		[this._width, this._height] = [w, h];
 		const dbl = this._doubling;
-		[canvas.width, canvas.height] = [w/dbl, h/dbl];
+		[canvas.data.width, canvas.data.height] = [w/dbl, h/dbl];
 		gl.viewport(0, 0, w/dbl, h/dbl);
-		canvas.style.cssText = "width:100%;height:100%";
+		canvas.data.style.cssText = "width:100%;height:100%";
 	}
 	sys3d(): SysUnif3D {
 		return this._sys3d;
@@ -42,10 +44,10 @@ export default class Engine {
 	}
 	private _initGL(): void {
 		Assert(!gl, "already initialized");
-		SetGL(ResourceGen.get(new RPWebGLCtx("maincanvas")));
+		SetGL((<ResourceWrap<WebGLRenderingContext>>ResourceGen.get(new RPWebGLCtx(Engine.CanvasName))).data);
 		if(!gl)
 			throw new Error("WebGL not supported.");
-		// const canvas = ResourceGen.get(new RP_Canvas("maincanvas"));
+		// const canvas = ResourceGen.get(new RPCanvas(Engine.CanvasName));
 		// canvas.addEventListener("webglcontextlost", function(e){
 		// });
 		// canvas.addEventListener("webglcontextrestored", function(e){

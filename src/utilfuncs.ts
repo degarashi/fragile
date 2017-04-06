@@ -182,14 +182,14 @@ export function DrawWithGeom(geom: Geometry, flag: number) {
 	let count = 0;
 	for(let name in vbg) {
 		const vb = vbg[name];
-		count = vb.length();
+		count = vb.nElem();
 		engine.program().setVStream(name, vb);
 	}
 	const ib = geom.ibuffer;
 	if(ib) {
-		ib.bind();
-		gl.drawElements(flag, ib.length(), ib.typeinfo().id, 0);
-		ib.unbind();
+		ib.proc(()=> {
+			gl.drawElements(flag, ib.nElem(), ib.typeinfo().id, 0);
+		});
 	} else {
 		gl.drawArrays(flag, 0, count);
 	}

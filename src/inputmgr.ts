@@ -112,12 +112,6 @@ class InputMgr implements Discardable {
 			document.removeEventListener(k, this._events[k]);
 		}
 	}
-	isDiscarded(): boolean {
-		return this._bDiscard;
-	}
-	discard(): void {
-		this._unregisterEvent();
-	}
 	_switchBuff(): void {
 		this._prev = this._cur;
 		this._cur = new InputBuff();
@@ -155,6 +149,13 @@ class InputMgr implements Discardable {
 	}
 	wheelDelta(): Vec2 {
 		return this._flag.wheelDelta();
+	}
+	// ---------------- from Discardable ----------------
+	isDiscarded(): boolean {
+		return this._bDiscard;
+	}
+	discard(): void {
+		this._unregisterEvent();
 	}
 }
 export default InputMgr;

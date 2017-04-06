@@ -3,20 +3,22 @@ import RP_FontCtx from "./fontctx";
 import ResourceParam from "./param";
 import Range from "../range";
 import Font from "../font";
+import Resource from "../resource";
+import ResourceWrap from "../resource_wrap";
 
-ResourceGenSrc.FontHeight = function(rp: RPFontHeight) {
-	const c = ResourceGen.get(new RP_FontCtx("fontcanvas"));
-	c.font = rp.font.fontstr();
+ResourceGenSrc.FontHeight = function(rp: RPFontHeight): Resource {
+	const c = <ResourceWrap<CanvasRenderingContext2D>>ResourceGen.get(new RP_FontCtx("fontcanvas"));
+	c.data.font = rp.font.fontstr();
 
-	const canvas = c.canvas;
+	const canvas = c.data.canvas;
 	const cw = canvas.width,
 		ch = canvas.height;
-	c.fillStyle = "black";
-	c.fillRect(0,0, cw, ch);
-	c.fillStyle = "white";
-	c.fillText("あいうえおAEglq", 0, 0);
-	const fw = c.measureText("Eg").width;
-	const pixels = c.getImageData(0, 0, fw, ch);
+	c.data.fillStyle = "black";
+	c.data.fillRect(0,0, cw, ch);
+	c.data.fillStyle = "white";
+	c.data.fillText("あいうえおAEglq", 0, 0);
+	const fw = c.data.measureText("Eg").width;
+	const pixels = c.data.getImageData(0, 0, fw, ch);
 
 	let top:number=0, bottom:number=ch;
 	// Find top border
@@ -41,7 +43,7 @@ ResourceGenSrc.FontHeight = function(rp: RPFontHeight) {
 			}
 		}
 	}
-	return new Range(top, bottom+1);
+	return new ResourceWrap<Range>(new Range(top, bottom+1));
 };
 export default class RPFontHeight implements ResourceParam {
 	constructor(public font: Font) {}

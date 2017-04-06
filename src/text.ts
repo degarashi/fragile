@@ -9,6 +9,7 @@ import {CharPlaceResult, CharPlaceLines, CharPlace} from "./charplace";
 import Size from "./size";
 import Refresh from "./refresh";
 import "./resourcegen/text";
+import ResourceWrap from "./resource_wrap";
 
 // スクリーン上に配置するテキスト
 /*
@@ -62,7 +63,7 @@ export class Text extends Refresh {
 	fontGen(): FontGen { return this.get(Text.TagFontGen); }
 
 	_refresh_fontheight() {
-		return ResourceGen.get(new RPFontHeight(this.font()));
+		return (<ResourceWrap<Range>>ResourceGen.get(new RPFontHeight(this.font()))).data;
 	}
 	_refresh_fontgen() {
 		const fh = this.fontHeight();
@@ -71,10 +72,10 @@ export class Text extends Refresh {
 	_makeFontA() {
 		const fh = this.fontHeight();
 		const gen = this.fontGen();
-		const ctx = ResourceGen.get(new RPFontCtx("fontcanvas"));
-		ctx.font = this.font().fontstr();
+		const ctx = <ResourceWrap<CanvasRenderingContext2D>>ResourceGen.get(new RPFontCtx("fontcanvas"));
+		ctx.data.font = this.font().fontstr();
 		return {
-			fontA: gen.get(this.text(), ctx, fh),
+			fontA: gen.get(this.text(), ctx.data, fh),
 			fh: fh
 		};
 	}

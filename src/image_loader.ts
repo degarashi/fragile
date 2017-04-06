@@ -1,6 +1,6 @@
 import ResourceLoader from "./resource_loader";
 
-export default class ImageLoader {
+export default class ImageLoader implements ResourceLoader {
 	private _url: string;
 	private _timerId: number|null;
 	private _status: string;
@@ -44,7 +44,7 @@ export default class ImageLoader {
 	status(): string {
 		return this._status;
 	}
-	result(): HTMLImageElement {
+	result(): any {
 		return this._img;
 	}
 }

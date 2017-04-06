@@ -1,6 +1,6 @@
 import ResourceLoader from "./resource_loader";
 
-export default class XHRLoader {
+export default class XHRLoader implements ResourceLoader {
 	private _xhr: XMLHttpRequest;
 	private _status: string;
 	private _errormsg: string;

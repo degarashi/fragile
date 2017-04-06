@@ -18,13 +18,13 @@ class PlaneSingleDraw implements Geometry {
 	readonly texture: GLTexture2D;
 	constructor(src: PlaneSingle) {
 		const vbP = new GLVBuffer();
-		vbP.setData(src.position, DrawType.Static);
+		vbP.setData(src.position, DrawType.Static, true);
 		const vbU = new GLVBuffer();
-		vbU.setData(src.uv, DrawType.Static);
+		vbU.setData(src.uv, DrawType.Static, true);
 		const ib = new GLIBuffer();
-		ib.setDataRaw(new Uint16Array(src.index), 1, DrawType.Static);
+		ib.setDataRaw(new Uint16Array(src.index), 1, DrawType.Static, true);
 		const vbT = new GLVBuffer();
-		vbT.setDataRaw(new Float32Array(src.time), 1, DrawType.Static);
+		vbT.setDataRaw(new Float32Array(src.time), 1, DrawType.Static, true);
 
 		this.texture = src.texture;
 		this.vbuffer = {
