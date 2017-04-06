@@ -4,7 +4,14 @@ export const enum EnumBase {
 export enum TextureType {
 	Texture2D = EnumBase.Num
 }
+export enum TextureQuery {
+	Texture2D = EnumBase.Num
+}
 export enum BufferType {
+	Vertex = EnumBase.Num,
+	Index
+}
+export enum BufferQuery {
 	Vertex = EnumBase.Num,
 	Index
 }
@@ -184,8 +191,10 @@ class Conv<E> {
 }
 export default class GLConst {
 	static TextureC: Conv<TextureType>;
+	static TextureQueryC: Conv<TextureQuery>;
 	static ShaderTypeC: Conv<ShaderType>;
 	static BufferTypeC: Conv<BufferType>;
+	static BufferQueryC: Conv<BufferQuery>;
 	static DrawTypeC: Conv<DrawType>;
 	static AttachmentC: Conv<Attachment>;
 	static RBFormatC: Conv<RBFormat>;
@@ -214,6 +223,12 @@ export default class GLConst {
 		}
 		{
 			let i=ItrBegin;
+			GLConst.TextureQueryC = new Conv<TextureQuery>(
+				[TextureQuery[i++], gl.TEXTURE_BINDING_2D]
+			);
+		}
+		{
+			let i=ItrBegin;
 			GLConst.ShaderTypeC = new Conv<ShaderType>(
 				[ShaderType[i++], gl.VERTEX_SHADER],
 				[ShaderType[i++], gl.FRAGMENT_SHADER]
@@ -224,6 +239,13 @@ export default class GLConst {
 			GLConst.BufferTypeC = new Conv<BufferType>(
 				[BufferType[i++], gl.ARRAY_BUFFER],
 				[BufferType[i++], gl.ELEMENT_ARRAY_BUFFER]
+			);
+		}
+		{
+			let i=ItrBegin;
+			GLConst.BufferQueryC = new Conv<BufferQuery>(
+				[BufferQuery[i++], gl.ARRAY_BUFFER_BINDING],
+				[BufferQuery[i++], gl.ELEMENT_ARRAY_BUFFER_BINDING]
 			);
 		}
 		{
