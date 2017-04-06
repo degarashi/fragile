@@ -26,11 +26,10 @@ class StParticle extends State<MyScene> {
 		this._alpha = 0;
 		this._psp = psp;
 	}
-	onUpdate(self: MyScene, dt: number): boolean {
+	onUpdate(self: MyScene, dt: number): void {
 		this._alpha += dt/2;
 		this._psp.advance(dt);
 		this._psp.alpha = Math.min(1, this._alpha);
-		return true;
 	}
 }
 class StFadeout extends State<MyScene> {
@@ -39,12 +38,11 @@ class StFadeout extends State<MyScene> {
 	onEnter(self: MyScene, prev: State<MyScene>): void {
 		this._alpha = 1;
 	}
-	onUpdate(self: MyScene, dt: number): boolean {
+	onUpdate(self: MyScene, dt: number): void {
 		this._alpha -= dt;
 		self._text.alpha = this._alpha;
 		if(this._alpha < 0)
 			self.setState(new StParticle());
-		return true;
 	}
 }
 // show "HELLO WORLD"
@@ -72,11 +70,10 @@ class StText extends State<MyScene> {
 		engine.addTechnique(resource.getResource("prog"));
 		self.drawGroup().group.add(new Clear(new Vec4(0,0,0,1)));
 	}
-	onUpdate(self: MyScene, dt: number): boolean {
+	onUpdate(self: MyScene, dt: number): void {
 		if(self._text.advance(dt*15)) {
 			self.setState(new StFadeout());
 		}
-		return true;
 	}
 }
 class MyScene extends Scene<MyScene> {

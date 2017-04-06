@@ -9,7 +9,7 @@ import {engine, input} from "./global";
 import Engine from "./engine";
 
 class StIdle extends State<FPSCamera> {
-	onUpdate(self: FPSCamera, dt: number) {
+	onUpdate(self: FPSCamera, dt: number): void {
 		if(input.isMKeyPressed(0)) {
 			self.setState(new StLook());
 		} else {
@@ -38,7 +38,7 @@ class StIdle extends State<FPSCamera> {
 	}
 }
 class StLook extends State<FPSCamera> {
-	onUpdate(self: FPSCamera, dt: number) {
+	onUpdate(self: FPSCamera, dt: number): void {
 		if(!input.isMKeyPressing(0)) {
 			self.setState(new StIdle());
 		} else {
