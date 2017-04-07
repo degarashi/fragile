@@ -17,15 +17,15 @@ export default class ResourceFlag {
 		Assert(!this.isDiscarded());
 		if(this._bLost)
 			return;
-		cb();
 		this._bLost = true;
+		cb();
 	}
 	onContextRestored(cb: ()=>void): void {
 		Assert(!this.isDiscarded());
 		if(!this._bLost)
 			return;
-		cb();
 		this._bLost = false;
+		cb();
 	}
 	contextLost(): boolean {
 		Assert(!this.isDiscarded());
