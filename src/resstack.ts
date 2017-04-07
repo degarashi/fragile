@@ -1,126 +1,227 @@
-import {Assert} from "./utilfuncs";
+import {Assert, AssertF} from "./utilfuncs";
 import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
 import ResourceLoader from "./resource_loader";
 import Resource from "./resource";
+import ResourceFlag from "./resource_flag";
 
 class ResLayer {
 	resource: {[key: string]: Resource} = {};
 }
 export class NoSuchResource extends Error {}
+export enum ResState {
+	Idle,
+	Loading,
+	Restoreing
+}
+type StringMap = {[key: string]: string;};
+namespace RState {
+	export abstract class State {
+		addAlias(self: ResStack, alias: StringMap): void {
+			AssertF("invalid function call");
+		}
+		abstract state(): ResState;
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+			AssertF("invalid function call");
+		}
+		abstract resourceLength(self: ResStack): number;
+		popFrame(self: ResStack, n: number): void {
+			AssertF("invalid function call");
+		}
+		discard(self: ResStack): void {
+			AssertF("invalid function call");
+		}
+		onContextLost(self: ResStack): void {
+			AssertF("invalid function call");
+		}
+		onContextRestored(self: ResStack): void {
+			AssertF("invalid function call");
+		}
+	}
+
+	export class IdleState extends State {
+		addAlias(self: ResStack, alias: StringMap): void {
+			const a = self._alias;
+			Object.keys(alias).forEach((k)=> {
+				a[k] = alias[k];
+			});
+		}
+		state(): ResState {
+			return ResState.Idle;
+		}
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+			Assert(
+				res instanceof Array
+				&& cbComplete instanceof Function
+				&& cbError instanceof Function
+			);
+			self._state = new RState.LoadingState();
+
+			// 重複してるリソースはロード対象に入れない
+			{
+				const res2:string[] = [];
+				for(let i=0 ; i<res.length ; i++) {
+					if(!self.checkResource(res[i])) {
+						res2.push(res[i]);
+					}
+				}
+				res = res2;
+			}
+			let dst:ResLayer;
+			if(bSame) {
+				dst = self._resource.back();
+			} else {
+				dst = self._pushFrame();
+			}
+
+			const loaderL:ResourceLoader[] = [];
+			const infoL:ResourceLoadDef[] = [];
+			for(let i=0 ; i<res.length ; i++) {
+				const url = self._makeFPath(res[i]);
+				if(!url)
+					throw new Error(`unknown resource name "${res[i]}"`);
+				const info = GetResourceInfo(url);
+				loaderL.push(info.makeLoader(url));
+				infoL.push(info);
+			}
+			const fb = ()=> {
+				Assert(self.state() === ResState.Loading);
+				self._state = new RState.IdleState();
+				let later:string[] = [];
+				let laterId:number[] = [];
+				for(let i=0 ; i<infoL.length ; i++) {
+					const r = infoL[i].makeResource(loaderL[i].result());
+					// MoreResourceが来たらまだ読み込みが終わってない
+					if(r instanceof MoreResource) {
+						later = later.concat(...r.data);
+						laterId.push(i);
+					} else
+						dst.resource[res[i]] = r;
+				}
+				if(!later.empty()) {
+					// 再度リソース読み込みをかける
+					self.loadFrame(later, ()=> {
+						for(let i=0 ; i<laterId.length ; i++) {
+							const id = laterId[i];
+							const r = infoL[id].makeResource(loaderL[id].result());
+							Assert(!(r instanceof MoreResource));
+							dst.resource[res[id]] = r;
+						}
+						// すべてのリソース読み込み完了
+						cbComplete();
+					}, cbError, true);
+				} else {
+					// すべてのリソース読み込み完了
+					cbComplete();
+				}
+			};
+			ASyncGet(loaderL, 2,
+				fb,
+				()=> {
+					cbError();
+				}
+			);
+		}
+		resourceLength(self: ResStack): number {
+			return self._resource.length;
+		}
+		popFrame(self: ResStack, n: number): void {
+			const resA = self._resource;
+			Assert(resA.length >= n);
+			// 明示的な開放処理
+			while(n > 0) {
+				let res = <ResLayer>resA.pop();
+				Object.keys(res.resource).forEach((k)=> {
+					res.resource[k].discard();
+				});
+				--n;
+			}
+		}
+		discard(self: ResStack): void {
+			self._rf.discard();
+		}
+		onContextLost(self: ResStack): void {
+			self._rf.onContextLost(()=> {
+				// スタック先端から順に呼ぶ
+				const len = self._resource.length;
+				for(let i=len-1 ; i>=0 ; --i) {
+					self._forEach(i, (r: Resource)=> {
+						r.onContextLost();
+					});
+				}
+			});
+		}
+		onContextRestored(self: ResStack): void {
+			self._rf.onContextRestored(()=> {
+				// ルートから順に呼ぶ
+				const len = self._resource.length;
+				for(let i=0 ; i<len ; ++i) {
+					self._forEach(i, (r: Resource)=> {
+						r.onContextRestored();
+					});
+				}
+			});
+		}
+	}
+	export class LoadingState extends State {
+		state(): ResState {
+			return ResState.Loading;
+		}
+		resourceLength(self: ResStack): number {
+			return self._resource.length - 1;
+		}
+	}
+	export class RestoreingState extends State {
+		state(): ResState {
+			return ResState.Restoreing;
+		}
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+			new IdleState().loadFrame(self, res, cbComplete, cbError, bSame);
+		}
+		resourceLength(self: ResStack): number {
+			return self._resource.length - 1;
+		}
+	}
+}
+
 // リソースをレイヤに分けて格納
-export default class ResStack {
-	private _resource: ResLayer[];
-	private _base: string;
-	private _alias: {[key: string]: string;};
-	private _onLoading: boolean;
-	private _bLost: boolean;
+export default class ResStack implements Resource {
+	_rf:			ResourceFlag = new ResourceFlag();
+	_resource:		ResLayer[] = [];
+	// リソース探索ベースパス
+	_base:			string;
+	// リソース名 -> リソースパス
+	_alias:			{[key: string]: string;} = {};
+	// 現在のステート
+	_state:	RState.State = new RState.IdleState();
 
 	constructor(base: string) {
-		this._resource = [];
 		this._base = base;
-		this._alias = {};
 		this._pushFrame();
-		this._bLost = false;
 	}
-	addAlias(alias: {[key: string]: string;}): void {
-		const a = this._alias;
-		Object.keys(alias).forEach((k)=> {
-			a[k] = alias[k];
-		});
+	addAlias(alias: StringMap): void {
+		this._state.addAlias(this, alias);
 	}
-	private _makeFPath(name: string): string {
+	_makeFPath(name: string): string {
 		return `${this._base}/${this._alias[name]}`;
 	}
-	private _pushFrame() {
+	_pushFrame() {
 		const dst = new ResLayer();
 		this._resource.push(dst);
 		return dst;
+	}
+	state(): ResState {
+		return this._state.state();
 	}
 	// フレーム単位でリソースロード
 	/*
 		\param[in] res ["AliasName", ...]
 	*/
 	loadFrame(res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean=false) {
-		Assert(
-			res instanceof Array
-			&& cbComplete instanceof Function
-			&& cbError instanceof Function
-		);
-		Assert(!this._onLoading);
-		this._onLoading = true;
-
-		// 重複してるリソースはロード対象に入れない
-		{
-			const res2:string[] = [];
-			for(let i=0 ; i<res.length ; i++) {
-				if(!this.checkResource(res[i])) {
-					res2.push(res[i]);
-				}
-			}
-			res = res2;
-		}
-		let dst:ResLayer;
-		if(bSame) {
-			dst = this._resource.back();
-		} else {
-			dst = this._pushFrame();
-		}
-
-		const loaderL:ResourceLoader[] = [];
-		const infoL:ResourceLoadDef[] = [];
-		for(let i=0 ; i<res.length ; i++) {
-			const url = this._makeFPath(res[i]);
-			if(!url)
-				throw new Error(`unknown resource name "${res[i]}"`);
-			const info = GetResourceInfo(url);
-			loaderL.push(info.makeLoader(url));
-			infoL.push(info);
-		}
-		const fb = ()=> {
-			Assert(this._onLoading);
-			this._onLoading = false;
-			let later:string[] = [];
-			let laterId:number[] = [];
-			for(let i=0 ; i<infoL.length ; i++) {
-				const r = infoL[i].makeResource(loaderL[i].result());
-				// MoreResourceが来たらまだ読み込みが終わってない
-				if(r instanceof MoreResource) {
-					later = later.concat(...r.data);
-					laterId.push(i);
-				} else
-					dst.resource[res[i]] = r;
-			}
-			if(!later.empty()) {
-				// 再度リソース読み込みをかける
-				this.loadFrame(later, ()=> {
-					for(let i=0 ; i<laterId.length ; i++) {
-						const id = laterId[i];
-						const r = infoL[id].makeResource(loaderL[id].result());
-						Assert(!(r instanceof MoreResource));
-						dst.resource[res[id]] = r;
-					}
-					// すべてのリソース読み込み完了
-					cbComplete();
-				}, cbError, true);
-			} else {
-				// すべてのリソース読み込み完了
-				cbComplete();
-			}
-		};
-		ASyncGet(loaderL, 2,
-			fb,
-			()=> {
-				this._onLoading = false;
-				cbError();
-			}
-		);
+		this._state.loadFrame(this, res, cbComplete, cbError, bSame);
 	}
 	// リソースレイヤの数
 	resourceLength(): number {
-		let diff = 0;
-		if(this._onLoading)
-			diff = -1;
-		return this._resource.length + diff;
+		return this._state.resourceLength(this);
 	}
 	private _checkResourceSingle(name: string): boolean {
 		try {
@@ -159,40 +260,29 @@ export default class ResStack {
 		this._resource[this._resource.length-1].resource[key] = val;
 	}
 	popFrame(n: number = 1): void {
-		Assert(!this._onLoading);
-		const resA = this._resource;
-		Assert(resA.length >= n);
-		// 明示的な開放処理
-		while(n > 0) {
-			let res = <ResLayer>resA.pop();
-			Object.keys(res.resource).forEach((k)=> {
-				res.resource[k].discard();
-			});
-			--n;
-		}
+		this._state.popFrame(this, n);
 	}
-	private _forEach(n: number, cb: (r: Resource)=>void): void {
+	_forEach(n: number, cb: (r: Resource)=>void): void {
 		const r = this._resource[n].resource;
 		Object.keys(r).forEach((k: string)=> {
 			cb(r[k]);
 		});
 	}
+	// ------------ from Discardable ------------
+	discard(): void {
+		this._state.discard(this);
+	}
+	isDiscarded(): boolean {
+		return this._rf.isDiscarded();
+	}
+	// ------------ from GLContext ------------
 	onContextLost(): void {
-		// スタック先端から順に呼ぶ
-		const len = this._resource.length;
-		for(let i=len-1 ; i>=0 ; --i) {
-			this._forEach(i, (r: Resource)=> {
-				r.onContextLost();
-			});
-		}
+		this._state.onContextLost(this);
 	}
 	onContextRestored(): void {
-		// ルートから順に呼ぶ
-		const len = this._resource.length;
-		for(let i=0 ; i<len ; ++i) {
-			this._forEach(i, (r: Resource)=> {
-				r.onContextRestored();
-			});
-		}
+		this._state.onContextRestored(this);
+	}
+	contextLost(): boolean {
+		return this._rf.contextLost();
 	}
 }
