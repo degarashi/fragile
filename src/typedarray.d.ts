@@ -1,4 +1,5 @@
 interface TypedArray {
+	[key:number]: number;
 	buffer: ArrayBuffer;
 	byteLength: number;
 	byteOffset: number;
