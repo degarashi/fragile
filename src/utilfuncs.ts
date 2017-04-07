@@ -4,7 +4,23 @@ import Matrix from "./matrix";
 import Geometry from "./geometry";
 import {gl, engine} from "./global";
 import FontChar from "./fontchar";
+import TypedArray from "./typedarray";
 
+export function BlockPlace(dst: TypedArray, dstWidth: number,
+						dim: number,
+						px: number, py: number,
+						src: TypedArray, srcWidth: number): void
+{
+	const srcHeight = src.length / srcWidth;
+	for(let i=0 ; i<srcHeight ; i++) {
+		const db = i*dstWidth*dim;
+		const sb = i*srcWidth*dim;
+		for(let j=0 ; j<srcWidth ; j++) {
+			for(let k=0 ; k<dim ; k++)
+				dst[db+j*dim+k] = src[sb+j*dim+k];
+		}
+	}
+}
 // 一行分を切り出す
 export function GetLine(fp: FontChar[], from: number) {
 	const len = fp.length;
