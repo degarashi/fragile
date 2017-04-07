@@ -13,7 +13,7 @@ ResourceInfo.Image = {
 	},
 	makeResource: function(src: any): Resource {
 		const tex = new GLTexture2D();
-		tex.setImage(0, InterFormat.RGBA, InterFormat.RGBA, TexDataFormat.UB, src);
+		tex.setImage(InterFormat.RGBA, InterFormat.RGBA, TexDataFormat.UB, src);
 		tex.genMipmap();
 		return tex;
 	}

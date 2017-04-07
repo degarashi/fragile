@@ -60,7 +60,8 @@ class PlaneSingle {
 		this.time = [];
 		this.index = [];
 		this._accumTime = 0;		// 総時間
-		this._tpix = new Vec2(0.5/tex.width(), 0.5/tex.height());
+		const s = tex.size();
+		this._tpix = new Vec2(0.5/s.width, 0.5/s.height);
 	}
 	add(ofs: Vec2, fc: FontChar, t: number): void {
 		const fw = <number>fc.width;

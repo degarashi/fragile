@@ -41,7 +41,6 @@ class FontLane {
 		}
 		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 		tex.setSubData(
-			0,
 			new Rect(
 				this._cur,
 				baseY,
@@ -78,7 +77,7 @@ class FontPlane {
 		this._laneH = laneH;
 		// ビットマップを保持するテクスチャ
 		const tex = new GLTexture2D();
-		tex.setData(0, InterFormat.Alpha, w, h,
+		tex.setData(InterFormat.Alpha, w, h,
 			InterFormat.Alpha, TexDataFormat.UB, undefined);
 		tex.setLinear(true, true, 0);
 		this.texture = tex;
@@ -97,8 +96,8 @@ class FontPlane {
 			if(ret)
 				return ret;
 		}
-		const tw = this.texture.width(),
-			th = this.texture.height();
+		const tw = this.texture.size().width,
+			th = this.texture.size().height;
 		const len = this._lane.length;
 		for(let i=0 ; i<len ; i++) {
 			const lane = this._lane[i];
