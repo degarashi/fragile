@@ -88,6 +88,9 @@ export function FixedNumber(nAll: number, nFract: number, num: number, pad=" ") 
 		str = PaddingString(remain, pad) + str;
 	return str;
 }
+export function AssertF(msg?: string) {
+	throw Error(msg || "assertion failed");
+}
 export function Assert(cond: boolean, msg?: string) {
 	if(!cond)
 		throw Error(msg || "assertion failed");
