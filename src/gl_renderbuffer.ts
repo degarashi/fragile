@@ -77,7 +77,8 @@ export default class GLRenderbuffer implements Discardable, Bindable, GLContext 
 	onContextRestored(): void {
 		this._rf.onContextRestored((): void=> {
 			this._id = gl.createRenderbuffer();
-			this.allocate(this._format, this._width, this._height);
+			if(this._format)
+				this.allocate(this._format, this._width, this._height);
 		});
 	}
 	contextLost(): boolean {
