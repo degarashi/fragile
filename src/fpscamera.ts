@@ -71,7 +71,8 @@ export default class FPSCamera extends FSMachine<FPSCamera> {
 
 		const c = new Camera3D();
 		c.fov = TM.Deg2rad(90);
-		c.aspect = engine.width() / engine.height();
+		const s = engine.size();
+		c.aspect = s.width / s.height;
 		c.nearZ = 0.01;
 		c.farZ = 200;
 		c.pos = new Vec3(0,0,-1);

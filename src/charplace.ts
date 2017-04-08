@@ -36,7 +36,8 @@ class PlaneSingleDraw implements Geometry {
 	}
 	draw(offset: Vec2, time: number, timeDelay: number, alpha: number): void {
 		engine.setUniform("u_texture", this.texture);
-		engine.setUniform("u_screenSize", new Vec2(engine.width(), engine.height()));
+		const s = engine.size();
+		engine.setUniform("u_screenSize", new Vec2(s.width, s.height));
 		engine.setUniform("u_offset", offset);
 		engine.setUniform("u_time", time);
 		engine.setUniform("u_alpha", alpha);

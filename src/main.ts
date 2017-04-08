@@ -59,7 +59,7 @@ class StText extends State<MyScene> {
 		const t = new TextDraw(text, delay);
 		t.drawtag.priority = 10;
 		const rs = text.resultSize();
-		t.offset = PlaceCenter(new Size(engine.width(), engine.height()), rs);
+		t.offset = PlaceCenter(engine.size(), rs);
 
 		self.drawGroup().group.add(t);
 		self._text = t;

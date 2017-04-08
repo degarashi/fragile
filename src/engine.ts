@@ -12,13 +12,13 @@ import GLProgram from "./gl_program";
 import Technique from "./technique";
 import {TechDef} from "./technique";
 import ResourceWrap from "./resource_wrap";
+import Size from "./size";
 
 export default class Engine {
 	private _doubling: number;
 	private _sys3d: SysUnif3D;
 	private _tech: {[key: string]: TechDef;};
-	private _width: number;
-	private _height: number;
+	private _size: Size;
 	private _unif: {[key: string]: any;};
 	private _active: TechDef;
 	static CanvasName: string = "maincanvas";
@@ -27,7 +27,7 @@ export default class Engine {
 		const canvas = <ResourceWrap<HTMLCanvasElement>>ResourceGen.get(new RPCanvas(Engine.CanvasName));
 		const w = window.innerWidth,
 			h = window.innerHeight;
-		[this._width, this._height] = [w, h];
+		this._size = new Size(w, h);
 		const dbl = this._doubling;
 		[canvas.data.width, canvas.data.height] = [w/dbl, h/dbl];
 		gl.viewport(0, 0, w/dbl, h/dbl);
@@ -36,11 +36,8 @@ export default class Engine {
 	sys3d(): SysUnif3D {
 		return this._sys3d;
 	}
-	width(): number {
-		return this._width;
-	}
-	height(): number {
-		return this._height;
+	size(): Size {
+		return this._size;
 	}
 	private _initGL(): void {
 		Assert(!gl, "already initialized");
@@ -65,7 +62,7 @@ export default class Engine {
 		this._doubling = 1;
 		this._sys3d = new SysUnif3D();
 		this._tech = {};
-		this._width = this._height = 0;
+		this._size = new Size(0,0);
 		this._initGL();
 	}
 	draw(cb: ()=>void): void {
@@ -115,8 +112,9 @@ export default class Engine {
 	}
 	getScreenCoord(pos: Vec2) {
 		pos = pos.clone();
-		const w2 = this.width()/2,
-			h2 = this.height()/2;
+		const s = this.size();
+		const w2 = s.width/2,
+			h2 = s.height/2;
 		pos.x = pos.x/w2 - 1;
 		pos.y = -pos.y/h2 + 1;
 		return pos;
