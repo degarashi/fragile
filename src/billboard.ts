@@ -14,7 +14,7 @@ export default class Billboard {
 	tex: GLTexture;
 	constructor() {
 		this.pos = new Vec3(0);
-		this.geom = (<ResourceWrap<Geometry>>ResourceGen.get(new RPGeometry("Rect01"))).data;
+		this.geom = (<ResourceWrap<Geometry>>ResourceGen.get(new RPGeometry("Rect05"))).data;
 	}
 	_calcMatrix(viewDir: Vec3): Mat44 {
 		const pos = this.pos;

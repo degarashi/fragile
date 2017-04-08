@@ -11,7 +11,7 @@ import Geometry from "../geometry";
 import Resource from "../resource";
 import ResourceWrap from "../resource_wrap";
 
-ResourceGenSrc.Rect01 = function(rp: ResourceParam):Resource {
+ResourceGenSrc.Rect05 = function(rp: ResourceParam):Resource {
 	const buff = {
 		vbuffer: {
 			a_position: new GLVBuffer()
