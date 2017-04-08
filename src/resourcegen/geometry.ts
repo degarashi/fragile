@@ -11,27 +11,41 @@ import Geometry from "../geometry";
 import Resource from "../resource";
 import ResourceWrap from "../resource_wrap";
 
-ResourceGenSrc.Rect05 = function(rp: ResourceParam):Resource {
+function MakeRect(ofs: Vec2, sc: Vec2) {
+	return {
+		vertex: [
+			new Vec2(0, 0).addSelf(ofs),
+			new Vec2(0, sc.y).addSelf(ofs),
+			new Vec2(sc.x, sc.y).addSelf(ofs),
+			new Vec2(sc.x, 0).addSelf(ofs)
+		],
+		index: [
+			0,1,2, 2,3,0
+		]
+	};
+}
+function MakeRectVI(ofs: Vec2, sc: Vec2) {
 	const buff = {
 		vbuffer: {
 			a_position: new GLVBuffer()
 		},
 		ibuffer: new GLIBuffer()
 	};
-	const h = 0.5;
-	buff.vbuffer.a_position.setData([
-		new Vec2(-h,-h),
-		new Vec2(-h,h),
-		new Vec2(h,h),
-		new Vec2(h,-h)
-	], DrawType.Static, true);
+	const rect = MakeRect(ofs, sc);
+	buff.vbuffer.a_position.setData(rect.vertex, DrawType.Static, true);
 	buff.ibuffer.setDataRaw(
-		new Uint16Array([0,1,2, 2,3,0]),
+		new Uint16Array(rect.index),
 		1,
 		DrawType.Static,
 		true
 	);
-	return new ResourceWrap<Geometry>(buff);
+	return buff;
+}
+ResourceGenSrc.Rect05 = function(rp: ResourceParam):Resource {
+	return new ResourceWrap<Geometry>(MakeRectVI(new Vec2(-0.5, -0.5), new Vec2(1)));
+};
+ResourceGenSrc.Rect01 = function(rp: ResourceParam): Resource {
+	return new ResourceWrap<Geometry>(MakeRectVI(new Vec2(-1), new Vec2(2)));
 };
 ResourceGenSrc.Trihedron = function():Resource {
 	const buff = {
