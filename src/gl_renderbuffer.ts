@@ -6,24 +6,21 @@ import {gl} from "./global";
 import {RBFormat} from "./gl_const"
 import glc from "./gl_const";
 import ResourceFlag from "./resource_flag";
+import Size from "./size";
 
 export default class GLRenderbuffer implements Discardable, Bindable, GLContext {
 	private _rf: ResourceFlag = new ResourceFlag();
 	private _id: WebGLRenderbuffer|null;
 	private _bBind: boolean = false;
-	private _width: number = 0;
-	private _height: number = 0;
+	private _size: Size = new Size(0,0);
 	private _format: RBFormat;
 
 	constructor() {
 		if(!gl.isContextLost())
 			this.onContextRestored();
 	}
-	width(): number {
-		return this._width;
-	}
-	height(): number {
-		return this._height;
+	size(): Size {
+		return this._size;
 	}
 	format(): RBFormat {
 		return this._format;
@@ -33,7 +30,7 @@ export default class GLRenderbuffer implements Discardable, Bindable, GLContext 
 	}
 
 	allocate(fmt: RBFormat, w: number, h: number): void {
-		[this._width, this._height, this._format] = [fmt, w, h];
+		[this._size.width, this._size.height, this._format] = [fmt, w, h];
 		this.proc(()=> {
 			gl.renderbufferStorage(gl.RENDERBUFFER, glc.RBFormatC.convert(fmt), w, h);
 		});
@@ -78,7 +75,7 @@ export default class GLRenderbuffer implements Discardable, Bindable, GLContext 
 		this._rf.onContextRestored((): void=> {
 			this._id = gl.createRenderbuffer();
 			if(this._format)
-				this.allocate(this._format, this._width, this._height);
+				this.allocate(this._format, this._size.width, this._size.height);
 		});
 	}
 	contextLost(): boolean {
