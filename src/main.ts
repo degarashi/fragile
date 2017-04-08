@@ -4,7 +4,7 @@ import Scene from "./scene";
 import State from "./state";
 import FPSCamera from "./fpscamera";
 import {PSpriteDraw} from "./psprite";
-import {default as TextDraw, Text} from "./text";
+import Text from "./text";
 import Size from "./size";
 import Vec2 from "./vector2";
 import Vec4 from "./vector4";
@@ -13,6 +13,9 @@ import "./resource_loaddef/json";
 import "./resource_loaddef/shader";
 import "./resource_loaddef/technique";
 import "./resource_loaddef/image";
+import TextDraw from "./textdraw";
+import TextLines from "./textlines";
+import {PlaceCenter} from "./utilfuncs";
 
 // particle dance
 class StParticle extends State<MyScene> {
@@ -48,18 +51,15 @@ class StFadeout extends State<MyScene> {
 // show "HELLO WORLD"
 class StText extends State<MyScene> {
 	onUp(self: MyScene): void {
-		const t = new TextDraw(new Text());
+		const text = new TextLines(3);
+		const str = "HELLO WORLD\n\nfrom\nWebGL";
+		text.setText(str);
+		text.setSize(new Size(512, 512));
+		const delay = 8;
+		const t = new TextDraw(text, delay);
 		t.drawtag.priority = 10;
-		const str = "HELLO WORLD";
-		t.text.setText(str);
-		t.text.setSize(new Size(1024, 512));
-		const rs = t.text.resultSize();
-		const w = engine.width(),
-			h = engine.height();
-		t.offset = new Vec2(
-			Math.floor(w/2 - rs.width/2),
-			Math.floor(h/2 - rs.height/2)
-		);
+		const rs = text.resultSize();
+		t.offset = PlaceCenter(new Size(engine.width(), engine.height()), rs);
 
 		self.drawGroup().group.add(t);
 		self._text = t;
