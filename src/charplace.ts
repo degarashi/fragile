@@ -112,13 +112,20 @@ export interface CharPlaceResult {
 export function CharPlaceLines(fp: FontChar[], lineH: number, width: number): CharPlaceResult[] {
 	const ret = [];
 	let cur = 0;
-	for(;;) {
+	while(cur < fp.length) {
 		const to = GetLine(fp, cur);
-		if(cur === to) {
-			break;
+		if(cur !== to) {
+			const fpL = CharPlace(fp, lineH, new Size(width, 512), cur, to);
+			ret.push(fpL);
+		} else {
+			const empty = {
+				length: 0,
+				plane: [],
+				inplace: true,
+				resultSize: new Size(0,0),
+			};
+			ret.push(empty);
 		}
-		const fpL = CharPlace(fp, lineH, new Size(width, 512), cur, to);
-		ret.push(fpL);
 		cur = to+1;
 	}
 	return ret;
