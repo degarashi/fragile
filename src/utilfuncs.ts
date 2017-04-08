@@ -5,7 +5,15 @@ import Geometry from "./geometry";
 import {gl, engine} from "./global";
 import FontChar from "./fontchar";
 import TypedArray from "./typedarray";
+import Size from "./size";
+import Vec2 from "./vector2";
 
+export function PlaceCenter(dstSize: Size, srcSize: Size): Vec2 {
+	return new Vec2(
+		Math.floor(dstSize.width/2 - srcSize.width/2),
+		Math.floor(dstSize.height/2 - srcSize.height/2)
+	);
+}
 export function BlockPlace(dst: TypedArray, dstWidth: number,
 						dim: number,
 						px: number, py: number,
