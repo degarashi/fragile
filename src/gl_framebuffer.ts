@@ -42,7 +42,7 @@ export default class GLFramebuffer implements Discardable, Bindable, GLContext {
 				gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, buff.id());
 			} else {
 				Assert(buff instanceof GLTexture2D);
-				gl.framebufferTexture2D(gl.FRAMEBUFFER, pos_gl, gl.TEXTURE_2D, buff, level);
+				gl.framebufferTexture2D(gl.FRAMEBUFFER, pos_gl, gl.TEXTURE_2D, buff.id(), level);
 			}
 		});
 	}
