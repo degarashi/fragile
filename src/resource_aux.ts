@@ -1,11 +1,11 @@
 import {Assert, ExtractExtension} from "./utilfuncs";
 import ResourceLoader from "./resource_loader";
-import ResourceWrap from "./resource_wrap";
+import Resource from "./resource";
 
 export const ResourceExtToType:{[key: string]: string;} = {};
 export interface ResourceLoadDef {
-	makeLoader(url: string): any;
-	makeResource(src: any): any;
+	makeLoader(url: string): ResourceLoader;
+	makeResource(src: any): Resource;
 }
 export const ResourceInfo:{[key: string]: ResourceLoadDef;} = {};
 
@@ -22,9 +22,10 @@ export function GetResourceInfo(fpath: string): ResourceLoadDef {
 		throw new Error("loader not found");
 	return info;
 }
-export class MoreResource extends ResourceWrap<string[]> {
+export class MoreResource {
+	depend: string[];
 	constructor(...arg: string[]) {
-		super(arg);
+		this.depend = arg;
 	}
 }
 export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:()=>void): void {

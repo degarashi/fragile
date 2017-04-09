@@ -7,7 +7,11 @@ import ResourceFlag from "./resource_flag";
 class ResLayer {
 	resource: {[key: string]: Resource} = {};
 }
-export class NoSuchResource extends Error {}
+export class NoSuchResource extends Error {
+	constructor(public name: string) {
+		super(`no such resource "${name}"`);
+	}
+}
 export enum ResState {
 	Idle,
 	Loading,
@@ -89,13 +93,18 @@ namespace RState {
 				let later:string[] = [];
 				let laterId:number[] = [];
 				for(let i=0 ; i<infoL.length ; i++) {
-					const r = infoL[i].makeResource(loaderL[i].result());
-					// MoreResourceが来たらまだ読み込みが終わってない
-					if(r instanceof MoreResource) {
-						later = later.concat(...r.data);
-						laterId.push(i);
-					} else
+					try {
+						const r = infoL[i].makeResource(loaderL[i].result());
 						dst.resource[res[i]] = r;
+					} catch(e) {
+						if(!(e instanceof MoreResource)) {
+							throw e;
+						}
+						// 必要なリソースがまだ足りてなければMoreResourceが送出される
+						const m = <MoreResource>e;
+						later = later.concat(...m.depend);
+						laterId.push(i);
+					}
 				}
 				if(!later.empty()) {
 					// 再度リソース読み込みをかける
@@ -103,7 +112,6 @@ namespace RState {
 						for(let i=0 ; i<laterId.length ; i++) {
 							const id = laterId[i];
 							const r = infoL[id].makeResource(loaderL[id].result());
-							Assert(!(r instanceof MoreResource));
 							dst.resource[res[id]] = r;
 						}
 						// すべてのリソース読み込み完了
@@ -250,7 +258,7 @@ export default class ResStack implements Resource {
 			if(r)
 				return r;
 		}
-		throw new NoSuchResource(`no such resource "${name}"`);
+		throw new NoSuchResource(name);
 	}
 	// 外部で生成したリソースをレイヤーに格納
 	addResource(key: string, val: Resource): void {

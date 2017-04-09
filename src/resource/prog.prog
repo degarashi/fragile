@@ -1,8 +1,4 @@
 {
-	"dependancy": [
-		"valueset", "valuesetP", "testPv", "testPf", "testv", "testf", "textvalueset", "textv", "textf",
-		"rectv", "rectf"
-	],
 	"technique": {
 		"mytech": {
 			"valueset": "valueset",
