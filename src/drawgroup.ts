@@ -1,21 +1,26 @@
 import DObject from "./dobject";
 import Group from "./group";
+import {SortAlg} from "./drawsort";
 
 export default class DrawGroup extends DObject {
 	group: Group<DObject> = new Group<DObject>();
+	private _sortAlg: SortAlg;
+	private _bRefr: boolean = true;
 
-	doAddRemove(): void {
+	setSortAlgorithm(a: SortAlg): void {
+		this._sortAlg = a;
+		this._bRefr = true;
+	}
+	proc(): void {
 		const cbAdd = (obj: DObject, g: Group<DObject>): void => {};
-		const cbSort = (a: DObject, b: DObject): number => {
-			const d0 = a.drawtag.priority;
-			const d1 = b.drawtag.priority;
-			if(d0 > d1)
-				return 1;
-			else if(d0 === d1)
-				return 0;
-			return -1;
-		};
-		this.group.doAddRemove(cbAdd, cbSort);
+		let cbSort:any;
+		if(this._sortAlg) {
+			cbSort = (a: DObject, b: DObject): number => {
+				return this._sortAlg(a.drawtag, b.drawtag);
+			};
+		}
+		this.group.proc(cbAdd, cbSort, this._bRefr);
+		this._bRefr = false;
 	}
 	onDraw(): void {
 		const g = this.group.group();

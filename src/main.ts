@@ -48,6 +48,7 @@ class StFadeout extends State<MyScene> {
 			self.setState(new StParticle());
 	}
 }
+import {DrawSort} from "./drawsort";
 // show "HELLO WORLD"
 class StText extends State<MyScene> {
 	onUp(self: MyScene): void {
@@ -68,7 +69,10 @@ class StText extends State<MyScene> {
 		engine.sys3d().camera = fpsc.camera;
 		self.updateGroup().group.add(fpsc);
 		engine.addTechnique(resource.getResource("prog"));
-		self.drawGroup().group.add(new Clear(new Vec4(0,0,0,1)));
+		const cls = new Clear(new Vec4(0,0,0,1));
+		cls.drawtag.priority = 0;
+		self.drawGroup().group.add(cls);
+		self.drawGroup().setSortAlgorithm(DrawSort.Priority);
 	}
 	onUpdate(self: MyScene, dt: number): void {
 		if(self._text.advance(dt*15)) {

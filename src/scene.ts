@@ -25,8 +25,8 @@ export default class Scene<T> extends FSMachine<T> implements IScene, Drawable {
 		return true;
 	}
 	onDraw(): void {
-		this._draw.doAddRemove();
+		this._draw.proc();
 		this._draw.onDraw();
-		this._draw.doAddRemove();
+		this._draw.proc();
 	}
 }

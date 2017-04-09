@@ -41,9 +41,13 @@ export default class Group<T> {
 	private _sort(cbSort: CBSort<T>): void {
 		this._group.sort(cbSort);
 	}
-	doAddRemove(cbAdd: CBAdd<T>, cbSort: CBSort<T>): void {
-		if(this._doAdd(cbAdd) || this._doRemove()) {
-			this._sort(cbSort);
+	doAddRemove(cbAdd: CBAdd<T>): boolean {
+		return this._doAdd(cbAdd) || this._doRemove();
+	}
+	proc(cbAdd: CBAdd<T>, cbSort?: CBSort<T>, bRefr?: boolean): void {
+		if(this.doAddRemove(cbAdd) || bRefr) {
+			if(cbSort)
+				this._sort(cbSort);
 		}
 	}
 	add(obj: any): void {

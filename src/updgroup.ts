@@ -19,7 +19,7 @@ export default class UpdGroup extends GObject {
 				return 0;
 			return -1;
 		};
-		this.group.doAddRemove(cbAdd, cbSort);
+		this.group.proc(cbAdd, cbSort);
 	}
 	onUpdate(dt: number): boolean {
 		this._doAddRemove();
