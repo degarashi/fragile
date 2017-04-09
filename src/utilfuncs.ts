@@ -21,7 +21,7 @@ export function BlockPlace(dst: TypedArray, dstWidth: number,
 {
 	const srcHeight = src.length / srcWidth;
 	for(let i=0 ; i<srcHeight ; i++) {
-		const db = i*dstWidth*dim;
+		const db = (i+py)*dstWidth*dim + px*dim;
 		const sb = i*srcWidth*dim;
 		for(let j=0 ; j<srcWidth ; j++) {
 			for(let k=0 ; k<dim ; k++)
