@@ -9,12 +9,26 @@ import GLResourceFlag from "./gl_resource_flag";
 import GLResource from "./gl_resource";
 
 export default class GLFramebuffer implements Bindable {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+	private readonly _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLFramebuffer|null = null;
 	private _bBind: boolean = false;
+	private readonly _attachment: (GLTexture2D | GLRenderbuffer | null)[] = [];
 
 	constructor() {
 		glres.add(this);
+		for(let i=0 ; i<glc.AttachmentC.length() ; i++)
+			this._attachment[i] = null;
+	}
+	private _applyAttachment(pos: Attachment) {
+		const buff = this._attachment[pos];
+		const pos_gl = glc.AttachmentC.convert(pos);
+		if(buff instanceof GLRenderbuffer) {
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, buff.id());
+		} else if(buff instanceof GLTexture2D) {
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, pos_gl, gl.TEXTURE_2D, buff.id(), 0);
+		} else {
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, null);
+		}
 	}
 	id() {
 		return this._id;
@@ -33,21 +47,19 @@ export default class GLFramebuffer implements Bindable {
 		});
 		return result;
 	}
-	attach(pos: Attachment, buff:GLRenderbuffer|GLTexture2D, level:number = 0): void {
+	attach(pos: Attachment, buff:GLRenderbuffer|GLTexture2D): void {
+		this._attachment[pos] = buff;
 		this.proc(()=>{
-			const pos_gl = glc.AttachmentC.convert(pos);
-			if(buff instanceof GLRenderbuffer) {
-				gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, buff.id());
-			} else {
-				Assert(buff instanceof GLTexture2D);
-				gl.framebufferTexture2D(gl.FRAMEBUFFER, pos_gl, gl.TEXTURE_2D, buff.id(), level);
-			}
+			this._applyAttachment(pos);
 		});
 	}
+	getAttachment(pos: Attachment): GLTexture2D|GLRenderbuffer|null {
+		return this._attachment[pos];
+	}
 	clear(pos: Attachment): void {
+		this._attachment[pos] = null;
 		this.proc(()=>{
-			const pos_gl = glc.AttachmentC.convert(pos);
-			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, null);
+			this._applyAttachment(pos);
 		});
 	}
 	// ---------------- from Binable ----------------
@@ -92,6 +104,11 @@ export default class GLFramebuffer implements Bindable {
 		this._rf.onContextRestored((): void=> {
 			Assert(!this._bBind);
 			this._id = gl.createFramebuffer();
+			this.proc(()=> {
+				for(let i=0 ; i<glc.AttachmentC.length() ; i++) {
+					this._applyAttachment(i);
+				}
+			});
 		});
 	}
 	contextLost(): boolean {
