@@ -1,6 +1,7 @@
 {
 	"dependancy": [
-		"valueset", "valuesetP", "testPv", "testPf", "testv", "testf", "textvalueset", "textv", "textf"
+		"valueset", "valuesetP", "testPv", "testPf", "testv", "testf", "textvalueset", "textv", "textf",
+		"rectv", "rectf"
 	],
 	"technique": {
 		"mytech": {
@@ -17,6 +18,11 @@
 			"valueset": "textvalueset",
 			"vshader": "textv",
 			"fshader": "textf"
+		},
+		"rect": {
+			"valueset": "valuesetP",
+			"vshader": "rectv",
+			"fshader": "rectf"
 		}
 	}
 }
