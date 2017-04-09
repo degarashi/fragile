@@ -2,7 +2,7 @@ import Bindable from "./bindable";
 import GLRenderbuffer from "./gl_renderbuffer";
 import GLTexture2D from "./gl_texture2d";
 import {Assert} from "./utilfuncs";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import {Attachment} from "./gl_const";
 import glc from "./gl_const";
 import GLResourceFlag from "./gl_resource_flag";
@@ -14,8 +14,7 @@ export default class GLFramebuffer implements Bindable {
 	private _bBind: boolean = false;
 
 	constructor() {
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 	id() {
 		return this._id;

@@ -1,6 +1,6 @@
 import Bindable from "./bindable";
 import {Assert, VectorToArray} from "./utilfuncs";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import {DataFormat, DrawType, GLTypeInfoItem, default as glc} from "./gl_const";
 import Vector from "./vector";
 import TypedArray from "./typedarray";
@@ -28,8 +28,7 @@ abstract class GLBuffer implements GLResource,  Bindable {
 	public abstract typeId(): number;
 	public abstract typeQueryId(): number;
 	constructor() {
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 
 	id() {

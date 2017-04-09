@@ -2,7 +2,7 @@ import Bindable from "./bindable";
 import GLResource from "./gl_resource";
 import GLResourceFlag from "./gl_resource_flag";
 import {BlockPlace, Assert} from "./utilfuncs";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import {default as glc, UVWrap, InterFormat, TexDataFormat} from "./gl_const";
 import Rect from "./rect";
 import TypedArray from "./typedarray";
@@ -124,8 +124,7 @@ abstract class GLTexture implements Bindable, GLResource {
 			new Backup.Filter(false, false, 0),
 			new Backup.Wrap(UVWrap.Clamp, UVWrap.Clamp),
 		];
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 	private _applyParams(flag: number) {
 		let at = 0x01;

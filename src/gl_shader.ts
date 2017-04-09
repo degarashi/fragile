@@ -1,5 +1,5 @@
 import {PaddingString, AddLineNumber, Assert} from "./utilfuncs";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import {ShaderType} from "./gl_const";
 import glc from "./gl_const";
 import GLResourceFlag from "./gl_resource_flag";
@@ -29,8 +29,7 @@ abstract class GLShader implements GLResource {
 	abstract typeId(): ShaderType;
 	constructor(src: string) {
 		this._source = src;
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 	id() {
 		return this._id;

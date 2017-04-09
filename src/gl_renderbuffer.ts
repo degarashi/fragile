@@ -1,6 +1,6 @@
 import Bindable from "./bindable";
 import {Assert} from "./utilfuncs";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import {RBFormat} from "./gl_const"
 import glc from "./gl_const";
 import GLResourceFlag from "./gl_resource_flag";
@@ -15,8 +15,7 @@ export default class GLRenderbuffer implements GLResource, Bindable {
 	private _format: RBFormat;
 
 	constructor() {
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 	size(): Size {
 		return this._size;

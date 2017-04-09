@@ -1,6 +1,6 @@
 import {Assert, IsVector, IsMatrix, VMToArray, VectorToArray} from "./utilfuncs";
 import {default as glc, GLSLTypeInfoItem} from "./gl_const";
-import {gl} from "./global";
+import {gl, glres} from "./global";
 import GLVShader from "./gl_vshader";
 import GLFShader from "./gl_fshader";
 import GLVBuffer from "./gl_vbuffer";
@@ -42,8 +42,7 @@ export default class GLProgram implements GLResource, Bindable {
 	constructor(vs: GLVShader, fs: GLFShader) {
 		this._vs = vs;
 		this._fs = fs;
-		if(!gl.isContextLost())
-			this.onContextRestored();
+		glres.add(this);
 	}
 	id() {
 		return this._id;
