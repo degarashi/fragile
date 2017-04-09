@@ -188,6 +188,9 @@ class Conv<E> {
 	fromStringToGL(name: string): number {
 		return this.convert(this.fromString(name));
 	}
+	length(): number {
+		return this._i2gl.length;
+	}
 }
 export default class GLConst {
 	static TextureC: Conv<TextureType>;
