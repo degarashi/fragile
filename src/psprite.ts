@@ -6,6 +6,7 @@ import DObject from "./dobject";
 import GObject from "./gobject";
 import {DrawWithGeom} from "./utilfuncs";
 import {scene, engine, gl, resource} from "./global";
+import GLTexture2D from "./gl_texture2d";
 
 function Rand01() {
 	return (Math.random()-0.5) * 2;
@@ -88,10 +89,12 @@ class PSprite {
 export class PSpriteDraw extends DObject {
 	private readonly _psprite: PSprite;
 	alpha: number;
-	constructor() {
+	constructor(n: number) {
 		super();
-		this._psprite = new PSprite(new Alg(2000));
-		this._psprite.texture = resource.getResource("sphere");
+		this._psprite = new PSprite(new Alg(n));
+		const tex = <GLTexture2D>resource.getResource("sphere");
+		tex.setLinear(true, true, 0);
+		this._psprite.texture = tex;
 		this.alpha = 1;
 	}
 	advance(dt: number) {
@@ -103,9 +106,14 @@ export class PSpriteDraw extends DObject {
 }
 class PSpriteObj extends GObject {
 	private _draw: PSpriteDraw;
+	private _nParticle: number;
 
+	constructor(np: number) {
+		super();
+		this._nParticle = np;
+	}
 	onConnected() {
-		this._draw = new PSpriteDraw();
+		this._draw = new PSpriteDraw(this._nParticle);
 		scene.top().asDrawGroup().group.add(this._draw);
 	}
 	onUpdate(dt: number) {

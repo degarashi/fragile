@@ -17,19 +17,88 @@ import TextDraw from "./textdraw";
 import TextLines from "./textlines";
 import {PlaceCenter} from "./utilfuncs";
 
+import GLTexture2D from "./gl_texture2d";
+import GLFramebuffer from "./gl_framebuffer";
+import GLRenderbuffer from "./gl_renderbuffer";
+import {Attachment, RBFormat, InterFormat, TexDataFormat} from "./gl_const";
+import FullRect from "./fullrect";
+import FBSwitch from "./drawutil/fb_switch";
+import DrawGroup from "./drawgroup";
+import DataSwitch from "./dataswitch";
+
 // particle dance
 class StParticle extends State<MyScene> {
 	private _alpha: number;
 	private _psp: PSpriteDraw;
+	private _fb: GLFramebuffer;
+	private _tex: DataSwitch<GLTexture2D>;
+	private _fr: FullRect;
+	private _fr_m: FullRect;
 
 	onEnter(self: MyScene, prev:State<MyScene>): void {
-		const psp = new PSpriteDraw();
-		psp.alpha = 0;
-		self.asDrawGroup().group.add(psp);
-		this._alpha = 0;
-		this._psp = psp;
+		// 残像用のフレームバッファ
+		{
+			const texL: GLTexture2D[] = [];
+			const size = engine.size();
+			for(let i=0 ; i<2 ; i++) {
+				// Color
+				texL[i] = new GLTexture2D();
+				texL[i].setData(InterFormat.RGBA, size.width, size.height, InterFormat.RGBA, TexDataFormat.UB);
+			}
+			this._fb = new GLFramebuffer();
+			// Depth16
+			const rb = new GLRenderbuffer();
+			rb.allocate(RBFormat.Depth16, size.width, size.height);
+			this._fb.attach(Attachment.Depth, rb);
+			this._tex = new DataSwitch<GLTexture2D>(texL[0], texL[1]);
+		}
+		const dg_m = new DrawGroup();
+		{
+			const cls = new Clear(new Vec4(0,0,0,1), 1.0);
+			cls.drawtag.priority = 0;
+			dg_m.group.add(cls);
+		}
+		// パーティクル初期化
+		{
+			const psp = new PSpriteDraw(1000);
+			psp.drawtag.priority = 10;
+			psp.alpha = 0;
+			dg_m.group.add(psp);
+			this._alpha = 0;
+			this._psp = psp;
+		}
+		// 残像上書き
+		{
+			const fr = new FullRect();
+			fr.drawtag.priority = 10;
+			fr.alpha = 0.8;
+			dg_m.group.add(fr);
+			this._fr_m = fr;
+		}
+		const dg = new DrawGroup();
+		// 残像描画
+		{
+			const fbw = new FBSwitch(this._fb);
+			fbw.drawtag.priority = 0;
+			fbw.lower = dg_m;
+			dg.group.add(fbw);
+		}
+		// 結果表示
+		{
+			const fr = new FullRect();
+			fr.drawtag.priority = 10;
+			fr.alpha = 1.0;
+			dg.group.add(fr);
+			this._fr = fr;
+		}
+		self.drawTarget = dg;
 	}
 	onUpdate(self: MyScene, dt: number): void {
+		this._tex.swap();
+		this._fb.attach(Attachment.Color0, this._tex.current());
+		this._fr_m.texture = this._tex.prev();
+		this._fr.texture = this._tex.current();
+
 		this._alpha += dt/2;
 		this._psp.advance(dt);
 		this._psp.alpha = Math.min(1, this._alpha);
