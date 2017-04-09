@@ -1,6 +1,4 @@
 import {Assert, IsVector, IsMatrix, VMToArray, VectorToArray} from "./utilfuncs";
-import Discardable from "./discardable";
-import GLContext from "./gl_context";
 import {default as glc, GLSLTypeInfoItem} from "./gl_const";
 import {gl} from "./global";
 import GLVShader from "./gl_vshader";
@@ -8,7 +6,8 @@ import GLFShader from "./gl_fshader";
 import GLVBuffer from "./gl_vbuffer";
 import Bindable from "./bindable";
 import Vector from "./vector";
-import ResourceFlag from "./resource_flag";
+import GLResourceFlag from "./gl_resource_flag";
+import GLResource from "./gl_resource";
 
 export class ProgramError extends Error {
 	constructor(id: WebGLProgram | null) {
@@ -31,8 +30,8 @@ class AttribInfo {
 }
 type UniformInfoM = {[key: string]: UniformInfo;};
 type AttribInfoM = {[key: string]: AttribInfo;};
-export default class GLProgram implements Discardable, Bindable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+export default class GLProgram implements GLResource, Bindable {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLProgram | null = null;
 	private _bBind: boolean = false;
 	private _uniform: UniformInfoM;

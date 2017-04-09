@@ -1,15 +1,14 @@
-import Discardable from "./discardable";
 import Bindable from "./bindable";
-import GLContext from "./gl_context";
 import {Assert} from "./utilfuncs";
 import {gl} from "./global";
 import {RBFormat} from "./gl_const"
 import glc from "./gl_const";
-import ResourceFlag from "./resource_flag";
+import GLResourceFlag from "./gl_resource_flag";
+import GLResource from "./gl_resource";
 import Size from "./size";
 
-export default class GLRenderbuffer implements Discardable, Bindable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+export default class GLRenderbuffer implements GLResource, Bindable {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLRenderbuffer|null;
 	private _bBind: boolean = false;
 	private _size: Size = new Size(0,0);

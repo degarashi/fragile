@@ -1,8 +1,9 @@
 import {Assert, AssertF} from "./utilfuncs";
 import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
 import ResourceLoader from "./resource_loader";
+import Discardable from "./discardable";
 import Resource from "./resource";
-import ResourceFlag from "./resource_flag";
+import ResourceWrap from "./resource_wrap";
 
 class ResLayer {
 	resource: {[key: string]: Resource} = {};
@@ -32,12 +33,6 @@ namespace RState {
 			AssertF("invalid function call");
 		}
 		discard(self: ResStack): void {
-			AssertF("invalid function call");
-		}
-		onContextLost(self: ResStack): void {
-			AssertF("invalid function call");
-		}
-		onContextRestored(self: ResStack): void {
 			AssertF("invalid function call");
 		}
 	}
@@ -145,29 +140,7 @@ namespace RState {
 			}
 		}
 		discard(self: ResStack): void {
-			self._rf.discard();
-		}
-		onContextLost(self: ResStack): void {
-			self._rf.onContextLost(()=> {
-				// スタック先端から順に呼ぶ
-				const len = self._resource.length;
-				for(let i=len-1 ; i>=0 ; --i) {
-					self._forEach(i, (r: Resource)=> {
-						r.onContextLost();
-					});
-				}
-			});
-		}
-		onContextRestored(self: ResStack): void {
-			self._rf.onContextRestored(()=> {
-				// ルートから順に呼ぶ
-				const len = self._resource.length;
-				for(let i=0 ; i<len ; ++i) {
-					self._forEach(i, (r: Resource)=> {
-						r.onContextRestored();
-					});
-				}
-			});
+			self._df.discard();
 		}
 	}
 	export class LoadingState extends State {
@@ -193,7 +166,7 @@ namespace RState {
 
 // リソースをレイヤに分けて格納
 export default class ResStack implements Resource {
-	_rf:			ResourceFlag = new ResourceFlag();
+	_df:			ResourceWrap<null> = new ResourceWrap<null>(null);
 	_resource:		ResLayer[] = [];
 	// リソース探索ベースパス
 	_base:			string;
@@ -281,16 +254,6 @@ export default class ResStack implements Resource {
 		this._state.discard(this);
 	}
 	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
-	}
-	// ------------ from GLContext ------------
-	onContextLost(): void {
-		this._state.onContextLost(this);
-	}
-	onContextRestored(): void {
-		this._state.onContextRestored(this);
-	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
+		return this._df.isDiscarded();
 	}
 }

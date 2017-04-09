@@ -1,16 +1,15 @@
-import Discardable from "./discardable";
 import Bindable from "./bindable";
-import GLContext from "./gl_context";
 import GLRenderbuffer from "./gl_renderbuffer";
 import GLTexture2D from "./gl_texture2d";
 import {Assert} from "./utilfuncs";
 import {gl} from "./global";
 import {Attachment} from "./gl_const";
 import glc from "./gl_const";
-import ResourceFlag from "./resource_flag";
+import GLResourceFlag from "./gl_resource_flag";
+import GLResource from "./gl_resource";
 
-export default class GLFramebuffer implements Discardable, Bindable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+export default class GLFramebuffer implements Bindable {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLFramebuffer|null = null;
 	private _bBind: boolean = false;
 

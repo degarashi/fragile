@@ -1,12 +1,11 @@
-import Discardable from "./discardable";
 import Bindable from "./bindable";
-import GLContext from "./gl_context";
 import {Assert, VectorToArray} from "./utilfuncs";
 import {gl} from "./global";
 import {DataFormat, DrawType, GLTypeInfoItem, default as glc} from "./gl_const";
 import Vector from "./vector";
 import TypedArray from "./typedarray";
-import ResourceFlag from "./resource_flag";
+import GLResource from "./gl_resource";
+import GLResourceFlag from "./gl_resource_flag";
 
 class GLBufferInfo {
 	constructor(
@@ -20,8 +19,8 @@ class GLBufferInfo {
 		public backup?: ArrayBuffer
 	) {}
 }
-abstract class GLBuffer implements Discardable, Bindable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+abstract class GLBuffer implements GLResource,  Bindable {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLBuffer|null = null;
 	private _bBind: boolean = false;
 	private _info: GLBufferInfo;

@@ -1,6 +1,6 @@
 import {Assert} from "./utilfuncs";
 
-export default class ResourceFlag {
+export default class GLResourceFlag {
 	private		_bDiscard: boolean = false;
 	private		_bLost: boolean = true;
 

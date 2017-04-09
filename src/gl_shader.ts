@@ -2,9 +2,8 @@ import {PaddingString, AddLineNumber, Assert} from "./utilfuncs";
 import {gl} from "./global";
 import {ShaderType} from "./gl_const";
 import glc from "./gl_const";
-import Discardable from "./discardable";
-import GLContext from "./gl_context";
-import ResourceFlag from "./resource_flag";
+import GLResourceFlag from "./gl_resource_flag";
+import GLResource from "./gl_resource";
 
 export class ShaderError extends Error {
 	constructor(id: WebGLShader|null) {
@@ -22,8 +21,8 @@ export class ShaderError extends Error {
 		return "ShaderError";
 	}
 }
-abstract class GLShader implements Discardable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+abstract class GLShader implements GLResource {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLShader | null = null;
 	private _source: string;
 

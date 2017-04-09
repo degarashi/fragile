@@ -1,12 +1,11 @@
-import Discardable from "./discardable";
 import Bindable from "./bindable";
-import GLContext from "./gl_context";
+import GLResource from "./gl_resource";
+import GLResourceFlag from "./gl_resource_flag";
 import {BlockPlace, Assert} from "./utilfuncs";
 import {gl} from "./global";
 import {default as glc, UVWrap, InterFormat, TexDataFormat} from "./gl_const";
 import Rect from "./rect";
 import TypedArray from "./typedarray";
-import ResourceFlag from "./resource_flag";
 import Size from "./size";
 
 namespace Backup {
@@ -104,8 +103,8 @@ namespace Backup {
 		All = 0xff
 	}
 }
-abstract class GLTexture implements Bindable, Discardable, GLContext {
-	private _rf: ResourceFlag = new ResourceFlag();
+abstract class GLTexture implements Bindable, GLResource {
+	private _rf: GLResourceFlag = new GLResourceFlag();
 	private _id: WebGLTexture|null = null;
 	private _bind: number = 0;
 	private readonly _size:Size = new Size(0,0);

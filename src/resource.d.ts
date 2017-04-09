@@ -1,4 +1,3 @@
-import GLContext from "./gl_context";
 import Discardable from "./discardable";
-interface Resource extends GLContext, Discardable {}
+interface Resource extends Discardable {}
 export default Resource;
