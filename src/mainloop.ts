@@ -8,6 +8,7 @@ import Loop from "./loop";
 import ResStack from "./resstack";
 import {RequestAnimationFrame} from "./utilfuncs";
 import * as G from "./global";
+import GLResourceSet from "./gl_resource_set";
 
 class St extends State<LoadingScene> {}
 export class LoadingScene extends Scene<LoadingScene> {
@@ -35,6 +36,8 @@ function _MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
 	G.SetEngine(new Engine());
 	G.SetInput(new InputMgr());
 	G.SetScene(new SceneMgr(cbMakeScene()));
+	G.SetGLRes(new GLResourceSet());
+	G.glres.onContextRestored();
 }
 export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
 	_MainLoop(alias, base, cbMakeScene);
