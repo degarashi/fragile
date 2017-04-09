@@ -25,7 +25,7 @@ class StParticle extends State<MyScene> {
 	onEnter(self: MyScene, prev:State<MyScene>): void {
 		const psp = new PSpriteDraw();
 		psp.alpha = 0;
-		self.drawGroup().group.add(psp);
+		self.asDrawGroup().group.add(psp);
 		this._alpha = 0;
 		this._psp = psp;
 	}
@@ -62,17 +62,17 @@ class StText extends State<MyScene> {
 		const rs = text.resultSize();
 		t.offset = PlaceCenter(engine.size(), rs);
 
-		self.drawGroup().group.add(t);
+		self.asDrawGroup().group.add(t);
 		self._text = t;
 
 		const fpsc = new FPSCamera();
 		engine.sys3d().camera = fpsc.camera;
-		self.updateGroup().group.add(fpsc);
+		self.asUpdateGroup().group.add(fpsc);
 		engine.addTechnique(resource.getResource("prog"));
 		const cls = new Clear(new Vec4(0,0,0,1));
 		cls.drawtag.priority = 0;
-		self.drawGroup().group.add(cls);
-		self.drawGroup().setSortAlgorithm(DrawSort.Priority);
+		self.asDrawGroup().group.add(cls);
+		self.asDrawGroup().setSortAlgorithm(DrawSort.Priority);
 	}
 	onUpdate(self: MyScene, dt: number): void {
 		if(self._text.advance(dt*15)) {

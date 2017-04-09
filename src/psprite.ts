@@ -106,7 +106,7 @@ class PSpriteObj extends GObject {
 
 	onConnected() {
 		this._draw = new PSpriteDraw();
-		scene.top().drawGroup().group.add(this._draw);
+		scene.top().asDrawGroup().group.add(this._draw);
 	}
 	onUpdate(dt: number) {
 		this._draw.advance(dt);

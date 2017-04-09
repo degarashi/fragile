@@ -3,28 +3,35 @@ import UpdGroup from "./updgroup";
 import DrawGroup from "./drawgroup";
 import GObject from "./gobject";
 import Drawable from "./drawable";
+import Updatable from "./updatable";
+import {Assert} from "./utilfuncs";
 
 export interface IScene extends GObject {
-	updateGroup(): UpdGroup;
-	drawGroup(): DrawGroup;
+	updateTarget: Updatable;
+	drawTarget: Drawable;
 	onDraw(): void;
-}
-export default class Scene<T> extends FSMachine<T> implements IScene, Drawable {
-	private _update: UpdGroup = new UpdGroup(0);
-	private _draw: DrawGroup = new DrawGroup();
 
-	updateGroup(): UpdGroup {
-		return this._update;
+	asUpdateGroup(): UpdGroup;
+	asDrawGroup(): DrawGroup;
+}
+export default class Scene<T> extends FSMachine<T> implements IScene, Drawable, Updatable {
+	updateTarget: Updatable = new UpdGroup(0);
+	drawTarget: Drawable = new DrawGroup();
+
+	asUpdateGroup(): UpdGroup {
+		Assert(this.updateTarget instanceof UpdGroup);
+		return <UpdGroup>this.updateTarget;
 	}
-	drawGroup(): DrawGroup {
-		return this._draw;
+	asDrawGroup(): DrawGroup {
+		Assert(this.drawTarget instanceof DrawGroup);
+		return <DrawGroup>this.drawTarget;
 	}
 	onUpdate(dt: number): boolean {
 		super.onUpdate(dt);
-		this._update.onUpdate(dt);
+		this.updateTarget.onUpdate(dt);
 		return true;
 	}
 	onDraw(): void {
-		this._draw.onDraw();
+		this.drawTarget.onDraw();
 	}
 }
