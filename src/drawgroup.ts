@@ -11,7 +11,7 @@ export default class DrawGroup extends DObject {
 		this._sortAlg = a;
 		this._bRefr = true;
 	}
-	proc(): void {
+	private _proc(): void {
 		const cbAdd = (obj: DObject, g: Group<DObject>): void => {};
 		let cbSort:any;
 		if(this._sortAlg) {
@@ -23,9 +23,11 @@ export default class DrawGroup extends DObject {
 		this._bRefr = false;
 	}
 	onDraw(): void {
+		this._proc();
 		const g = this.group.group();
 		for(let i=0 ; i<g.length ; i++) {
 			g[i].onDraw();
 		}
+		this._proc();
 	}
 }
