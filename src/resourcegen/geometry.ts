@@ -19,6 +19,12 @@ function MakeRect(ofs: Vec2, sc: Vec2) {
 			new Vec2(sc.x, sc.y).addSelf(ofs),
 			new Vec2(sc.x, 0).addSelf(ofs)
 		],
+		uv: [
+			new Vec2(0, 0),
+			new Vec2(0, 1),
+			new Vec2(1, 1),
+			new Vec2(1, 0)
+		],
 		index: [
 			0,1,2, 2,3,0
 		]
@@ -27,12 +33,14 @@ function MakeRect(ofs: Vec2, sc: Vec2) {
 function MakeRectVI(ofs: Vec2, sc: Vec2) {
 	const buff = {
 		vbuffer: {
-			a_position: new GLVBuffer()
+			a_position: new GLVBuffer(),
+			a_uv: new GLVBuffer()
 		},
 		ibuffer: new GLIBuffer()
 	};
 	const rect = MakeRect(ofs, sc);
 	buff.vbuffer.a_position.setData(rect.vertex, DrawType.Static, true);
+	buff.vbuffer.a_uv.setData(rect.uv, DrawType.Static, true);
 	buff.ibuffer.setDataRaw(
 		new Uint16Array(rect.index),
 		1,
