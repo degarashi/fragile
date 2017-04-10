@@ -12,8 +12,12 @@ function Rand01() {
 	return (Math.random()-0.5) * 2;
 }
 interface Algorithm {
-	initialize(): Vec3[];
-	advance(vpos: Vec3[], dt: number): void;
+	initialize(): any;
+	advance(points: any, dt: number): void;
+}
+class Points {
+	readonly position: Vec3[] = [];
+	readonly color: Vec3[] = [];
 }
 class Alg implements Algorithm {
 	private readonly _nP: number;
@@ -22,21 +26,24 @@ class Alg implements Algorithm {
 		this._nP = n;
 		this._veloc = [];
 	}
-	initialize(): Vec3[] {
-		const vpos = [];
+	initialize(): Points {
+		const ret = new Points();
+		const vpos = ret.position;
+		const vcol = ret.color;
 		const veloc = this._veloc;
 		for(let i=0 ; i<this._nP ; i++) {
 			vpos[i] = new Vec3(Rand01(), -1, Rand01());
 			veloc[i] = new Vec3(Rand01(), 0.1, Rand01()).normalizeSelf();
+			vcol[i] = new Vec3(Math.random(), Math.random(), Math.random());
 		}
-		return vpos;
+		return ret;
 	}
-	advance(vpos: Vec3[], dt: number): void {
+	advance(points: Points, dt: number): void {
 		const veloc = this._veloc;
 		const len = veloc.length;
 		for(let i=0 ; i<len ; i++) {
-			vpos[i].addSelf(veloc[i].mul(dt));
-			let dir = vpos[i].minus();
+			points.position[i].addSelf(veloc[i].mul(dt));
+			let dir = points.position[i].minus();
 			dir.mulSelf(dt);
 			veloc[i] = veloc[i].add(dir).normalize();
 		}
@@ -61,21 +68,25 @@ class PSprite {
 	texture: GLTexture;
 	private _geom: Geometry;
 	private _alg: Algorithm;
-	private _vpos: Vec3[];
+	private _points: Points;
 	constructor(alg: Algorithm) {
 		this._alg = alg;
-		this._vpos = alg.initialize();
+		this._points = alg.initialize();
+		const vbc = new GLVBuffer();
+		vbc.setData(this._points.color, DrawType.Dynamic, true);
 		const vb = new GLVBuffer();
-		vb.setData(this._vpos, DrawType.Dynamic, true);
+		vb.setData(this._points.position, DrawType.Dynamic, true);
 		this._geom = {
 			vbuffer: {
-				a_position: vb
+				a_position: vb,
+				a_color: vbc
 			}
 		};
 	}
 	advance(dt: number): void {
-		this._alg.advance(this._vpos, dt);
-		this._geom.vbuffer.a_position.setData(this._vpos, DrawType.Dynamic, true);
+		this._alg.advance(this._points, dt);
+		this._geom.vbuffer.a_position.setData(this._points.position, DrawType.Dynamic, true);
+		this._geom.vbuffer.a_color.setData(this._points.color, DrawType.Dynamic, true);
 	}
 	draw(alpha: number): void {
 		engine.setTechnique("psprite");
