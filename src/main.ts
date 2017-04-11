@@ -71,7 +71,7 @@ class StParticle extends State<MyScene> {
 		{
 			const fr = new FullRect();
 			fr.drawtag.priority = 10;
-			fr.alpha = 0.8;
+			fr.alpha = 0.85;
 			dg_m.group.add(fr);
 			this._fr_m = fr;
 		}
@@ -126,7 +126,7 @@ import {DrawSort} from "./drawsort";
 class StText extends State<MyScene> {
 	onUp(self: MyScene): void {
 		const text = new TextLines(3);
-		const str = "HELLO WORLD\n\nfrom\nWebGL";
+		const str = "HELLO WORLD\n\nwith\nWebGL";
 		text.setText(str);
 		text.setSize(new Size(512, 512));
 		const delay = 8;

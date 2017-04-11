@@ -17,7 +17,7 @@ interface Algorithm {
 }
 class Points {
 	readonly position: Vec3[] = [];
-	readonly color: Vec3[] = [];
+	readonly hsv: Vec3[] = [];
 }
 class Alg implements Algorithm {
 	private readonly _nP: number;
@@ -29,12 +29,12 @@ class Alg implements Algorithm {
 	initialize(): Points {
 		const ret = new Points();
 		const vpos = ret.position;
-		const vcol = ret.color;
+		const vhsv = ret.hsv;
 		const veloc = this._veloc;
 		for(let i=0 ; i<this._nP ; i++) {
 			vpos[i] = new Vec3(Rand01(), -1, Rand01());
 			veloc[i] = new Vec3(Rand01(), 0.1, Rand01()).normalizeSelf();
-			vcol[i] = new Vec3(Math.random(), Math.random(), Math.random());
+			vhsv[i] = new Vec3(Math.random(), 0.8, 1);
 		}
 		return ret;
 	}
@@ -69,24 +69,26 @@ class PSprite {
 	private _geom: Geometry;
 	private _alg: Algorithm;
 	private _points: Points;
+	hueOffset: number;
 	constructor(alg: Algorithm) {
 		this._alg = alg;
 		this._points = alg.initialize();
 		const vbc = new GLVBuffer();
-		vbc.setData(this._points.color, DrawType.Dynamic, true);
+		vbc.setData(this._points.hsv, DrawType.Dynamic, true);
 		const vb = new GLVBuffer();
 		vb.setData(this._points.position, DrawType.Dynamic, true);
 		this._geom = {
 			vbuffer: {
 				a_position: vb,
-				a_color: vbc
+				a_hsv: vbc
 			}
 		};
+		this.hueOffset = 0;
 	}
 	advance(dt: number): void {
 		this._alg.advance(this._points, dt);
 		this._geom.vbuffer.a_position.setData(this._points.position, DrawType.Dynamic, true);
-		this._geom.vbuffer.a_color.setData(this._points.color, DrawType.Dynamic, true);
+		this._geom.vbuffer.a_hsv.setData(this._points.hsv, DrawType.Dynamic, true);
 	}
 	draw(alpha: number): void {
 		engine.setTechnique("psprite");
@@ -94,6 +96,7 @@ class PSprite {
 			engine.setUniform("u_texture", this.texture);
 		engine.sys3d().worldMatrix = Mat44.Identity();
 		engine.setUniform("u_alpha", alpha);
+		engine.setUniform("u_hue", this.hueOffset);
 		engine.draw(()=> { DrawWithGeom(this._geom, gl.POINTS); });
 	}
 }
@@ -109,6 +112,7 @@ export class PSpriteDraw extends DObject {
 		this.alpha = 1;
 	}
 	advance(dt: number) {
+		this._psprite.hueOffset += dt*0.1;
 		this._psprite.advance(dt/2);
 	}
 	onDraw(): void {
