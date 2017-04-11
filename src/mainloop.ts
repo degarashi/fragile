@@ -9,6 +9,7 @@ import ResStack from "./resstack";
 import {RequestAnimationFrame} from "./utilfuncs";
 import * as G from "./global";
 import GLResourceSet from "./gl_resource_set";
+import {gl} from "./global";
 
 class St extends State<LoadingScene> {}
 export class LoadingScene extends Scene<LoadingScene> {
@@ -44,6 +45,8 @@ export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScen
 
 	RequestAnimationFrame(function Loop() {
 		RequestAnimationFrame(Loop);
+		if(gl.isContextLost())
+			return;
 		G.scene.onDraw();
 	});
 	const loop = new Loop();
@@ -61,6 +64,8 @@ export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IS
 		RequestAnimationFrame(Loop);
 		G.input.update();
 		G.scene.onUpdate(1/60);
+		if(gl.isContextLost())
+			return;
 		G.scene.onDraw();
 	});
 }
