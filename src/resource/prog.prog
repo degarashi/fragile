@@ -15,8 +15,13 @@
 			"vshader": "textv",
 			"fshader": "textf"
 		},
+		"rectAdd": {
+			"valueset": "rectAdd",
+			"vshader": "rectv",
+			"fshader": "rectf"
+		},
 		"rect": {
-			"valueset": "valuesetP",
+			"valueset": "rect",
 			"vshader": "rectv",
 			"fshader": "rectf"
 		}

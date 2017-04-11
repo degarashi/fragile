@@ -12,11 +12,12 @@ export default class FullRect extends DObject {
 	texture: GLTexture;
 	alpha: number = 1;
 	zoom: number = 1;
+	alphablend: boolean = false;
 
 	onDraw(): void {
 		if(!this.texture)
 			return;
-		engine.setTechnique("rect");
+		engine.setTechnique(this.alphablend ? "rectAdd" : "rect");
 		engine.setUniform("u_texture", this.texture);
 		engine.setUniform("u_alpha", this.alpha);
 		engine.setUniform("u_zoom", 1/this.zoom);
