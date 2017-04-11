@@ -19,11 +19,21 @@ class Rect {
 	height() {
 		return this.bottom- this.top;
 	}
-	move(ofs: Vec2) {
-		this.left += ofs.x;
-		this.right += ofs.x;
-		this.top += ofs.y;
-		this.bottom += ofs.y;
+	add(ofs: Vec2): Rect {
+		return new Rect(
+			this.left + ofs.x,
+			this.top + ofs.y,
+			this.right + ofs.x,
+			this.bottom + ofs.y
+		);
+	}
+	mul(sc: Vec2): Rect {
+		return new Rect(
+			this.left * sc.x,
+			this.top * sc.y,
+			this.right * sc.x,
+			this.bottom * sc.y
+		);
 	}
 }
 export default Rect;
