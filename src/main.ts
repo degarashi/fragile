@@ -30,28 +30,28 @@ import DataSwitch from "./dataswitch";
 class StParticle extends State<MyScene> {
 	private _alpha: number;
 	private _psp: PSpriteDraw;
-	private _fb: GLFramebuffer;
-	private _tex: DataSwitch<GLTexture2D>;
 	private _fr: FullRect;
 	private _fr_m: FullRect;
+	private _size: Size;
+	private _fb: GLFramebuffer = new GLFramebuffer();
+	private readonly _cb = [new GLTexture2D(), new GLTexture2D()];
+	private readonly _rb = new GLRenderbuffer();
+	private readonly _tex = new DataSwitch<GLTexture2D>(this._cb[0], this._cb[1]);
+
+	private _allocateBuffer(size: Size) {
+		this._size = size;
+		for(let i=0 ; i<2 ; i++) {
+			this._cb[i].setData(InterFormat.RGBA, size.width, size.height, InterFormat.RGBA, TexDataFormat.UB);
+		}
+		// Depth16
+		this._rb.allocate(RBFormat.Depth16, size.width, size.height);
+	}
 
 	onEnter(self: MyScene, prev:State<MyScene>): void {
 		// 残像用のフレームバッファ
-		{
-			const texL: GLTexture2D[] = [];
-			const size = engine.size();
-			for(let i=0 ; i<2 ; i++) {
-				// Color
-				texL[i] = new GLTexture2D();
-				texL[i].setData(InterFormat.RGBA, size.width, size.height, InterFormat.RGBA, TexDataFormat.UB);
-			}
-			this._fb = new GLFramebuffer();
-			// Depth16
-			const rb = new GLRenderbuffer();
-			rb.allocate(RBFormat.Depth16, size.width, size.height);
-			this._fb.attach(Attachment.Depth, rb);
-			this._tex = new DataSwitch<GLTexture2D>(texL[0], texL[1]);
-		}
+		this._allocateBuffer(engine.size());
+		this._fb.attach(Attachment.Depth, this._rb);
+
 		const dg_m = new DrawGroup();
 		{
 			const cls = new Clear(new Vec4(0,0,0,1), 1.0);
@@ -94,6 +94,10 @@ class StParticle extends State<MyScene> {
 		self.drawTarget = dg;
 	}
 	onUpdate(self: MyScene, dt: number): void {
+		const size = engine.size();
+		if(!this._size.equal(size)) {
+			this._allocateBuffer(size);
+		}
 		this._tex.swap();
 		this._fb.attach(Attachment.Color0, this._tex.current());
 		this._fr_m.texture = this._tex.prev();
