@@ -1,3 +1,5 @@
+cd `dirname $0`
+
 npm run makealias
 if [ $? -gt 1 ]; then
 	echo "makealias.js ERROR"
@@ -14,13 +16,16 @@ if [ $? -gt 1 ]; then
 	exit 1
 fi
 
-for file in `\find . -maxdepth 1 -name "*.?sh" -type f`; do
-	glslify $file -t glslify-import -o ../dist/$file
+cd resource
+for file in `\find .  -maxdepth 1 -name "*.?sh" -type f -printf "%P "`; do
+	glslify $file -t glslify-import -o ../../dist/resource/$file 2>/dev/null
 	if [ $? -gt 0 ]; then
 		echo "glslify ERROR in ${file}"
 		exit 1
 	fi
 done
+cd ..
+
 rsync -auv --delete ./resource/ ../dist/resource/
 cp ./*.html ../dist
 cp ./*.css ../dist
