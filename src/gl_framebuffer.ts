@@ -23,11 +23,11 @@ export default class GLFramebuffer implements Bindable {
 		const buff = this._attachment[pos];
 		const pos_gl = glc.AttachmentC.convert(pos);
 		if(buff instanceof GLRenderbuffer) {
+			buff.onContextRestored();
 			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, buff.id());
 		} else if(buff instanceof GLTexture2D) {
+			buff.onContextRestored();
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, pos_gl, gl.TEXTURE_2D, buff.id(), 0);
-		} else {
-			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, pos_gl, gl.RENDERBUFFER, null);
 		}
 	}
 	id() {
@@ -106,7 +106,7 @@ export default class GLFramebuffer implements Bindable {
 			this._id = gl.createFramebuffer();
 			this.proc(()=> {
 				for(let i=0 ; i<glc.AttachmentC.length() ; i++) {
-					this._applyAttachment(i);
+					this._applyAttachment(glc.AttachmentC.indexToEnum(i));
 				}
 			});
 		});
