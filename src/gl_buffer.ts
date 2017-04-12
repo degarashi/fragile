@@ -94,10 +94,18 @@ abstract class GLBuffer implements GLResource,  Bindable {
 		this.setData(VectorToArray(...data), data[0].dim(), usage, bRestore);
 	}
 	setSubData(offset_elem: number, data: ArrayBuffer) {
+		const info = this._info;
+		const ofs = info.typeinfo.bytesize * offset_elem;
+		if(info.backup) {
+			const dst = new Uint8Array(info.backup);
+			const src = new Uint8Array(data);
+			for(let i=0 ; i<data.byteLength ; i++)
+				dst[ofs+i] = src[i];
+		}
 		this.proc(()=>{
 			gl.bufferSubData(
 				this._typeId(),
-				this._info.typeinfo.bytesize * offset_elem,
+				ofs,
 				data
 			);
 		});
