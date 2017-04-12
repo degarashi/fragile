@@ -28,7 +28,7 @@ export default class GLRenderbuffer implements GLResource, Bindable {
 	}
 
 	allocate(fmt: RBFormat, w: number, h: number): void {
-		[this._size.width, this._size.height, this._format] = [fmt, w, h];
+		[this._format, this._size.width, this._size.height] = [fmt, w, h];
 		this.proc(()=> {
 			gl.renderbufferStorage(gl.RENDERBUFFER, glc.RBFormatC.convert(fmt), w, h);
 		});
