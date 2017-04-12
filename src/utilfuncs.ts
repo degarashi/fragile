@@ -205,12 +205,13 @@ export const CancelAnimationFrame =
 	})();
 
 export function DrawWithGeom(geom: Geometry, flag: number) {
+	const idxL: number[] = [];
 	const vbg = geom.vbuffer;
 	let count = 0;
 	for(let name in vbg) {
 		const vb = vbg[name];
 		count = vb.nElem();
-		engine.program().setVStream(name, vb);
+		idxL.push(<number>engine.program().setVStream(name, vb));
 	}
 	const ib = geom.ibuffer;
 	if(ib) {
@@ -220,6 +221,8 @@ export function DrawWithGeom(geom: Geometry, flag: number) {
 	} else {
 		gl.drawArrays(flag, 0, count);
 	}
+	for(let i=0 ; i<idxL.length ; i++)
+		gl.disableVertexAttribArray(idxL[i]);
 }
 export function BitCount32(b: number): number {
 	b = ((b & 0xaaaaaaaa)>>>1) + (b & 0x55555555);
