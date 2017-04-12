@@ -60,10 +60,16 @@ export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScen
 export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
 	_MainLoop(alias, base, cbMakeScene);
 
+	let prev = new Date().getTime();
 	RequestAnimationFrame(function Loop() {
 		RequestAnimationFrame(Loop);
+
+		const now = new Date().getTime();
+		const tick = now - prev;
+		prev = now;
+
 		G.input.update();
-		G.scene.onUpdate(1/60);
+		G.scene.onUpdate(tick / 1000);
 		if(gl.isContextLost())
 			return;
 		G.scene.onDraw();
