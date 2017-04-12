@@ -75,7 +75,7 @@ export default class GLProgram implements GLResource, Bindable {
 	/*!
 		\param[in] data	[vector...] or GLVBuffer
 	*/
-	setVStream(name: string, data: GLVBuffer|Vector[]): void {
+	setVStream(name: string, data: GLVBuffer|Vector[]): number|undefined {
 		const a = this._attribute[name];
 		if(a) {
 			if(data instanceof Array) {
@@ -90,6 +90,7 @@ export default class GLProgram implements GLResource, Bindable {
 					gl.vertexAttribPointer(a.index, data2.dim(), info.id, false, info.bytesize*data2.dim(), 0);
 				});
 			}
+			return a.index;
 		}
 	}
 	// ------------- from Bindable -------------
