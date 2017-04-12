@@ -7,6 +7,7 @@ import GObject from "./gobject";
 import {DrawWithGeom} from "./utilfuncs";
 import {scene, engine, gl, resource} from "./global";
 import GLTexture2D from "./gl_texture2d";
+import {VectorToArray} from "./utilfuncs";
 
 function Rand01() {
 	return (Math.random()-0.5) * 2;
@@ -87,8 +88,10 @@ class PSprite {
 	}
 	advance(dt: number): void {
 		this._alg.advance(this._points, dt);
-		this._geom.vbuffer.a_position.setVectorData(this._points.position, DrawType.Dynamic, true);
-		this._geom.vbuffer.a_hsv.setVectorData(this._points.hsv, DrawType.Dynamic, true);
+		const vr = VectorToArray(...this._points.position);
+		this._geom.vbuffer.a_position.setSubData(0, vr.buffer);
+		const vsv = VectorToArray(...this._points.hsv);
+		this._geom.vbuffer.a_hsv.setSubData(0, vsv.buffer);
 	}
 	draw(alpha: number): void {
 		engine.setTechnique("psprite");
