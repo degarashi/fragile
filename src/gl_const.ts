@@ -159,6 +159,7 @@ class Conv<E> {
 	private readonly _i2gl: number[] = [];
 	private readonly _gl2i: {[key: number]: number;} = {};
 	private readonly _str2i: {[key: string]: number;} = {};
+	private readonly _length: number;
 	constructor(...arg: [string, number][]) {
 		for(let i=0 ; i<arg.length ; i++) {
 			const [name,num] = [arg[i][0], arg[i][1]];
@@ -168,6 +169,7 @@ class Conv<E> {
 			this._str2i[name] = id;
 			this._str2i[name.toLowerCase()] = id;
 		}
+		this._length = arg.length;
 	}
 	convert(id: number): E;
 	convert(id: E): number;
@@ -189,7 +191,10 @@ class Conv<E> {
 		return this.convert(this.fromString(name));
 	}
 	length(): number {
-		return this._i2gl.length;
+		return this._length;
+	}
+	indexToEnum(idx: number): E {
+		return <E><any>(idx + EnumBase.Num);
 	}
 }
 export default class GLConst {
