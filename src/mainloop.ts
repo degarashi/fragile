@@ -50,7 +50,9 @@ export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScen
 		G.scene.onDraw();
 	});
 	const loop = new Loop();
-	loop.start(60, (tick) => {
+	loop.start(60, (tick: number) => {
+		// 最大50msまでの経過時間
+		tick = Math.min(50, tick);
 		G.input.update();
 		if(!G.scene.onUpdate(tick)) {
 			loop.stop();
@@ -65,7 +67,8 @@ export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IS
 		RequestAnimationFrame(Loop);
 
 		const now = new Date().getTime();
-		const tick = now - prev;
+		// 最大50msまでの経過時間
+		const tick = Math.min(50, now - prev);
 		prev = now;
 
 		G.input.update();
