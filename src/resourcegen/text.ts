@@ -16,19 +16,19 @@ ResourceGenSrc.TextRect = function(rp: ResourceParam): Resource {
 		},
 		ibuffer: new GLIBuffer()
 	};
-	buff.vbuffer.a_position.setData([
+	buff.vbuffer.a_position.setVectorData([
 		new Vec2(0,0),
 		new Vec2(0,1),
 		new Vec2(1,1),
 		new Vec2(1,0)
 	], DrawType.Static, true);
-	buff.vbuffer.a_uv.setData([
+	buff.vbuffer.a_uv.setVectorData([
 		new Vec2(0,0),
 		new Vec2(0,1),
 		new Vec2(1,1),
 		new Vec2(1,0)
 	], DrawType.Static, true);
-	buff.ibuffer.setDataRaw(
+	buff.ibuffer.setData(
 		new Uint16Array([0,1,2, 2,3,0]),
 		1,
 		DrawType.Static,

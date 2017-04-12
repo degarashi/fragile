@@ -70,7 +70,7 @@ abstract class GLBuffer implements GLResource,  Bindable {
 			gl.bufferData(this._typeId(), bytelen, this._usage());
 		});
 	}
-	private _setDataRaw(data: ArrayBuffer, info: GLTypeInfoItem, nElem: number, dim: number,  usage: DrawType, bRestore: boolean): void {
+	private _setData(data: ArrayBuffer, info: GLTypeInfoItem, nElem: number, dim: number,  usage: DrawType, bRestore: boolean): void {
 		let restoreData: ArrayBuffer|undefined;
 		if(bRestore) {
 			restoreData = data.slice(0);
@@ -86,16 +86,12 @@ abstract class GLBuffer implements GLResource,  Bindable {
 			gl.bufferData(this._typeId(), data, this._usage());
 		});
 	}
-	setDataRaw(data: TypedArray, dim: number, usage: DrawType, bRestore: boolean): void {
+	setData(data: TypedArray, dim: number, usage: DrawType, bRestore: boolean): void {
 		const t = glc.Type2GLType[data.constructor.name];
-		this._setDataRaw(data.buffer, t, data.length/dim, dim, usage, bRestore);
+		this._setData(data.buffer, t, data.length/dim, dim, usage, bRestore);
 	}
-	setData(data: Vector[], usage: DrawType, bRestore: boolean) {
-		const ar = VectorToArray(...data);
-		if(ar) {
-			const dim = data[0].dim();
-			this.setDataRaw(ar, dim, usage, bRestore);
-		}
+	setVectorData(data: Vector[], usage: DrawType, bRestore: boolean) {
+		this.setData(VectorToArray(...data), data[0].dim(), usage, bRestore);
 	}
 	setSubData(offset_elem: number, data: ArrayBuffer) {
 		this.proc(()=>{
@@ -149,7 +145,7 @@ abstract class GLBuffer implements GLResource,  Bindable {
 				// 必要ならデータを復元
 				const bd = this._info.backup;
 				if(bd) {
-					this._setDataRaw(bd, this.typeinfo(), this.nElem(), this.dim(), this.usage(), true);
+					this._setData(bd, this.typeinfo(), this.nElem(), this.dim(), this.usage(), true);
 				}
 			}
 		});

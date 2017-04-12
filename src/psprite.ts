@@ -74,9 +74,9 @@ class PSprite {
 		this._alg = alg;
 		this._points = alg.initialize();
 		const vbc = new GLVBuffer();
-		vbc.setData(this._points.hsv, DrawType.Dynamic, true);
+		vbc.setVectorData(this._points.hsv, DrawType.Dynamic, true);
 		const vb = new GLVBuffer();
-		vb.setData(this._points.position, DrawType.Dynamic, true);
+		vb.setVectorData(this._points.position, DrawType.Dynamic, true);
 		this._geom = {
 			vbuffer: {
 				a_position: vb,
@@ -87,8 +87,8 @@ class PSprite {
 	}
 	advance(dt: number): void {
 		this._alg.advance(this._points, dt);
-		this._geom.vbuffer.a_position.setData(this._points.position, DrawType.Dynamic, true);
-		this._geom.vbuffer.a_hsv.setData(this._points.hsv, DrawType.Dynamic, true);
+		this._geom.vbuffer.a_position.setVectorData(this._points.position, DrawType.Dynamic, true);
+		this._geom.vbuffer.a_hsv.setVectorData(this._points.hsv, DrawType.Dynamic, true);
 	}
 	draw(alpha: number): void {
 		engine.setTechnique("psprite");

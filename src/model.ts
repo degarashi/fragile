@@ -22,11 +22,11 @@ class Model implements Geometry {
 		for(let i=0 ; i<vdata.length ; i++) {
 			const vd = vdata[i];
 			const vb = new GLVBuffer();
-			vb.setData(vd.data, DrawType.Static, true);
+			vb.setVectorData(vd.data, DrawType.Static, true);
 			this.vbuffer[vd.name] = vb;
 		}
 		const ib = new GLIBuffer();
-		ib.setDataRaw(idata, 1, DrawType.Static, true);
+		ib.setData(idata, 1, DrawType.Static, true);
 		this.ibuffer = ib;
 
 		// 座標など

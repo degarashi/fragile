@@ -39,9 +39,9 @@ function MakeRectVI(ofs: Vec2, sc: Vec2, uvnum: Vec2) {
 		ibuffer: new GLIBuffer()
 	};
 	const rect = MakeRect(ofs, sc, uvnum);
-	buff.vbuffer.a_position.setData(rect.vertex, DrawType.Static, true);
-	buff.vbuffer.a_uv.setData(rect.uv, DrawType.Static, true);
-	buff.ibuffer.setDataRaw(
+	buff.vbuffer.a_position.setVectorData(rect.vertex, DrawType.Static, true);
+	buff.vbuffer.a_uv.setVectorData(rect.uv, DrawType.Static, true);
+	buff.ibuffer.setData(
 		new Uint16Array(rect.index),
 		1,
 		DrawType.Static,
@@ -67,19 +67,19 @@ ResourceGenSrc.Trihedron = function():Resource {
 		},
 		ibuffer: new GLIBuffer()
 	};
-	buff.vbuffer.a_position.setData([
+	buff.vbuffer.a_position.setVectorData([
 		new Vec3(-1, -1, 1),
 		new Vec3(0, -1, -1),
 		new Vec3(1, -1, 1),
 		new Vec3(0, 1, 0)
 	], DrawType.Static, true);
-	buff.vbuffer.a_uv.setData([
+	buff.vbuffer.a_uv.setVectorData([
 		new Vec4(1,1,1,1),
 		new Vec4(1,0,0,1),
 		new Vec4(0,0,1,1),
 		new Vec4(0,1,0,1)
 	], DrawType.Static, true);
-	buff.ibuffer.setDataRaw(
+	buff.ibuffer.setData(
 		new Uint16Array([
 			2,1,0,
 			1,3,0,
