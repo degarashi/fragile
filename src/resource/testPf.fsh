@@ -1,8 +1,11 @@
+#version 100
 precision mediump float;
 uniform float u_alpha;
 uniform sampler2D u_texture;
 varying float v_dist;
 varying vec3 v_hsv;
+
+vec3 HSVtoRGB(in vec3 hsv);
 #pragma glslify: HSVtoRGB = require(./hsv)
 
 void main() {

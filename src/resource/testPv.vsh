@@ -1,3 +1,4 @@
+#version 100
 attribute vec3 a_position;
 attribute vec3 a_hsv;
 uniform mat4 u_mTrans,

@@ -1,3 +1,4 @@
+#version 100
 uniform mat4 u_mTrans;
 attribute vec3 a_position;
 attribute vec4 a_color;
