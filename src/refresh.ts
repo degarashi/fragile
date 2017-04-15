@@ -65,7 +65,7 @@ export default class Refresh {
 	get(key: string): any {
 		const ent = this._entry[key];
 		if(this._reflag & ent.flag) {
-			ent.value = (<any>this)[`_refresh_${key}`]();
+			ent.value = (<any>this)[`_refresh_${key}`](ent.value);
 			this._reflag &= ~ent.flag;
 		}
 		return ent.value;
