@@ -29,52 +29,70 @@ import {engine} from "./global";
 		sampler2D u_texture;
 	}
 */
-export default class Text extends Refresh {
-	static TagFont = "font";
-	static TagText = "text";
-	static TagSize = "size";
-	static TagFontHeight = "fontheight";
-	static TagFontGen = "fontgen";
-	static TagFontPlane = "fontplane";
-	static TagLength = "length";
-	static TagResultSize = "resultsize";
+export default class Text {
+	protected _rf: Refresh;
+	static readonly TagFont = "font";
+	static readonly TagText = "text";
+	static readonly TagSize = "size";
+	static readonly TagFontHeight = "fontheight";
+	static readonly TagFontGen = "fontgen";
+	static readonly TagFontPlane = "fontplane";
+	static readonly TagLength = "length";
+	static readonly TagResultSize = "resultsize";
 	constructor() {
-		super({
+		this._rf = new Refresh({
 			[Text.TagFont]: null,
 			[Text.TagText]: null,
 			[Text.TagSize]: null,
-			[Text.TagFontHeight]: [Text.TagFont],
-			[Text.TagFontGen]: [Text.TagFontHeight],
-			[Text.TagFontPlane]: [Text.TagFontHeight, Text.TagFontGen, Text.TagText, Text.TagSize],
-			[Text.TagLength]: [Text.TagFontPlane],
-			[Text.TagResultSize]: [Text.TagFontPlane]
+			[Text.TagFontHeight]: {
+				depend: [Text.TagFont],
+				func: (prev: any)=> {
+					return (<ResourceWrap<Range>>ResourceGen.get(new RPFontHeight(this.font()))).data;
+				}
+			},
+			[Text.TagFontGen]: {
+				depend: [Text.TagFontHeight],
+				func: (prev: any)=> {
+					const fh = this.fontHeight();
+					return new FontGen(512, 512, fh.width());
+				}
+			},
+			[Text.TagFontPlane]: {
+				depend: [Text.TagFontHeight, Text.TagFontGen, Text.TagText, Text.TagSize],
+				func: (prev: any)=> {
+					const fa = this._makeFontA();
+					return CharPlace(fa.fontA, fa.fh.to, this.size());
+				}
+			},
+			[Text.TagLength]: {
+				depend: [Text.TagFontPlane],
+				func: (prev: any)=> {
+					return this.fontplane().length;
+				}
+			},
+			[Text.TagResultSize]: {
+				depend: [Text.TagFontPlane],
+				func: (prev: any)=> {
+					return this.fontplane().resultSize;
+				}
+			}
 		});
 		this.setFont(new Font("arial", "30pt", "100", false));
 		this.setText("DefaultText");
 		this.setSize(new Size(512,512));
 	}
-	setFont(f: Font): void { this.set(Text.TagFont, f); }
-	setText(t: string): void { this.set(Text.TagText, t); }
-	setSize(r: Size): void { this.set(Text.TagSize, r); }
-	font(): Font { return this.get(Text.TagFont); }
-	text(): string { return this.get(Text.TagText); }
-	size(): Size { return this.get(Text.TagSize); }
-	fontplane(): CharPlaceResult { return this.get(Text.TagFontPlane); }
+	setFont(f: Font): void { this._rf.set(Text.TagFont, f); }
+	setText(t: string): void { this._rf.set(Text.TagText, t); }
+	setSize(r: Size): void { this._rf.set(Text.TagSize, r); }
+	font(): Font { return this._rf.get(Text.TagFont); }
+	text(): string { return this._rf.get(Text.TagText); }
+	size(): Size { return this._rf.get(Text.TagSize); }
+	fontplane(): CharPlaceResult { return this._rf.get(Text.TagFontPlane); }
 	length() { return this.fontplane().length; }
-	resultSize() { return this.get(Text.TagResultSize); }
-	fontHeight(): Range { return this.get(Text.TagFontHeight); }
-	fontGen(): FontGen { return this.get(Text.TagFontGen); }
+	resultSize() { return this._rf.get(Text.TagResultSize); }
+	fontHeight(): Range { return this._rf.get(Text.TagFontHeight); }
+	fontGen(): FontGen { return this._rf.get(Text.TagFontGen); }
 
-	_refresh_fontheight() {
-		return (<ResourceWrap<Range>>ResourceGen.get(new RPFontHeight(this.font()))).data;
-	}
-	_refresh_fontgen() {
-		const fh = this.fontHeight();
-		return new FontGen(512, 512, fh.width());
-	}
-	_refresh_resultsize(): Size {
-		return this.fontplane().resultSize;
-	}
 	_makeFontA() {
 		const fh = this.fontHeight();
 		const gen = this.fontGen();
@@ -84,10 +102,6 @@ export default class Text extends Refresh {
 			fontA: gen.get(this.text(), ctx.data, fh),
 			fh: fh
 		};
-	}
-	_refresh_fontplane(): any {
-		const fa = this._makeFontA();
-		return CharPlace(fa.fontA, fa.fh.to, this.size());
 	}
 	draw(offset: Vec2, time: number, timeDelay: number, alpha: number) {
 		const plane = this.fontplane().plane;
