@@ -12,6 +12,16 @@ import ResourceWrap from "./resource_wrap";
 import Range from "./range";
 import {engine} from "./global";
 
+class Tag {
+	static readonly Font = "font";
+	static readonly Text = "text";
+	static readonly Size = "size";
+	static readonly FontHeight = "fontheight";
+	static readonly FontGen = "fontgen";
+	static readonly FontPlane = "fontplane";
+	static readonly Length = "length";
+	static readonly ResultSize = "resultsize";
+}
 // スクリーン上に配置するテキスト
 /*
 	[shader requirements]
@@ -31,47 +41,40 @@ import {engine} from "./global";
 */
 export default class Text {
 	protected _rf: Refresh;
-	static readonly TagFont = "font";
-	static readonly TagText = "text";
-	static readonly TagSize = "size";
-	static readonly TagFontHeight = "fontheight";
-	static readonly TagFontGen = "fontgen";
-	static readonly TagFontPlane = "fontplane";
-	static readonly TagLength = "length";
-	static readonly TagResultSize = "resultsize";
+	static readonly Tag = Tag;
 	constructor() {
 		this._rf = new Refresh({
-			[Text.TagFont]: null,
-			[Text.TagText]: null,
-			[Text.TagSize]: null,
-			[Text.TagFontHeight]: {
-				depend: [Text.TagFont],
+			[Tag.Font]: null,
+			[Tag.Text]: null,
+			[Tag.Size]: null,
+			[Tag.FontHeight]: {
+				depend: [Tag.Font],
 				func: (prev: any)=> {
 					return (<ResourceWrap<Range>>ResourceGen.get(new RPFontHeight(this.font()))).data;
 				}
 			},
-			[Text.TagFontGen]: {
-				depend: [Text.TagFontHeight],
+			[Tag.FontGen]: {
+				depend: [Tag.FontHeight],
 				func: (prev: any)=> {
 					const fh = this.fontHeight();
 					return new FontGen(512, 512, fh.width());
 				}
 			},
-			[Text.TagFontPlane]: {
-				depend: [Text.TagFontHeight, Text.TagFontGen, Text.TagText, Text.TagSize],
+			[Tag.FontPlane]: {
+				depend: [Tag.FontHeight, Tag.FontGen, Tag.Text, Tag.Size],
 				func: (prev: any)=> {
 					const fa = this._makeFontA();
 					return CharPlace(fa.fontA, fa.fh.to, this.size());
 				}
 			},
-			[Text.TagLength]: {
-				depend: [Text.TagFontPlane],
+			[Tag.Length]: {
+				depend: [Tag.FontPlane],
 				func: (prev: any)=> {
 					return this.fontplane().length;
 				}
 			},
-			[Text.TagResultSize]: {
-				depend: [Text.TagFontPlane],
+			[Tag.ResultSize]: {
+				depend: [Tag.FontPlane],
 				func: (prev: any)=> {
 					return this.fontplane().resultSize;
 				}
@@ -81,17 +84,17 @@ export default class Text {
 		this.setText("DefaultText");
 		this.setSize(new Size(512,512));
 	}
-	setFont(f: Font): void { this._rf.set(Text.TagFont, f); }
-	setText(t: string): void { this._rf.set(Text.TagText, t); }
-	setSize(r: Size): void { this._rf.set(Text.TagSize, r); }
-	font(): Font { return this._rf.get(Text.TagFont); }
-	text(): string { return this._rf.get(Text.TagText); }
-	size(): Size { return this._rf.get(Text.TagSize); }
-	fontplane(): CharPlaceResult { return this._rf.get(Text.TagFontPlane); }
+	setFont(f: Font): void { this._rf.set(Tag.Font, f); }
+	setText(t: string): void { this._rf.set(Tag.Text, t); }
+	setSize(r: Size): void { this._rf.set(Tag.Size, r); }
+	font(): Font { return this._rf.get(Tag.Font); }
+	text(): string { return this._rf.get(Tag.Text); }
+	size(): Size { return this._rf.get(Tag.Size); }
+	fontplane(): CharPlaceResult { return this._rf.get(Tag.FontPlane); }
 	length() { return this.fontplane().length; }
-	resultSize() { return this._rf.get(Text.TagResultSize); }
-	fontHeight(): Range { return this._rf.get(Text.TagFontHeight); }
-	fontGen(): FontGen { return this._rf.get(Text.TagFontGen); }
+	resultSize() { return this._rf.get(Tag.ResultSize); }
+	fontHeight(): Range { return this._rf.get(Tag.FontHeight); }
+	fontGen(): FontGen { return this._rf.get(Tag.FontGen); }
 
 	_makeFontA() {
 		const fh = this.fontHeight();

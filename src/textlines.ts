@@ -11,8 +11,8 @@ export default class TextLines extends Text {
 	constructor(lineDelay: number) {
 		super();
 		this._rf.setFuncs({
-			[Text.TagResultSize]: (prev: any)=> {
-				const fp = <CharPlaceResult[]>this._rf.get(Text.TagFontPlane);
+			[Text.Tag.ResultSize]: (prev: any)=> {
+				const fp = <CharPlaceResult[]>this._rf.get(Text.Tag.FontPlane);
 				const ret = new Size(0,0);
 				for(let i=0 ; i<fp.length ; i++) {
 					ret.width = Math.max(ret.width, fp[i].resultSize.width);
@@ -20,7 +20,7 @@ export default class TextLines extends Text {
 				}
 				return ret;
 			},
-			[Text.TagFontPlane]: (prev: any)=> {
+			[Text.Tag.FontPlane]: (prev: any)=> {
 				const fa = super._makeFontA();
 				return CharPlaceLines(fa.fontA, fa.fh.to, this.size().width);
 			}
@@ -28,7 +28,7 @@ export default class TextLines extends Text {
 		this.lineDelay = lineDelay;
 	}
 	length(): number {
-		const fps = <CharPlaceResult[]>this._rf.get(Text.TagFontPlane);
+		const fps = <CharPlaceResult[]>this._rf.get(Text.Tag.FontPlane);
 		if(fps.length === 0)
 			return 0;
 		let len:number = 0;
@@ -39,7 +39,7 @@ export default class TextLines extends Text {
 	}
 	draw(offset: Vec2, time: number, timeDelay: number, alpha: number) {
 		const fh = this.fontHeight();
-		const ps = <CharPlaceResult[]>this._rf.get(Text.TagFontPlane);
+		const ps = <CharPlaceResult[]>this._rf.get(Text.Tag.FontPlane);
 		offset = offset.clone();
 		for(let k=0 ; k<ps.length ; k++) {
 			const plane = ps[k].plane;
