@@ -183,6 +183,7 @@ export default class ResStack implements Resource {
 		this._state.addAlias(this, alias);
 	}
 	_makeFPath(name: string): string {
+		Assert(typeof this._alias[name] !== "undefined");
 		return `${this._base}/${this._alias[name]}`;
 	}
 	_pushFrame() {
