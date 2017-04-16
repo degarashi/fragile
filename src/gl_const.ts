@@ -58,7 +58,8 @@ export class GLSLTypeInfoItem {
 		public id: number,
 		public name: string,
 		public size: number,
-		public uniformF: Function,
+		public uniformF?: Function,
+		public uniformAF?: Function,
 		public vertexF?: Function
 	) {}
 }
@@ -410,18 +411,18 @@ export default class GLConst {
 		}
 		{
 			const t = GLConst.GLSLTypeInfo;
-			t[gl.INT] = new GLSLTypeInfoItem(gl.INT, "Int", 1, gl.uniform1i);
-			t[gl.INT_VEC2] = new GLSLTypeInfoItem(gl.INT_VEC2, "IntVec2", 2, gl.uniform2iv);
-			t[gl.INT_VEC3] = new GLSLTypeInfoItem(gl.INT_VEC3, "IntVec3", 3, gl.uniform3iv);
-			t[gl.INT_VEC4] = new GLSLTypeInfoItem(gl.INT_VEC4, "IntVec4", 4, gl.uniform4iv);
-			t[gl.FLOAT] = new GLSLTypeInfoItem(gl.FLOAT, "Float", 1, gl.uniform1f, gl.vertexAttrib1f);
-			t[gl.FLOAT_VEC2] = new GLSLTypeInfoItem(gl.FLOAT_VEC2, "FloatVec2", 2, gl.uniform2fv, gl.vertexAttrib2fv);
-			t[gl.FLOAT_VEC3] = new GLSLTypeInfoItem(gl.FLOAT_VEC3, "FloatVec3", 3, gl.uniform3fv, gl.vertexAttrib3fv);
-			t[gl.FLOAT_VEC4] = new GLSLTypeInfoItem(gl.FLOAT_VEC4, "FloatVec4", 4, gl.uniform4fv, gl.vertexAttrib4fv);
-			t[gl.FLOAT_MAT2] = new GLSLTypeInfoItem(gl.FLOAT_MAT2, "FloatMat2", 2, gl.uniformMatrix2fv);
-			t[gl.FLOAT_MAT3] = new GLSLTypeInfoItem(gl.FLOAT_MAT3, "FloatMat3", 3, gl.uniformMatrix3fv);
-			t[gl.FLOAT_MAT4] = new GLSLTypeInfoItem(gl.FLOAT_MAT4, "FloatMat4", 4, gl.uniformMatrix4fv);
-			t[gl.SAMPLER_2D] = new GLSLTypeInfoItem(gl.SAMPLER_2D, "Sampler2D", 1, gl.uniform1i);
+			t[gl.INT] = new GLSLTypeInfoItem(gl.INT, "Int", 1, gl.uniform1i, gl.uniform1iv);
+			t[gl.INT_VEC2] = new GLSLTypeInfoItem(gl.INT_VEC2, "IntVec2", 2, gl.uniform2i, gl.uniform2iv);
+			t[gl.INT_VEC3] = new GLSLTypeInfoItem(gl.INT_VEC3, "IntVec3", 3, gl.uniform3i, gl.uniform3iv);
+			t[gl.INT_VEC4] = new GLSLTypeInfoItem(gl.INT_VEC4, "IntVec4", 4, gl.uniform4i, gl.uniform4iv);
+			t[gl.FLOAT] = new GLSLTypeInfoItem(gl.FLOAT, "Float", 1, gl.uniform1f, gl.uniform1fv, gl.vertexAttrib1f);
+			t[gl.FLOAT_VEC2] = new GLSLTypeInfoItem(gl.FLOAT_VEC2, "FloatVec2", 2, gl.uniform2f, gl.uniform2fv, gl.vertexAttrib2fv);
+			t[gl.FLOAT_VEC3] = new GLSLTypeInfoItem(gl.FLOAT_VEC3, "FloatVec3", 3, gl.uniform3f, gl.uniform3fv, gl.vertexAttrib3fv);
+			t[gl.FLOAT_VEC4] = new GLSLTypeInfoItem(gl.FLOAT_VEC4, "FloatVec4", 4, gl.uniform4f, gl.uniform4fv, gl.vertexAttrib4fv);
+			t[gl.FLOAT_MAT2] = new GLSLTypeInfoItem(gl.FLOAT_MAT2, "FloatMat2", 2, undefined, gl.uniformMatrix2fv, undefined);
+			t[gl.FLOAT_MAT3] = new GLSLTypeInfoItem(gl.FLOAT_MAT3, "FloatMat3", 3, undefined, gl.uniformMatrix3fv);
+			t[gl.FLOAT_MAT4] = new GLSLTypeInfoItem(gl.FLOAT_MAT4, "FloatMat4", 4, undefined, gl.uniformMatrix4fv);
+			t[gl.SAMPLER_2D] = new GLSLTypeInfoItem(gl.SAMPLER_2D, "Sampler2D", 1, gl.uniform1i, undefined);
 		}
 		{
 			const t = GLConst.GLTypeInfo;

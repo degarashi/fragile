@@ -1,4 +1,4 @@
-import {Assert, IsVector, IsMatrix, VMToArray, VectorToArray} from "./utilfuncs";
+import {Assert, IsVector, IsVM, IsMatrix, VMToArray, VectorToArray} from "./utilfuncs";
 import {default as glc, GLSLTypeInfoItem} from "./gl_const";
 import {gl, glres} from "./global";
 import GLVShader from "./gl_vshader";
@@ -54,21 +54,30 @@ export default class GLProgram implements GLResource, Bindable {
 		\param[in] value	[matrix...] or [vector...] or matrix or vector or float or int
 	*/
 	setUniform(name: string, value: any): void {
-		const u = this._uniform[name];
+		let u = this._uniform[name];
 		if(u) {
-			const f = u.type.uniformF;
-			if(value instanceof Array) {
+			Assert(!(value instanceof Array));
+			const f = <Function>u.type.uniformF;
+			const fa = <Function>u.type.uniformAF;
+			// matrix or vector or float or int
+			if(IsMatrix(value))
+				fa.call(gl, u.index, false, value.value);
+			else if(IsVector(value))
+				fa.call(gl, u.index, value.value);
+			else
+				f.call(gl, u.index, value);
+			return;
+		}
+		u = this._uniform[name + "[0]"];
+		if(u) {
+			Assert(value instanceof Array);
+			const fa = <Function>u.type.uniformAF;
+			if(IsVM(value[0])) {
 				// [matrix...] or [vector...]
 				const ar = <any[]>value;
-				f.call(gl, u.index, VMToArray(ar));
+				fa.call(gl, u.index, VMToArray(ar));
 			} else {
-				// matrix or vector or float or int
-				if(IsMatrix(value))
-					f.call(gl, u.index, false, value.value);
-				else if(IsVector(value))
-					f.call(gl, u.index, value.value);
-				else
-					f.call(gl, u.index, value);
+				fa.call(gl, u.index, value);
 			}
 		}
 	}
