@@ -15,9 +15,9 @@ import "./resource_loaddef/technique";
 import "./resource_loaddef/image";
 import TextDraw from "./textdraw";
 import TextLines from "./textlines";
-import {PlaceCenter} from "./utilfuncs";
+import {GetPowValue, PlaceCenter} from "./utilfuncs";
 
-import GLTexture2D from "./gl_texture2d";
+import GLTexture2DP from "./gl_texture2dp";
 import GLFramebuffer from "./gl_framebuffer";
 import GLRenderbuffer from "./gl_renderbuffer";
 import {Attachment, RBFormat, InterFormat, TexDataFormat} from "./gl_const";
@@ -34,17 +34,18 @@ class StParticle extends State<MyScene> {
 	private _fr_m: FullRect;
 	private _size: Size;
 	private _fb: GLFramebuffer = new GLFramebuffer();
-	private readonly _cb = [new GLTexture2D(), new GLTexture2D()];
+	private readonly _cb = [new GLTexture2DP(), new GLTexture2DP()];
 	private readonly _rb = new GLRenderbuffer();
-	private readonly _tex = new DataSwitch<GLTexture2D>(this._cb[0], this._cb[1]);
+	private readonly _tex = new DataSwitch<GLTexture2DP>(this._cb[0], this._cb[1]);
 
 	private _allocateBuffer(size: Size) {
 		this._size = size;
 		for(let i=0 ; i<2 ; i++) {
 			this._cb[i].setData(InterFormat.RGBA, size.width, size.height, InterFormat.RGBA, TexDataFormat.UB);
+			this._cb[i].setLinear(true, true, 0);
 		}
 		// Depth16
-		this._rb.allocate(RBFormat.Depth16, size.width, size.height);
+		this._rb.allocate(RBFormat.Depth16, GetPowValue(size.width),GetPowValue(size.height));
 	}
 
 	onEnter(self: MyScene, prev:State<MyScene>): void {
