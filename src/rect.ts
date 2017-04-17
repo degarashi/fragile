@@ -1,4 +1,5 @@
 import Vec2 from "./vector2";
+import Vec4 from "./vector4";
 
 class Rect {
 	constructor(
@@ -33,6 +34,14 @@ class Rect {
 			this.top * sc.y,
 			this.right * sc.x,
 			this.bottom * sc.y
+		);
+	}
+	toVec4(): Vec4 {
+		return new Vec4(
+			this.left,
+			this.top,
+			this.right,
+			this.bottom
 		);
 	}
 }
