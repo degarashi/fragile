@@ -245,6 +245,7 @@ export function LowBits32(b: number): number {
 export function GetPowValue(v: number): number {
 	if(v <= 1)
 		return 1;
+	--v;
 	return (v & ~LowBits32(v>>>1)) << 1;
 }
 
