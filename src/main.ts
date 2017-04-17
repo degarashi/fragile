@@ -70,8 +70,9 @@ class StParticle extends State<MyScene> {
 		// 残像上書き
 		{
 			const fr = new FullRect();
-			fr.drawtag.priority = 10;
+			fr.drawtag.priority = 20;
 			fr.alpha = 0.85;
+			fr.alphablend = true;
 			dg_m.group.add(fr);
 			this._fr_m = fr;
 		}
@@ -88,6 +89,7 @@ class StParticle extends State<MyScene> {
 			const fr = new FullRect();
 			fr.drawtag.priority = 10;
 			fr.alpha = 1.0;
+			fr.alphablend = false;
 			dg.group.add(fr);
 			this._fr = fr;
 		}
