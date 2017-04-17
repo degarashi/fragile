@@ -75,7 +75,7 @@ namespace Backup {
 				tex._typeId(),
 				0,
 				glc.InterFormatC.convert(this._dstFmt),
-				tex.size().width, tex.size().height, 0,
+				tex.truesize().width, tex.truesize().height, 0,
 				glc.InterFormatC.convert(this._dstFmt),
 				glc.TexDataFormatC.convert(TexDataFormat.UB),
 				this._pixels
@@ -109,6 +109,7 @@ abstract class GLTexture implements Bindable, GLResource {
 	private _bind: number = 0;
 	private readonly _size:Size = new Size(0,0);
 	private _param: (null | Backup.Applyable)[];
+	static readonly UVRect01:Rect = new Rect(0,0,1,1);
 
 	abstract typeId(): number;
 	abstract typeQueryId(): number;
@@ -138,10 +139,16 @@ abstract class GLTexture implements Bindable, GLResource {
 		}
 	}
 
+	uvrect(): Rect {
+		return GLTexture.UVRect01;
+	}
 	id() {
 		return this._id;
 	}
 	size(): Size {
+		return this._size;
+	}
+	truesize(): Size {
 		return this._size;
 	}
 	setLinear(bLMin: boolean, bLMag: boolean, iMip: number): void {
@@ -163,7 +170,7 @@ abstract class GLTexture implements Bindable, GLResource {
 		[this._size.width, this._size.height] = [width, height];
 		if(typeof pixels !== "undefined")
 			pixels = pixels.slice(0);
-		this._param[Backup.Index.Base] = new Backup.PixelData(this._size, fmt, pixels);
+		this._param[Backup.Index.Base] = new Backup.PixelData(this.truesize(), fmt, pixels);
 		this.proc(()=> {
 			this._applyParams(Backup.Flag.All);
 		});
@@ -173,7 +180,7 @@ abstract class GLTexture implements Bindable, GLResource {
 	): void {
 		Assert(srcFmtType === TexDataFormat.UB);
 		const base = <Backup.Base>this._param[Backup.Index.Base];
-		base.writeSubData(this.size().width, rect.left, rect.top, rect.width(), pixels);
+		base.writeSubData(this.truesize().width, rect.left, rect.top, rect.width(), pixels);
 		this.proc(()=> {
 			gl.texSubImage2D(
 				this._typeId(),
