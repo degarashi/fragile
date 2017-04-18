@@ -76,14 +76,14 @@ class PlaneSingle {
 			pos.push(new Vec2(ofs.x+fw-0.5,		ofs.y+fh.to-0.5));
 		}
 		{
-			// [xy=テクスチャuv, yz=ローカルUV]
+			// [xy=テクスチャuv, zw=ローカルUV]
 			const uv = this.uv;
 			const r = <Rect>fc.uvrect;
 			const tp = this._tpix;
-			uv.push(new Vec4(r.left+tp.x,	r.top+tp.y,		0,		0));
-			uv.push(new Vec4(r.right-tp.x,	r.top+tp.y,		1,		0));
-			uv.push(new Vec4(r.left+tp.x,	r.bottom-tp.y,	0,		1));
-			uv.push(new Vec4(r.right-tp.x,	r.bottom-tp.y,	1,		1));
+			uv.push(new Vec4(r.left+tp.x,	r.bottom+tp.y,	0,		1));
+			uv.push(new Vec4(r.right-tp.x,	r.bottom+tp.y,	1,		1));
+			uv.push(new Vec4(r.left+tp.x,	r.top-tp.y,		0,		0));
+			uv.push(new Vec4(r.right-tp.x,	r.top-tp.y,		1,		0));
 		}
 		{
 			const time = this.time;

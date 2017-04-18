@@ -43,9 +43,9 @@ class FontLane {
 		tex.setSubData(
 			new Rect(
 				this._cur,
-				baseY,
+				baseY+fh.width(),
 				this._cur+fw,
-				baseY+fh.width()
+				baseY
 			),
 			InterFormat.Alpha,
 			TexDataFormat.UB,
@@ -103,7 +103,7 @@ class FontPlane {
 			const lane = this._lane[i];
 			const ret = lane.get(code, str, ctx, fw, fh, i*fh.width(), this.texture);
 			if(ret) {
-				const rect = new Rect(ret.from, i*this._laneH, ret.to, (i+1)*this._laneH);
+				const rect = new Rect(ret.from, (i+1)*this._laneH, ret.to, i*this._laneH);
 				rect.left /= tw;
 				rect.top /= th;
 				rect.right /= tw;

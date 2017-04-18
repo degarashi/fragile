@@ -109,7 +109,7 @@ abstract class GLTexture implements Bindable, GLResource {
 	private _bind: number = 0;
 	private readonly _size:Size = new Size(0,0);
 	private _param: (null | Backup.Applyable)[];
-	static readonly UVRect01:Rect = new Rect(0,0,1,1);
+	static readonly UVRect01:Rect = new Rect(0,1,1,0);
 
 	abstract typeId(): number;
 	abstract typeQueryId(): number;
@@ -180,12 +180,12 @@ abstract class GLTexture implements Bindable, GLResource {
 	): void {
 		Assert(srcFmtType === TexDataFormat.UB);
 		const base = <Backup.Base>this._param[Backup.Index.Base];
-		base.writeSubData(this.truesize().width, rect.left, rect.top, rect.width(), pixels);
+		base.writeSubData(this.truesize().width, rect.left, rect.bottom, rect.width(), pixels);
 		this.proc(()=> {
 			gl.texSubImage2D(
 				this._typeId(),
 				0,
-				rect.left, rect.top, rect.width(), rect.height(),
+				rect.left, rect.bottom, rect.width(), rect.height(),
 				glc.InterFormatC.convert(srcFmt),
 				glc.TexDataFormatC.convert(srcFmtType),
 				pixels

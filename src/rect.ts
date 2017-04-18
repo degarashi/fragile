@@ -18,7 +18,7 @@ class Rect {
 		return this.right - this.left;
 	}
 	height() {
-		return this.bottom- this.top;
+		return this.top - this.bottom;
 	}
 	add(ofs: Vec2): Rect {
 		return new Rect(
@@ -42,6 +42,12 @@ class Rect {
 			this.top,
 			this.right,
 			this.bottom
+		);
+	}
+	center(): Vec2 {
+		return new Vec2(
+			(this.left+this.right)/2,
+			(this.top+this.bottom)/2
 		);
 	}
 }

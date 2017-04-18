@@ -21,7 +21,7 @@ export default class GLTexture2DP extends GLTexture2D {
 	uvrect(): Rect {
 		const ps = this.size();
 		const ts = this.truesize();
-		return new Rect(0,0, ps.width/ts.width, ps.height/ts.height);
+		return new Rect(0, ps.height/ts.height, ps.width/ts.width, 0);
 	}
 	size(): Size {
 		return this._psize;

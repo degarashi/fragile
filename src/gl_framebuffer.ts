@@ -42,7 +42,7 @@ export default class GLFramebuffer implements Bindable {
 		glres.add(this);
 		for(let i=0 ; i<glc.AttachmentC.length() ; i++)
 			this._attachment[i] = null;
-		this.setVPByRatio(new Rect(0,0,1,1));
+		this.setVPByRatio(new Rect(0,1,1,0));
 	}
 	private _applyAttachment(pos: Attachment) {
 		const buff = this._attachment[pos];
@@ -94,11 +94,11 @@ export default class GLFramebuffer implements Bindable {
 		});
 	}
 	private _setViewport(r: Rect) {
-		gl.viewport(r.left, r.top, r.width(), r.height());
+		gl.viewport(r.left, r.bottom, r.width(), r.height());
 	}
 	private _getViewport(): Rect {
 		const vpA = <Int32Array>gl.getParameter(gl.VIEWPORT);
-		return new Rect(vpA[0], vpA[1], vpA[0]+vpA[2], vpA[1]+vpA[3]);
+		return new Rect(vpA[0], vpA[1]+vpA[3], vpA[0]+vpA[2], vpA[1]);
 	}
 	vp_proc(cb: ()=>void): void {
 		this.proc(()=> {
