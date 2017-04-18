@@ -24,6 +24,16 @@
 			"valueset": "rect",
 			"vshader": "rectv",
 			"fshader": "rectf"
+		},
+		"gaussh": {
+			"valueset": "gauss",
+			"vshader": "gaussh",
+			"fshader": "gaussH_FS"
+		},
+		"gaussv": {
+			"valueset": "gauss",
+			"vshader": "gaussv",
+			"fshader": "gaussV_FS"
 		}
 	}
 }
