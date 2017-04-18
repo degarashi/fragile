@@ -15,9 +15,8 @@ void main() {
 	v_alpha = u_alpha;
 	vec2 sh = u_screenSize * vec2(0.5);
 	vec2 pos = a_position + u_offset;
-	pos.x /= sh.x;
 	pos.y = u_screenSize.y - pos.y;
-	pos.y /= sh.y;
+	pos /= sh;
 	pos -= vec2(1);
 	gl_Position = vec4(pos, 0,1);
 }
