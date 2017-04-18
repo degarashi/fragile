@@ -25,6 +25,7 @@ import FullRect from "./fullrect";
 import FBSwitch from "./drawutil/fb_switch";
 import DrawGroup from "./drawgroup";
 import DataSwitch from "./dataswitch";
+import GaussFilter from "./gauss";
 
 // particle dance
 class StParticle extends State<MyScene> {
@@ -37,6 +38,7 @@ class StParticle extends State<MyScene> {
 	private readonly _cb = [new GLTexture2DP(), new GLTexture2DP()];
 	private readonly _rb = new GLRenderbuffer();
 	private readonly _tex = new DataSwitch<GLTexture2DP>(this._cb[0], this._cb[1]);
+	private _gauss: GaussFilter;
 
 	private _allocateBuffer(size: Size) {
 		this._size = size;
@@ -78,12 +80,18 @@ class StParticle extends State<MyScene> {
 			this._fr_m = fr;
 		}
 		const dg = new DrawGroup();
-		// 残像描画
 		{
 			const fbw = new FBSwitch(this._fb);
 			fbw.drawtag.priority = 0;
 			fbw.lower = dg_m;
 			dg.group.add(fbw);
+		}
+		{
+			const gf = new GaussFilter();
+			this._gauss = gf;
+			gf.setDispersion(50.1);
+			gf.drawtag.priority = 5;
+			dg.group.add(gf);
 		}
 		// 結果表示
 		{
@@ -94,6 +102,7 @@ class StParticle extends State<MyScene> {
 			dg.group.add(fr);
 			this._fr = fr;
 		}
+		this._fr.texture = this._gauss.result();
 		self.drawTarget = dg;
 	}
 	onUpdate(self: MyScene, dt: number): void {
@@ -104,7 +113,7 @@ class StParticle extends State<MyScene> {
 		this._tex.swap();
 		this._fb.attach(Attachment.Color0, this._tex.current());
 		this._fr_m.texture = this._tex.prev();
-		this._fr.texture = this._tex.current();
+		this._gauss.setSource(this._tex.current());
 
 		this._alpha += dt/2;
 		this._psp.advance(dt);
