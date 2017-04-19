@@ -1,3 +1,5 @@
 {
-  "dependencies": {}
+	"globalDependencies": {
+		"webgl-ext": "github:DefinitelyTyped/DefinitelyTyped/webgl-ext/index.d.ts#94b20ad7cd384ae0798d7e137e0a90b8101b31db"
+	}
 }
