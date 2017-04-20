@@ -1,31 +1,31 @@
-import Clear from "./clear";
-import {MainLoop_RF, LoadingScene} from "./mainloop";
-import Scene from "./scene";
-import State from "./state";
-import FPSCamera from "./fpscamera";
+import Clear from "fragile/clear";
+import {MainLoop_RF, LoadingScene} from "fragile/mainloop";
+import Scene from "fragile/scene";
+import State from "fragile/state";
+import FPSCamera from "fragile/fpscamera";
 import {PSpriteDraw} from "./psprite";
-import Text from "./text";
-import Size from "./size";
-import Vec2 from "./vector2";
-import Vec4 from "./vector4";
-import {engine, resource} from "./global";
-import "./resource_loaddef/json";
-import "./resource_loaddef/shader";
-import "./resource_loaddef/technique";
-import "./resource_loaddef/image";
-import TextDraw from "./textdraw";
-import TextLines from "./textlines";
-import {GetPowValue, PlaceCenter} from "./utilfuncs";
+import Text from "fragile/text";
+import Size from "fragile/size";
+import Vec2 from "fragile/vector2";
+import Vec4 from "fragile/vector4";
+import {engine, resource} from "fragile/global";
+import "fragile/resource_loaddef/json";
+import "fragile/resource_loaddef/shader";
+import "fragile/resource_loaddef/technique";
+import "fragile/resource_loaddef/image";
+import TextDraw from "fragile/textdraw";
+import TextLines from "fragile/textlines";
+import {GetPowValue, PlaceCenter} from "fragile/utilfuncs";
 
-import GLTexture2DP from "./gl_texture2dp";
-import GLFramebuffer from "./gl_framebuffer";
-import GLRenderbuffer from "./gl_renderbuffer";
-import {Attachment, RBFormat, InterFormat, TexDataFormat} from "./gl_const";
-import FullRect from "./fullrect";
-import FBSwitch from "./drawutil/fb_switch";
-import DrawGroup from "./drawgroup";
-import DataSwitch from "./dataswitch";
-import GaussFilter from "./gauss";
+import GLTexture2DP from "fragile/gl_texture2dp";
+import GLFramebuffer from "fragile/gl_framebuffer";
+import GLRenderbuffer from "fragile/gl_renderbuffer";
+import {Attachment, RBFormat, InterFormat, TexDataFormat} from "fragile/gl_const";
+import FullRect from "fragile/fullrect";
+import FBSwitch from "fragile/drawutil/fb_switch";
+import DrawGroup from "fragile/drawgroup";
+import DataSwitch from "fragile/dataswitch";
+import GaussFilter from "fragile/gauss";
 
 // particle dance
 class StParticle extends State<MyScene> {
@@ -133,7 +133,7 @@ class StFadeout extends State<MyScene> {
 			self.setState(new StParticle());
 	}
 }
-import {DrawSort} from "./drawsort";
+import {DrawSort} from "fragile/drawsort";
 // show "HELLO WORLD"
 class StText extends State<MyScene> {
 	onUp(self: MyScene): void {
@@ -154,6 +154,7 @@ class StText extends State<MyScene> {
 		engine.sys3d().camera = fpsc.camera;
 		self.asUpdateGroup().group.add(fpsc);
 		engine.addTechnique(resource.getResource("prog"));
+		engine.addTechnique(resource.getResource("ps"));
 		const cls = new Clear(new Vec4(0,0,0,1));
 		cls.drawtag.priority = 0;
 		self.asDrawGroup().group.add(cls);
@@ -171,7 +172,7 @@ class MyScene extends Scene<MyScene> {
 import Alias from "./_alias";
 window.onload = function() {
 	const base = ".";
-	const res = ["sphere", "prog"];
+	const res = ["sphere", "prog", "ps"];
 	const sc = new MyScene(0, new StText());
 	MainLoop_RF(Alias, base, ()=> {
 		return new LoadingScene(res, sc);

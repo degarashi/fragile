@@ -5,11 +5,6 @@
 			"vshader": "testv",
 			"fshader": "testf"
 		},
-		"psprite": {
-			"valueset": "valuesetP",
-			"vshader": "testPv",
-			"fshader": "testPf"
-		},
 		"text": {
 			"valueset": "textvalueset",
 			"vshader": "textv",

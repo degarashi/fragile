@@ -31,17 +31,21 @@ export class LoadingScene extends Scene<LoadingScene> {
 	}
 }
 type Alias_t = {[key: string]: string;};
-function _MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
+function _MainLoop<T>(base: string, cbAlias: ()=>void, cbMakeScene: ()=>IScene) {
 	G.SetResource(new ResStack(base));
-	G.resource.addAlias(alias);
+	cbAlias();
 	G.SetEngine(new Engine());
 	G.SetInput(new InputMgr());
 	G.SetScene(new SceneMgr(cbMakeScene()));
 	G.SetGLRes(new GLResourceSet());
 	G.glres.onContextRestored();
 }
+import Alias from "./_alias";
 export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
-	_MainLoop(alias, base, cbMakeScene);
+	_MainLoop(base, ()=> {
+		G.resource.addAlias(Alias);
+		G.resource.addAlias(alias);
+	}, cbMakeScene);
 
 	RequestAnimationFrame(function Loop() {
 		RequestAnimationFrame(Loop);
@@ -60,7 +64,10 @@ export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScen
 	});
 }
 export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScene) {
-	_MainLoop(alias, base, cbMakeScene);
+	_MainLoop(base, ()=> {
+		G.resource.addAlias(Alias);
+		G.resource.addAlias(alias);
+	}, cbMakeScene);
 
 	let prev = new Date().getTime();
 	RequestAnimationFrame(function Loop() {

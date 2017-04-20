@@ -98,8 +98,9 @@ export default class Engine {
 	setTechnique(name: string): void {
 		if(this._active)
 			this._active.program.unbind();
-
 		this._active = this._tech[name];
+		if(!this._active)
+			throw new Error(`No such technique: ${name}`);
 		this._active.valueset.apply();
 		this._active.program.bind();
 		this._unif = {};

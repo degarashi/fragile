@@ -1,13 +1,13 @@
-import GLVBuffer from "./gl_vbuffer";
-import {DrawType} from "./gl_const";
-import Mat44 from "./matrix44";
-import Vec3 from "./vector3";
-import DObject from "./dobject";
-import GObject from "./gobject";
-import {DrawWithGeom} from "./utilfuncs";
-import {scene, engine, gl, resource} from "./global";
-import GLTexture2D from "./gl_texture2d";
-import {VectorToArray} from "./utilfuncs";
+import GLVBuffer from "fragile/gl_vbuffer";
+import {DrawType} from "fragile/gl_const";
+import Mat44 from "fragile/matrix44";
+import Vec3 from "fragile/vector3";
+import DObject from "fragile/dobject";
+import GObject from "fragile/gobject";
+import {DrawWithGeom} from "fragile/utilfuncs";
+import {scene, engine, gl, resource} from "fragile/global";
+import GLTexture2D from "fragile/gl_texture2d";
+import {VectorToArray} from "fragile/utilfuncs";
 
 function Rand01() {
 	return (Math.random()-0.5) * 2;
@@ -63,8 +63,8 @@ class Alg implements Algorithm {
 		sampler2D	u_texture;
 	}
 */
-import Geometry from "./geometry";
-import GLTexture from "./gl_texture";
+import Geometry from "fragile/geometry";
+import GLTexture from "fragile/gl_texture";
 class PSprite {
 	texture: GLTexture;
 	private _geom: Geometry;

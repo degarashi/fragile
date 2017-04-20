@@ -1,0 +1,9 @@
+{
+	"technique": {
+		"psprite": {
+			"valueset": "valuesetP",
+			"vshader": "testPv",
+			"fshader": "testPf"
+		}
+	}
+}

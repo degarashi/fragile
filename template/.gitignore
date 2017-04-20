@@ -1,0 +1,5 @@
+dist/
+inter/
+node_modules/
+typings/
+src/_alias.ts
