@@ -1,3 +1,4 @@
+/// <reference path="arrayfunc.ts" />
 import GLProgram from "./gl_program";
 import GLValueSet from "./gl_valueset";
 import {resource} from "./global";

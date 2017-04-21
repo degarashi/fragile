@@ -1,3 +1,4 @@
+/// <reference path="arrayfunc.ts" />
 import {Assert, AssertF} from "./utilfuncs";
 import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
 import ResourceLoader from "./resource_loader";

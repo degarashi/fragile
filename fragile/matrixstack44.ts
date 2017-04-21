@@ -1,3 +1,4 @@
+/// <reference path="arrayfunc.ts" />
 import Mat44 from "./matrix44";
 import {Assert} from "./utilfuncs";
 
