@@ -4,7 +4,6 @@ import {Assert} from "./utilfuncs";
 import Rect from "./rect";
 import Range from "./range";
 import Size from "./size";
-import {gl} from "./global";
 
 // フォントテクスチャのうちの一行分
 class FontLane {
@@ -39,7 +38,6 @@ class FontLane {
 		for(let i=0 ; i<u8data.length ; i++) {
 			u8data[i] = data[i*4];
 		}
-		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 		tex.setSubData(
 			new Rect(
 				this._cur,

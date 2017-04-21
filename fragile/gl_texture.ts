@@ -43,6 +43,8 @@ namespace Backup {
 		constructor(public fmt:InterFormat, public srcFmt:InterFormat,
 					public srcFmtType:TexDataFormat, public obj: HTMLImageElement) {}
 		apply(tex: GLTexture): void {
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 			gl.texImage2D(
 				tex._typeId(),
 				0,
@@ -51,14 +53,15 @@ namespace Backup {
 				glc.TexDataFormatC.convert(this.srcFmtType),
 				this.obj
 			);
-			gl.generateMipmap(tex._typeId());
 		}
 	}
 	export class PixelData implements Applyable {
 		private _pixels: Uint8Array;
 		private _dim: number;
 		private _dstFmt: InterFormat;
-		constructor(size: Size, fmt: InterFormat, pixels?:Uint8Array) {
+		private _alignment: number;
+		private _flip: boolean;
+		constructor(size: Size, fmt: InterFormat, align:number, flip:boolean, pixels?:Uint8Array) {
 			this._dstFmt = fmt;
 			if(fmt === InterFormat.RGBA) {
 				this._dim = 4;
@@ -69,8 +72,12 @@ namespace Backup {
 				this._pixels = <Uint8Array>pixels;
 			else
 				this._pixels = new Uint8Array(size.width * size.height * this._dim);
+			this._alignment = align;
+			this._flip = flip;
 		}
 		apply(tex: GLTexture): void {
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, this._alignment);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, this._flip);
 			gl.texImage2D(
 				tex._typeId(),
 				0,
@@ -170,7 +177,7 @@ abstract class GLTexture implements Bindable, GLResource {
 		[this._size.width, this._size.height] = [width, height];
 		if(typeof pixels !== "undefined")
 			pixels = pixels.slice(0);
-		this._param[Backup.Index.Base] = new Backup.PixelData(this.truesize(), fmt, pixels);
+		this._param[Backup.Index.Base] = new Backup.PixelData(this.truesize(), fmt, 1, false, pixels);
 		this.proc(()=> {
 			this._applyParams(Backup.Flag.All);
 		});

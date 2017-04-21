@@ -14,7 +14,6 @@ ResourceInfo.Image = {
 	makeResource: function(src: any): Resource {
 		const tex = new GLTexture2D();
 		tex.setImage(InterFormat.RGBA, InterFormat.RGBA, TexDataFormat.UB, src);
-		tex.genMipmap();
 		return tex;
 	}
 };
