@@ -1,3 +1,4 @@
+/// <reference path="arrayfunc.ts" />
 import {Assert, ExtractExtension} from "./utilfuncs";
 import ResourceLoader from "./resource_loader";
 import Resource from "./resource";
@@ -29,6 +30,11 @@ export class MoreResource {
 	}
 }
 export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:()=>void): void {
+	// ロードするリソースが空だった場合は直後にすぐonCompleteを呼ぶよう調整
+	if(loaders.empty()) {
+		setTimeout(cbComplete, 0);
+		return;
+	}
 	let lastCur:number = 0;
 	let nComp:number = 0;
 	const task:(number|null)[] = [];
