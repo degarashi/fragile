@@ -8,6 +8,28 @@ import TypedArray from "./typedarray";
 import Size from "./size";
 import Vec2 from "./vector2";
 
+// リストの合成
+export function JoinEntries(dst:{[key: string]: any}, src: any) {
+	const k = Object.keys(src);
+	for(let i=0 ; i<k.length ; i++) {
+		const key = k[i];
+		dst[key] = src[key];
+	}
+	return dst;
+}
+// リストの合成 (重複時にコールバックを呼ぶ)
+export function JoinEntriesND(dst:{[key: string]: any}, src: any, cbDup:(name:string)=>boolean) {
+	const k = Object.keys(src);
+	for(let i=0 ; i<k.length ; i++) {
+		const key = k[i];
+		if(typeof dst[key] !== "undefined") {
+			if(!cbDup(key))
+				return dst;
+		}
+		dst[key] = src[key];
+	}
+	return dst;
+}
 export function PlaceCenter(dstSize: Size, srcSize: Size): Vec2 {
 	return new Vec2(
 		Math.floor(dstSize.width/2 - srcSize.width/2),
