@@ -14,5 +14,16 @@ class Size {
 			1 / this.height
 		);
 	}
+	mul(s: number): Size {
+		return new Size(
+			this.width * s,
+			this.height * s
+		);
+	}
+	mulSelf(s: number): Size {
+		this.width *= s;
+		this.height *= s;
+		return this;
+	}
 }
 export default Size;
