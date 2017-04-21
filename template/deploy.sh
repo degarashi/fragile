@@ -1,13 +1,21 @@
-cp ./inter/fragile/arrayfunc.js ./dist
-cp ./src/*.html ./dist
-cp ./src/*.css ./dist
-cp ./src/resource/*.png ./dist/resource
-cp ./src/resource/*.jpg ./dist/resource
-cp ./src/resource/*.def ./dist/resource
-cp ./src/resource/*.prog ./dist/resource
-cp ./src/fragile/resource/*.png ./dist/fragile/resource
-cp ./src/fragile/resource/*.jpg ./dist/fragile/resource
-cp ./src/fragile/resource/*.def ./dist/fragile/resource
-cp ./src/fragile/resource/*.prog ./dist/fragile/resource
+SRC="./src"
+DST="./dist"
+cp ./inter/fragile/arrayfunc.js ${DST}
+cp ${SRC}/*.html ${DST}
+cp ${SRC}/*.css ${DST}
 
-rsync -auv --delete ./dist/ pi@raspi:/var/www/gl/
+RES_SRC="${SRC}/resource"
+RES_DST="${DST}/resource"
+cp ${RES_SRC}/*.png ${RES_DST} \
+	${RES_SRC}/*.jpg ${RES_DST} \
+	${RES_SRC}/*.def ${RES_DST} \
+	${RES_SRC}/*.prog ${RES_DST} 2>/dev/null || :
+
+RES_SRC="${SRC}/fragile/resource"
+RES_DST="${DST}/fragile/resource"
+cp ${RES_SRC}/*.png ${RES_DST} \
+	${RES_SRC}/*.jpg ${RES_DST} \
+	${RES_SRC}/*.def ${RES_DST} \
+	${RES_SRC}/*.prog ${RES_DST} 2>/dev/null || :
+
+rsync -rlOtcv --delete ${DST}/ pi@raspi:/var/www/gl/
