@@ -9,8 +9,8 @@ import GLVBuffer from "./gl_vbuffer";
 import GLIBuffer from "./gl_ibuffer";
 import GLTexture2D from "./gl_texture2d";
 import {Primitive, DrawType} from "./gl_const";
-import {GetLine, DrawWithGeom} from "./utilfuncs";
-import {gl, engine} from "./global";
+import {GetLine} from "./utilfuncs";
+import {engine} from "./global";
 
 class PlaneSingleDraw implements Geometry {
 	readonly vbuffer: {[key: string]: GLVBuffer;};
@@ -44,7 +44,7 @@ class PlaneSingleDraw implements Geometry {
 		engine.setUniform("u_time", time);
 		engine.setUniform("u_alpha", alpha);
 		engine.setUniform("u_delay", timeDelay);
-		engine.draw(()=> { DrawWithGeom(this); });
+		engine.drawGeometry(this);
 	}
 }
 import FontChar from "./fontchar";

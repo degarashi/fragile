@@ -2,13 +2,12 @@ import DObject from "./dobject";
 import GLFramebuffer from "./gl_framebuffer";
 import GLTexture2DP from "./gl_texture2dp";
 import {InterFormat, TexDataFormat, Attachment, UVWrap} from "./gl_const";
-import {engine, gl} from "./global";
+import {engine} from "./global";
 import RPGeometry from "./resourcegen/geometry";
 import rgen from "./resourcegen";
 import Geometry from "./geometry";
 import ResourceWrap from "./resource_wrap";
 import Vec4 from "./vector4";
-import {DrawWithGeom} from "./utilfuncs";
 import Refresh from "./refresh";
 
 class Tag {
@@ -103,10 +102,8 @@ export default class GaussFilter extends DObject {
 				engine.setUniform("u_uvrect", src.uvrect().toVec4());
 				engine.setUniform("u_texDiffuse", src);
 				this._fb[i].attach(Attachment.Color0, this._dest()[i]);
-				engine.draw(()=> {
-					this._fb[i].vp_proc(()=> {
-						DrawWithGeom(this._rect.data);
-					});
+				this._fb[i].vp_proc(()=> {
+					engine.drawGeometry(this._rect.data);
 				});
 			}
 		}

@@ -3,8 +3,7 @@ import RPGeometry from "./resourcegen/geometry";
 import DObject from "./dobject";
 import ResourceWrap from "./resource_wrap";
 import Geometry from "./geometry";
-import {engine, gl} from "./global";
-import {DrawWithGeom} from "./utilfuncs";
+import {engine} from "./global";
 import GLTexture from "./gl_texture";
 import Rect from "./rect";
 import Vec2 from "./vector2";
@@ -36,8 +35,6 @@ export default class FullRect extends DObject {
 				uv.height()/2*vf*zi
 			)
 		);
-		engine.draw(()=> {
-			DrawWithGeom(this._rect.data);
-		});
+		engine.drawGeometry(this._rect.data);
 	}
 }

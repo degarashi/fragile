@@ -1,8 +1,6 @@
 import Clonable from "./clonable";
 import Vector from "./vector";
 import Matrix from "./matrix";
-import Geometry from "./geometry";
-import {gl, engine} from "./global";
 import FontChar from "./fontchar";
 import TypedArray from "./typedarray";
 import Size from "./size";
@@ -225,28 +223,6 @@ export const CancelAnimationFrame =
 				window.clearTimeout(id);
 			};
 	})();
-import glc from "./gl_const";
-export function DrawWithGeom(geom: Geometry) {
-	const idxL: number[] = [];
-	const vbg = geom.vbuffer;
-	let count = 0;
-	for(let name in vbg) {
-		const vb = vbg[name];
-		count = vb.nElem();
-		idxL.push(<number>engine.program().setVStream(name, vb));
-	}
-	const ib = geom.ibuffer;
-	const glflag = glc.PrimitiveC.convert(geom.type);
-	if(ib) {
-		ib.proc(()=> {
-			gl.drawElements(glflag, ib.nElem(), ib.typeinfo().id, 0);
-		});
-	} else {
-		gl.drawArrays(glflag, 0, count);
-	}
-	for(let i=0 ; i<idxL.length ; i++)
-		gl.disableVertexAttribArray(idxL[i]);
-}
 export function BitCount32(b: number): number {
 	b = ((b & 0xaaaaaaaa)>>>1) + (b & 0x55555555);
 	b = ((b & 0xcccccccc)>>>2) + (b & 0x33333333);

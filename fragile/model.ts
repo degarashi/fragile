@@ -5,8 +5,7 @@ import Vec4 from "./vector4";
 import Pose3D from "./pose3d";
 import {Primitive, DrawType} from "./gl_const";
 import Geometry from "./geometry";
-import {engine, gl} from "./global";
-import {DrawWithGeom} from "./utilfuncs";
+import {engine} from "./global";
 
 // モデル管理
 class Model implements Geometry {
@@ -50,7 +49,7 @@ class Model implements Geometry {
 
 		engine.setUniform("u_color", new Vec4(0,0,1,1));
 		engine.sys3d().worldMatrix = this.pose.asMatrix();
-		engine.draw(()=> { DrawWithGeom(this); });
+		engine.drawGeometry(this);
 	}
 }
 export default Model;
