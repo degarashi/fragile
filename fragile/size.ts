@@ -4,6 +4,23 @@ import Clonable from "./clonable";
 
 class Size implements Clonable {
 	constructor(public width:number, public height:number) {}
+	private _calc(proc: (a:number,b:number)=>number, s: Size|number): Size {
+		if(s instanceof Size) {
+			return new Size(
+				proc(this.width, s.width),
+				proc(this.height, s.height)
+			);
+		}
+		return new Size(
+			proc(this.width, s),
+			proc(this.height, s)
+		);
+	}
+	set(s: Size): Size {
+		this.width = s.width;
+		this.height = s.height;
+		return this;
+	}
 	equal(s: Size): boolean {
 		return this.width === s.width &&
 				this.height === s.height;
@@ -22,16 +39,30 @@ class Size implements Clonable {
 			1 / this.height
 		);
 	}
-	mul(s: number): Size {
-		return new Size(
-			this.width * s,
-			this.height * s
-		);
+
+	add(s: Size|number): Size {
+		return this._calc((a,b)=>a+b, s);
 	}
-	mulSelf(s: number): Size {
-		this.width *= s;
-		this.height *= s;
-		return this;
+	addSelf(s: Size|number): Size {
+		return this.set(this.add(s));
+	}
+	sub(s: Size|number): Size {
+		return this._calc((a,b)=>a-b, s);
+	}
+	subSelf(s: Size|number): Size {
+		return this.set(this.sub(s));
+	}
+	mul(s: Size|number): Size {
+		return this._calc((a,b)=>a*b, s);
+	}
+	mulSelf(s: Size|number): Size {
+		return this.set(this.mul(s));
+	}
+	div(s: Size|number): Size {
+		return this._calc((a,b)=>a/b, s);
+	}
+	divSelf(s: Size|number): Size {
+		return this.set(this.div(s));
 	}
 	clone(): Size {
 		return new Size(this.width, this.height);
