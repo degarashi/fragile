@@ -96,11 +96,13 @@ export default class GaussFilter extends DObject {
 			const coeff = this._coeff();
 			for(let i=0 ; i<2 ; i++) {
 				engine.setTechnique(GaussFilter.TechName[i]);
-				engine.setUniform("u_weight", coeff);
 				const src = (i===0) ? this._source() : this._dest()[0];
-				engine.setUniform("u_mapSize", src.truesize().toVec4());
-				engine.setUniform("u_uvrect", src.uvrect().toVec4());
-				engine.setUniform("u_texDiffuse", src);
+				engine.setUniforms({
+					u_weight: coeff,
+					u_mapSize: src.truesize().toVec4(),
+					u_uvrect: src.uvrect().toVec4(),
+					u_texDiffuse: src
+				});
 				this._fb[i].attach(Attachment.Color0, this._dest()[i]);
 				this._fb[i].vp_proc(()=> {
 					engine.drawGeometry(this._rect.data);

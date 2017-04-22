@@ -37,13 +37,15 @@ class PlaneSingleDraw implements Geometry {
 		this.type = Primitive.Triangles;
 	}
 	draw(offset: Vec2, time: number, timeDelay: number, alpha: number): void {
-		engine.setUniform("u_texture", this.texture);
 		const s = engine.size();
-		engine.setUniform("u_screenSize", new Vec2(s.width, s.height));
-		engine.setUniform("u_offset", offset);
-		engine.setUniform("u_time", time);
-		engine.setUniform("u_alpha", alpha);
-		engine.setUniform("u_delay", timeDelay);
+		engine.setUniforms({
+			u_texture: this.texture,
+			u_screenSize: new Vec2(s.width, s.height),
+			u_offset: offset,
+			u_time: time,
+			u_alpha: alpha,
+			u_delay: timeDelay
+		});
 		engine.drawGeometry(this);
 	}
 }
