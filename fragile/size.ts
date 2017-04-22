@@ -1,3 +1,4 @@
+import Vec2 from "./vector2";
 import Vec4 from "./vector4";
 import Clonable from "./clonable";
 
@@ -6,6 +7,12 @@ class Size implements Clonable {
 	equal(s: Size): boolean {
 		return this.width === s.width &&
 				this.height === s.height;
+	}
+	toVec2(): Vec2 {
+		return new Vec2(
+			this.width,
+			this.height
+		);
 	}
 	toVec4(): Vec4 {
 		return new Vec4(
