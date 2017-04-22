@@ -2,7 +2,7 @@ import {ResourceGenSrc} from "../resourcegen";
 import Vec2 from "../vector2";
 import GLVBuffer from "../gl_vbuffer";
 import GLIBuffer from "../gl_ibuffer";
-import {DrawType} from "../gl_const";
+import {Primitive, DrawType} from "../gl_const";
 import Geometry from "../geometry";
 import ResourceParam from "./param";
 import Resource from "../resource";
@@ -14,7 +14,8 @@ ResourceGenSrc.TextRect = function(rp: ResourceParam): Resource {
 			a_position: new GLVBuffer(),
 			a_uv: new GLVBuffer()
 		},
-		ibuffer: new GLIBuffer()
+		ibuffer: new GLIBuffer(),
+		type: Primitive.Triangles
 	};
 	buff.vbuffer.a_position.setVectorData([
 		new Vec2(0,0),

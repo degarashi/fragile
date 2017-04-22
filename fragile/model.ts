@@ -3,7 +3,7 @@ import GLIBuffer from "./gl_ibuffer";
 import TypedArray from "./typedarray";
 import Vec4 from "./vector4";
 import Pose3D from "./pose3d";
-import {DrawType} from "./gl_const";
+import {Primitive, DrawType} from "./gl_const";
 import Geometry from "./geometry";
 import {engine, gl} from "./global";
 import {DrawWithGeom} from "./utilfuncs";
@@ -12,6 +12,7 @@ import {DrawWithGeom} from "./utilfuncs";
 class Model implements Geometry {
 	vbuffer: {[key: string]: GLVBuffer;};
 	ibuffer: GLIBuffer;
+	type: Primitive;
 	pose: Pose3D;
 	angle: number;
 	private _param: any;
@@ -28,6 +29,7 @@ class Model implements Geometry {
 		const ib = new GLIBuffer();
 		ib.setData(idata, 1, DrawType.Static, true);
 		this.ibuffer = ib;
+		this.type = Primitive.Triangles;
 
 		// 座標など
 		this.pose = new Pose3D();
@@ -48,7 +50,7 @@ class Model implements Geometry {
 
 		engine.setUniform("u_color", new Vec4(0,0,1,1));
 		engine.sys3d().worldMatrix = this.pose.asMatrix();
-		engine.draw(()=> { DrawWithGeom(this, gl.TRIANGLES); });
+		engine.draw(()=> { DrawWithGeom(this); });
 	}
 }
 export default Model;

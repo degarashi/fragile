@@ -4,7 +4,7 @@ import Vec3 from "../vector3";
 import Vec4 from "../vector4";
 import GLVBuffer from "../gl_vbuffer";
 import GLIBuffer from "../gl_ibuffer";
-import {DrawType} from "../gl_const";
+import {Primitive, DrawType} from "../gl_const";
 import RPString from "./string";
 import ResourceParam from "./param";
 import Geometry from "../geometry";
@@ -36,7 +36,8 @@ function MakeRectVI(ofs: Vec2, sc: Vec2, uvnum: Vec2) {
 			a_position: new GLVBuffer(),
 			a_uv: new GLVBuffer()
 		},
-		ibuffer: new GLIBuffer()
+		ibuffer: new GLIBuffer(),
+		type: Primitive.Triangles
 	};
 	const rect = MakeRect(ofs, sc, uvnum);
 	buff.vbuffer.a_position.setVectorData(rect.vertex, DrawType.Static, true);
@@ -65,7 +66,8 @@ ResourceGenSrc.Trihedron = function():Resource {
 			a_color: new GLVBuffer(),
 			a_uv: new GLVBuffer()
 		},
-		ibuffer: new GLIBuffer()
+		ibuffer: new GLIBuffer(),
+		type: Primitive.Triangles
 	};
 	buff.vbuffer.a_position.setVectorData([
 		new Vec3(-1, -1, 1),

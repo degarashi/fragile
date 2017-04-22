@@ -32,6 +32,6 @@ export default class Billboard {
 		const m = this._calcMatrix(viewDir);
 		engine.sys3d().worldMatrix = m;
 		engine.setUniform("u_texture", this.tex);
-		engine.draw(()=> { DrawWithGeom(this.geom, gl.TRIANGLES); });
+		engine.draw(()=> { DrawWithGeom(this.geom); });
 	}
 }

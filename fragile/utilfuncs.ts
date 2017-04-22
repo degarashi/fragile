@@ -225,8 +225,8 @@ export const CancelAnimationFrame =
 				window.clearTimeout(id);
 			};
 	})();
-
-export function DrawWithGeom(geom: Geometry, flag: number) {
+import glc from "./gl_const";
+export function DrawWithGeom(geom: Geometry) {
 	const idxL: number[] = [];
 	const vbg = geom.vbuffer;
 	let count = 0;
@@ -236,12 +236,13 @@ export function DrawWithGeom(geom: Geometry, flag: number) {
 		idxL.push(<number>engine.program().setVStream(name, vb));
 	}
 	const ib = geom.ibuffer;
+	const glflag = glc.PrimitiveC.convert(geom.type);
 	if(ib) {
 		ib.proc(()=> {
-			gl.drawElements(flag, ib.nElem(), ib.typeinfo().id, 0);
+			gl.drawElements(glflag, ib.nElem(), ib.typeinfo().id, 0);
 		});
 	} else {
-		gl.drawArrays(flag, 0, count);
+		gl.drawArrays(glflag, 0, count);
 	}
 	for(let i=0 ; i<idxL.length ; i++)
 		gl.disableVertexAttribArray(idxL[i]);

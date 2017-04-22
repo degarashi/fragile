@@ -105,7 +105,7 @@ export default class GaussFilter extends DObject {
 				this._fb[i].attach(Attachment.Color0, this._dest()[i]);
 				engine.draw(()=> {
 					this._fb[i].vp_proc(()=> {
-						DrawWithGeom(this._rect.data, gl.TRIANGLES);
+						DrawWithGeom(this._rect.data);
 					});
 				});
 			}

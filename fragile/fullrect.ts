@@ -37,7 +37,7 @@ export default class FullRect extends DObject {
 			)
 		);
 		engine.draw(()=> {
-			DrawWithGeom(this._rect.data, gl.TRIANGLES);
+			DrawWithGeom(this._rect.data);
 		});
 	}
 }
