@@ -1,6 +1,7 @@
 import Vec4 from "./vector4";
+import Clonable from "./clonable";
 
-class Size {
+class Size implements Clonable {
 	constructor(public width:number, public height:number) {}
 	equal(s: Size): boolean {
 		return this.width === s.width &&
@@ -24,6 +25,9 @@ class Size {
 		this.width *= s;
 		this.height *= s;
 		return this;
+	}
+	clone(): Size {
+		return new Size(this.width, this.height);
 	}
 }
 export default Size;

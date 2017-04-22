@@ -1,7 +1,8 @@
 import Vec2 from "./vector2";
 import Vec4 from "./vector4";
+import Clonable from "./clonable";
 
-class Rect {
+class Rect implements Clonable {
 	constructor(
 		public left:number,
 		public top:number,
@@ -48,6 +49,14 @@ class Rect {
 		return new Vec2(
 			(this.left+this.right)/2,
 			(this.top+this.bottom)/2
+		);
+	}
+	clone(): Rect {
+		return new Rect(
+			this.left,
+			this.top,
+			this.right,
+			this.bottom
 		);
 	}
 }
