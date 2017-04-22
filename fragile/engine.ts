@@ -1,4 +1,4 @@
-import {Assert} from "./utilfuncs";
+import {Assert, JoinEntries} from "./utilfuncs";
 import SysUnif3D from "./sysunif3d";
 import GLTexture from "./gl_texture";
 import ResourceGen from "./resourcegen";
@@ -16,12 +16,13 @@ import Size from "./size";
 import Geometry from "./geometry";
 import glc from "./gl_const";
 
+type UnifMap = {[key: string]: any;};
 export default class Engine {
 	private _doubling: number;
 	private _sys3d: SysUnif3D;
 	private _tech: {[key: string]: TechDef;};
 	private _size: Size;
-	private _unif: {[key: string]: any;};
+	private _unif: UnifMap;
 	private _active: TechDef;
 	static CanvasName: string = "maincanvas";
 
@@ -86,6 +87,9 @@ export default class Engine {
 		cb();
 		for(let i=0 ; i<tex.length ; i++)
 			tex[i].unbind();
+	}
+	setUniforms(tbl: UnifMap): void {
+		JoinEntries(this._unif, tbl);
 	}
 	setUniform(name: string, value: any): void {
 		this._unif[name] = value;
