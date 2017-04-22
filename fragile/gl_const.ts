@@ -1,6 +1,15 @@
 export const enum EnumBase {
 	Num = 0x800000000
 }
+export enum Primitive {
+	Points = EnumBase.Num,
+	LineStrip,
+	LineLoop,
+	Lines,
+	TriangleStrip,
+	TriangleFan,
+	Triangles
+}
 export enum TextureType {
 	Texture2D = EnumBase.Num
 }
@@ -218,6 +227,7 @@ export default class GLConst {
 	static FaceC: Conv<Face>;
 	static CWC: Conv<CW>;
 	static UVWrapC: Conv<UVWrap>;
+	static PrimitiveC: Conv<Primitive>;
 	static readonly GLSLTypeInfo: {[key: number]: GLSLTypeInfoItem;} = {};
 	static readonly GLTypeInfo: {[key: number]: GLTypeInfoItem;} = {};
 	static readonly Type2GLType: {[key: string]: GLTypeInfoItem;} = {};
@@ -407,6 +417,18 @@ export default class GLConst {
 				[UVWrap[i++], gl.REPEAT],
 				[UVWrap[i++], gl.MIRRORED_REPEAT],
 				[UVWrap[i++], gl.CLAMP_TO_EDGE]
+			);
+		}
+		{
+			let i=ItrBegin;
+			GLConst.PrimitiveC = new Conv<Primitive>(
+				[Primitive[i++], gl.POINTS],
+				[Primitive[i++], gl.LINE_STRIP],
+				[Primitive[i++], gl.LINE_LOOP],
+				[Primitive[i++], gl.LINES],
+				[Primitive[i++], gl.TRIANGLE_STRIP],
+				[Primitive[i++], gl.TRIANGLE_FAN],
+				[Primitive[i++], gl.TRIANGLES]
 			);
 		}
 		{
