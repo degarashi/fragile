@@ -1,6 +1,7 @@
 import Vec2 from "./vector2";
 import Vec4 from "./vector4";
 import Clonable from "./clonable";
+import Size from "./size";
 
 class Rect implements Clonable {
 	constructor(
@@ -9,11 +10,22 @@ class Rect implements Clonable {
 		public right:number,
 		public bottom:number
 	) {}
-	lt() {
-		return new Vec2(this.left, this.top);
+	static FromPointSize(lb: Vec2, s: Size) {
+		return Rect.FromPoints(lb, lb.add(s.toVec2()));
 	}
-	rb() {
-		return new Vec2(this.right, this.bottom);
+	static FromPoints(lb: Vec2, rt: Vec2) {
+		return new Rect(
+			lb.x,
+			rt.y,
+			rt.x,
+			lb.y
+		);
+	}
+	lb() {
+		return new Vec2(this.left, this.bottom);
+	}
+	rt() {
+		return new Vec2(this.right, this.top);
 	}
 	width() {
 		return this.right - this.left;
