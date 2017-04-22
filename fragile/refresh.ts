@@ -87,6 +87,13 @@ export default class Refresh {
 		this._reflag &= ~ent.lowerFlag;
 		this._reflag |= ent.upperFlag;
 	}
+	ref(key: string): any {
+		const ent = this._entry[key];
+		// 該当フラグをクリア
+		this._reflag &= ~ent.lowerFlag;
+		this._reflag |= ent.upperFlag;
+		return ent.value;
+	}
 	get(key: string): any {
 		const ent = this._entry[key];
 		if(this._reflag & ent.flag && ent.func) {
