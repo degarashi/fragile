@@ -10,9 +10,11 @@ class Rect implements Clonable {
 		public right:number,
 		public bottom:number
 	) {}
+	// 左下とサイズを指定して矩形を生成
 	static FromPointSize(lb: Vec2, s: Size) {
 		return Rect.FromPoints(lb, lb.add(s.toVec2()));
 	}
+	// 左下と右上の座標から矩形を生成
 	static FromPoints(lb: Vec2, rt: Vec2) {
 		return new Rect(
 			lb.x,
@@ -21,9 +23,23 @@ class Rect implements Clonable {
 			lb.y
 		);
 	}
+	shrinkAt(s: number, pos: Vec2): Rect {
+		return new Rect(
+			(this.left - pos.x) * s + pos.x,
+			(this.top - pos.y) * s + pos.y,
+			(this.right - pos.x) * s + pos.x,
+			(this.bottom - pos.y) * s + pos.y
+		);
+	}
+	// 指定の倍率で拡縮
+	shrink(s: number): Rect {
+		return this.shrinkAt(s, this.center());
+	}
+	// 左下の座標
 	lb() {
 		return new Vec2(this.left, this.bottom);
 	}
+	// 右上の座標
 	rt() {
 		return new Vec2(this.right, this.top);
 	}
@@ -57,6 +73,7 @@ class Rect implements Clonable {
 			this.bottom
 		);
 	}
+	// 中心座標をベクトルで取得
 	center(): Vec2 {
 		return new Vec2(
 			(this.left+this.right)/2,
