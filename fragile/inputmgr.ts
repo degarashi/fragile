@@ -129,6 +129,9 @@ class InputMgr implements Discardable {
 	isMKeyClicked(code: number): boolean {
 		return this._flag.isMKeyClicked(code);
 	}
+	hideMState(code: number): void {
+		this._flag.hideMState(code);
+	}
 	isKeyPressed(code: number): boolean {
 		return this._flag.isKeyPressed(code);
 	}
@@ -137,6 +140,9 @@ class InputMgr implements Discardable {
 	}
 	isKeyClicked(code: number): boolean {
 		return this._flag.isKeyClicked(code);
+	}
+	hideState(code: number): void {
+		this._flag.hideState(code);
 	}
 	positionDelta(): Vec2 {
 		return this._flag.positionDelta();
