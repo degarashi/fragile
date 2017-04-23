@@ -29,7 +29,7 @@ export class MoreResource {
 		this.depend = arg;
 	}
 }
-export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:()=>void): void {
+export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:(name: string)=>void): void {
 	// ロードするリソースが空だった場合は直後にすぐonCompleteを呼ぶよう調整
 	if(loaders.empty()) {
 		setTimeout(cbComplete, 0);
@@ -60,7 +60,7 @@ export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbCompl
 				loaders[li].abort();
 			}
 		}
-		cbError();
+		cbError(loaders[taskIndex].errormsg());
 	}
 	function OnComplete(taskIndex: number): void {
 		Assert(typeof task[taskIndex] === "number");

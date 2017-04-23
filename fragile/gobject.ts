@@ -8,7 +8,7 @@ export default class GObject extends BaseObject {
 	onUpdate(dt: number): boolean {
 		return this.alive();
 	}
-	onDown(): void {}
+	onDown(ret: any): void {}
 	onUp(): void {}
 	onConnected(g: UpdGroup): void {}
 }

@@ -14,6 +14,8 @@ export default class SceneMgr extends GObject {
 	private _nextScene: IScene|null = null;
 	private _nPop: number = 0;
 	private _state: SceneMgrState = SceneMgrState.Idle;
+	private _bSwitch: boolean = false;
+	private _return: any;
 	constructor(firstScene: IScene) {
 		super();
 
@@ -31,15 +33,18 @@ export default class SceneMgr extends GObject {
 		Assert(this._nPop === 0);
 
 		this._nextScene = scene;
+		this._bSwitch = bPop;
 		this._nPop = bPop ? 1 : 0;
 	}
-	pop(n:number = 1): void {
+	pop(n:number = 1, ret?: any): void {
 		// 描画メソッドでのシーン変更は禁止
 		Assert(this._state !== SceneMgrState.Draw);
 		// pushした後にpopはNG
 		Assert(!this._nextScene);
 		Assert(this._nPop === 0);
+		this._bSwitch = false;
 		this._nPop = n;
+		this._return = ret;
 	}
 	_proceed(): boolean {
 		Assert(this._state === SceneMgrState.Idle);
@@ -56,7 +61,9 @@ export default class SceneMgr extends GObject {
 				this._nPop = 0;
 				break;
 			}
-			this.top().onDown();
+			if(!this._bSwitch)
+				this.top().onDown(this._return);
+			delete this._return;
 		}
 		const ns = this._nextScene;
 		if(ns) {

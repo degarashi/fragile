@@ -26,7 +26,7 @@ namespace RState {
 			AssertF("invalid function call");
 		}
 		abstract state(): ResState;
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
 			AssertF("invalid function call");
 		}
 		abstract resourceLength(self: ResStack): number;
@@ -48,7 +48,7 @@ namespace RState {
 		state(): ResState {
 			return ResState.Idle;
 		}
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
 			Assert(
 				res instanceof Array
 				&& cbComplete instanceof Function
@@ -83,7 +83,7 @@ namespace RState {
 				loaderL.push(info.makeLoader(url));
 				infoL.push(info);
 			}
-			const fb = ()=> {
+			const onSuccess = ()=> {
 				Assert(self.state() === ResState.Loading);
 				self._state = new RState.IdleState();
 				let later:string[] = [];
@@ -118,11 +118,14 @@ namespace RState {
 					cbComplete();
 				}
 			};
+			const onError = (msg: string)=> {
+				Assert(self.state() === ResState.Loading);
+				self._state = new RState.IdleState();
+				cbError(msg);
+			};
 			ASyncGet(loaderL, 2,
-				fb,
-				()=> {
-					cbError();
-				}
+				onSuccess,
+				onError
 			);
 		}
 		resourceLength(self: ResStack): number {
@@ -156,7 +159,7 @@ namespace RState {
 		state(): ResState {
 			return ResState.Restoreing;
 		}
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean): void {
+		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
 			new IdleState().loadFrame(self, res, cbComplete, cbError, bSame);
 		}
 		resourceLength(self: ResStack): number {
@@ -199,7 +202,7 @@ export default class ResStack implements Resource {
 	/*
 		\param[in] res ["AliasName", ...]
 	*/
-	loadFrame(res: string[], cbComplete:()=>void, cbError:()=>void, bSame:boolean=false) {
+	loadFrame(res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean=false) {
 		this._state.loadFrame(this, res, cbComplete, cbError, bSame);
 	}
 	// リソースレイヤの数

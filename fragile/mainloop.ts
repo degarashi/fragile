@@ -2,8 +2,6 @@ import Engine from "./engine";
 import InputMgr from "./inputmgr";
 import SceneMgr from "./scenemgr";
 import {IScene} from "./scene";
-import Scene from "./scene";
-import State from "./state";
 import Loop from "./loop";
 import ResStack from "./resstack";
 import {RequestAnimationFrame} from "./utilfuncs";
@@ -11,25 +9,6 @@ import * as G from "./global";
 import GLResourceSet from "./gl_resource_set";
 import {gl} from "./global";
 
-class St extends State<LoadingScene> {}
-export class LoadingScene extends Scene<LoadingScene> {
-	constructor(res: string[], nextScene: IScene) {
-		super(0, new St());
-		G.resource.loadFrame(
-			res,
-			()=> {
-				try {
-					G.scene.push(nextScene, true);
-				} catch (e) {
-					alert(e);
-				}
-			},
-			()=> {
-				alert("ERROR");
-			}
-		);
-	}
-}
 type Alias_t = {[key: string]: string;};
 function _MainLoop<T>(base: string, cbAlias: ()=>void, cbMakeScene: ()=>IScene) {
 	G.SetResource(new ResStack(base));

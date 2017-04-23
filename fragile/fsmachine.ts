@@ -36,8 +36,8 @@ export default class FSMachine<T> extends GObject {
 		}
 		return this.alive();
 	}
-	onDown(): void {
-		this._state.onDown(<T><any>this);
+	onDown(ret: any): void {
+		this._state.onDown(<T><any>this, ret);
 	}
 	onUp(): void {
 		this._state.onUp(<T><any>this);
