@@ -1,5 +1,6 @@
 import Clear from "fragile/clear";
-import {MainLoop_RF, LoadingScene} from "fragile/mainloop";
+import {MainLoop_RF} from "fragile/mainloop";
+import LoadingScene from "fragile/loadingscene";
 import Scene from "fragile/scene";
 import State from "fragile/state";
 import Vec4 from "fragile/vector4";
