@@ -10,15 +10,24 @@ export class LoadFailed extends Error {
 }
 class St extends State<LoadingScene> {}
 export default class LoadingScene extends Scene<LoadingScene> {
-	constructor(res: string[], nextScene: IScene) {
+	constructor(
+		res: string[],
+		nextScene: ()=>IScene,
+		cbProgress?: (loaded:number, total:number)=>void,
+		cbTaskProgress?: (taskIndex: number, loadedBytes: number, totalBytes: number)=>void
+	) {
 		super(0, new St());
 		resource.loadFrame(
 			res,
-			()=> {
-				scene.push(nextScene, true);
-			},
-			(msg: string)=> {
-				scene.pop(1, new LoadFailed(msg));
+			{
+				completed: ()=> {
+					scene.push(nextScene(), true);
+				},
+				error: (msg: string)=> {
+					scene.pop(1, new LoadFailed(msg));
+				},
+				progress: cbProgress || function(){},
+				taskprogress: cbTaskProgress || function(){}
 			}
 		);
 	}

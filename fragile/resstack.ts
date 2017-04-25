@@ -1,6 +1,6 @@
 /// <reference path="arrayfunc.ts" />
 import {Assert, AssertF} from "./utilfuncs";
-import {GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
+import {ASyncCB, GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
 import ResourceLoader from "./resource_loader";
 import Discardable from "./discardable";
 import Resource from "./resource";
@@ -26,7 +26,7 @@ namespace RState {
 			AssertF("invalid function call");
 		}
 		abstract state(): ResState;
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
+		loadFrame(self: ResStack, res: string[], callback: ASyncCB, bSame:boolean): void {
 			AssertF("invalid function call");
 		}
 		abstract resourceLength(self: ResStack): number;
@@ -48,12 +48,8 @@ namespace RState {
 		state(): ResState {
 			return ResState.Idle;
 		}
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
-			Assert(
-				res instanceof Array
-				&& cbComplete instanceof Function
-				&& cbError instanceof Function
-			);
+		loadFrame(self: ResStack, res: string[], callback: ASyncCB, bSame:boolean): void {
+			Assert(res instanceof Array);
 			self._state = new RState.LoadingState();
 
 			// 重複してるリソースはロード対象に入れない
@@ -73,6 +69,7 @@ namespace RState {
 				dst = self._pushFrame();
 			}
 
+			// リソースに応じたローダーを作成
 			const loaderL:ResourceLoader[] = [];
 			const infoL:ResourceLoadDef[] = [];
 			for(let i=0 ; i<res.length ; i++) {
@@ -83,49 +80,63 @@ namespace RState {
 				loaderL.push(info.makeLoader(url));
 				infoL.push(info);
 			}
-			const onSuccess = ()=> {
-				Assert(self.state() === ResState.Loading);
-				self._state = new RState.IdleState();
-				let later:string[] = [];
-				let laterId:number[] = [];
-				for(let i=0 ; i<infoL.length ; i++) {
-					try {
-						const r = infoL[i].makeResource(loaderL[i].result());
-						dst.resource[res[i]] = r;
-					} catch(e) {
-						if(!(e instanceof MoreResource)) {
-							throw e;
-						}
-						// 必要なリソースがまだ足りてなければMoreResourceが送出される
-						const m = <MoreResource>e;
-						later = later.concat(...m.depend);
-						laterId.push(i);
-					}
-				}
-				if(!later.empty()) {
-					// 再度リソース読み込みをかける
-					self.loadFrame(later, ()=> {
-						for(let i=0 ; i<laterId.length ; i++) {
-							const id = laterId[i];
-							const r = infoL[id].makeResource(loaderL[id].result());
-							dst.resource[res[id]] = r;
-						}
-						// すべてのリソース読み込み完了
-						cbComplete();
-					}, cbError, true);
-				} else {
-					// すべてのリソース読み込み完了
-					cbComplete();
-				}
-			};
-			const onError = (msg: string)=> {
-				Assert(self.state() === ResState.Loading);
-				self._state = new RState.IdleState();
-				cbError(msg);
-			};
 			ASyncGet(loaderL, 2,
-				onSuccess,
-				onError
+				{
+					completed: ()=> {
+						Assert(self.state() === ResState.Loading);
+						self._state = new RState.IdleState();
+
+						// 必要なリソースが足りなくて途中で終わってしまった物を再抽出して読み込み
+						let later:string[] = [];
+						const laterId:number[] = [];
+						for(let i=0 ; i<infoL.length ; i++) {
+							try {
+								const r = infoL[i].makeResource(loaderL[i].result());
+								dst.resource[res[i]] = r;
+							} catch(e) {
+								if(!(e instanceof MoreResource)) {
+									throw e;
+								}
+								// 必要なリソースがまだ足りてなければMoreResourceが送出される
+								const m = <MoreResource>e;
+								later = later.concat(...m.depend);
+								laterId.push(i);
+							}
+						}
+						if(!later.empty()) {
+							// 再度リソース読み込みをかける
+							self.loadFrame(
+								later,
+								{
+									completed: ()=> {
+										for(let i=0 ; i<laterId.length ; i++) {
+											const id = laterId[i];
+											const r = infoL[id].makeResource(loaderL[id].result());
+											dst.resource[res[id]] = r;
+										}
+										// すべてのリソース読み込み完了
+										callback.completed();
+									},
+									error: callback.error,
+									progress: callback.progress,
+									taskprogress: callback.taskprogress
+								},
+								true
+							);
+						} else {
+							// すべてのリソース読み込み完了
+							callback.completed();
+						}
+					},
+					error: (msg: string)=> {
+						Assert(self.state() === ResState.Loading);
+						self._state = new RState.IdleState();
+
+						callback.error(msg);
+					},
+					progress: callback.progress,
+					taskprogress: callback.taskprogress
+				}
 			);
 		}
 		resourceLength(self: ResStack): number {
@@ -159,8 +170,8 @@ namespace RState {
 		state(): ResState {
 			return ResState.Restoreing;
 		}
-		loadFrame(self: ResStack, res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean): void {
-			new IdleState().loadFrame(self, res, cbComplete, cbError, bSame);
+		loadFrame(self: ResStack, res: string[], callback: ASyncCB, bSame:boolean): void {
+			new IdleState().loadFrame(self, res, callback, bSame);
 		}
 		resourceLength(self: ResStack): number {
 			return self._resource.length - 1;
@@ -202,8 +213,8 @@ export default class ResStack implements Resource {
 	/*
 		\param[in] res ["AliasName", ...]
 	*/
-	loadFrame(res: string[], cbComplete:()=>void, cbError:(msg: string)=>void, bSame:boolean=false) {
-		this._state.loadFrame(this, res, cbComplete, cbError, bSame);
+	loadFrame(res: string[], callback: ASyncCB, bSame:boolean=false) {
+		this._state.loadFrame(this, res, callback, bSame);
 	}
 	// リソースレイヤの数
 	resourceLength(): number {

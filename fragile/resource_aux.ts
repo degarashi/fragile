@@ -29,10 +29,19 @@ export class MoreResource {
 		this.depend = arg;
 	}
 }
-export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbComplete:()=>void, cbError:(name: string)=>void): void {
+export interface ASyncCB {
+	completed: ()=>void;
+	taskprogress: (taskIndex: number, loadedBytes: number, totalBytes: number)=>void;
+	progress: (loaded: number, total: number)=>void;
+	error: (name: string)=>void;
+}
+export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, callback: ASyncCB): void {
 	// ロードするリソースが空だった場合は直後にすぐonCompleteを呼ぶよう調整
 	if(loaders.empty()) {
-		setTimeout(cbComplete, 0);
+		setTimeout(function(){
+			callback.progress(loaders.length, loaders.length);
+			callback.completed();
+		}, 0);
 		return;
 	}
 	let lastCur:number = 0;
@@ -43,14 +52,17 @@ export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbCompl
 		Assert(cur < loaders.length);
 		Assert(task[taskIndex] === null);
 		task[taskIndex] = cur;
-		loaders[cur].begin(
-			function(){
+		loaders[cur].begin({
+			completed: function(){
 				OnComplete(taskIndex);
 			},
-			function(){
+			progress: function(loaded:number, total:number){
+				callback.taskprogress(taskIndex, loaded, total);
+			},
+			error: function(){
 				OnError(taskIndex);
 			}
-		);
+		}, -1);
 	}
 	function OnError(taskIndex: number): void {
 		// 他のタスクを全て中断
@@ -60,22 +72,24 @@ export function ASyncGet(loaders:ResourceLoader[], maxConnection:number, cbCompl
 				loaders[li].abort();
 			}
 		}
-		cbError(loaders[taskIndex].errormsg());
+		callback.error(loaders[taskIndex].errormsg());
 	}
 	function OnComplete(taskIndex: number): void {
 		Assert(typeof task[taskIndex] === "number");
 		task[taskIndex] = null;
 		++nComp;
+		callback.progress(nComp, loaders.length);
 		if(lastCur < loaders.length) {
 			// 残りのタスクを開始
 			Request(taskIndex);
 		} else {
 			if(nComp === loaders.length)
-				cbComplete();
+				callback.completed();
 		}
 	}
 	for(let i=0 ; i<Math.min(loaders.length, maxConnection) ; i++) {
 		task[i] = null;
+		// 最初のタスクを開始
 		Request(i);
 	}
 }

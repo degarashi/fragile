@@ -25,6 +25,11 @@ window.onload = function() {
 	const res: string[] = [];
 	const sc = new MyScene(0, new StDefault());
 	MainLoop_RF(Alias, base, ()=> {
-		return new LoadingScene(res, sc);
+		return new LoadingScene(
+			res,
+			function(){
+				return sc;
+			}
+		);
 	});
 };
