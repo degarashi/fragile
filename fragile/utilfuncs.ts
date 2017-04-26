@@ -34,6 +34,14 @@ export function PlaceCenter(dstSize: Size, srcSize: Size): Vec2 {
 		Math.floor(dstSize.height/2 - srcSize.height/2)
 	);
 }
+import Rect from "./rect";
+export function PlaceCenterRect(dst: Rect, src: Size): Vec2 {
+	const ofs = PlaceCenter(dst.toSize(), src);
+	return new Vec2(
+		dst.left + ofs.x,
+		dst.bottom + ofs.y
+	);
+}
 export function BlockPlace(dst: TypedArray, dstWidth: number,
 						dim: number,
 						px: number, py: number,
