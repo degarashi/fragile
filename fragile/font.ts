@@ -6,7 +6,19 @@ export default class {
 		public italic: boolean
 	) {}
 	fontstr() {
-		const italic = this.italic ? "italic" : "";
-		return `${italic} ${this.weight} ${this.size} ${this.family}`;
+		let res = "";
+		if(this.italic)
+			res += "italic";
+		const add = (ent: string)=>{
+			const val = (<any>this)[ent];
+			if(val) {
+				res += " ";
+				res += String(val);
+			}
+		};
+		add("weight");
+		add("size");
+		add("family");
+		return res;
 	}
 }
