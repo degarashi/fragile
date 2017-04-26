@@ -65,6 +65,12 @@ class Rect implements Clonable {
 			this.bottom * sc.y
 		);
 	}
+	toSize(): Size {
+		return new Size(
+			this.width(),
+			this.height()
+		);
+	}
 	toVec4(): Vec4 {
 		return new Vec4(
 			this.left,
