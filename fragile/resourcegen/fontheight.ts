@@ -43,7 +43,7 @@ ResourceGenSrc.FontHeight = function(rp: RPFontHeight): Resource {
 			}
 		}
 	}
-	return new ResourceWrap<Range>(new Range(top, bottom+1));
+	return new ResourceWrap<Range>(new Range(top, bottom+1+top));
 };
 export default class RPFontHeight implements ResourceParam {
 	constructor(public font: Font) {}
