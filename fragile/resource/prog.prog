@@ -1,22 +1,39 @@
 {
 	"technique": {
 		"mytech": {
-			"valueset": "valueset",
+			"boolset": [
+				"Blend", "CullFace", "DepthTest", "DepthMask"
+			],
+			"valueset": {
+				"DepthFunc": "LessEqual"
+			},
 			"vshader": "testv",
 			"fshader": "testf"
 		},
 		"text": {
-			"valueset": "textvalueset",
+			"boolset": [
+				"Blend", "DepthTest", "DepthMask"
+			],
+			"valueset": {
+				"DepthFunc": "LessEqual",
+				"BlendFunc": ["SrcAlpha", "OneMinusSrcAlpha"]
+			},
 			"vshader": "textv",
 			"fshader": "textf"
 		},
 		"rectAdd": {
-			"valueset": "rectAdd",
+			"boolset": [
+				"Blend"
+			],
+			"valueset": {
+				"BlendFunc": ["SrcAlpha", "One"]
+			},
 			"vshader": "rectv",
 			"fshader": "rectf"
 		},
 		"rect": {
-			"valueset": "rect",
+			"boolset": [],
+			"valueset": {},
 			"vshader": "rectv",
 			"fshader": "rectf"
 		},

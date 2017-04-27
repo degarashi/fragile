@@ -6,6 +6,7 @@ import Resource from "./resource";
 import ResourceWrap from "./resource_wrap";
 import {NoSuchResource} from "./resstack";
 import {MoreResource} from "./resource_aux";
+import {Assert} from "./utilfuncs";
 
 interface TechSource {
 	depandancy: string[],
@@ -14,7 +15,8 @@ interface TechSource {
 interface TechSourceDef {
 	vshader: string;
 	fshader: string;
-	valueset: string;
+	valueset: string | Object;
+	boolset?: string[];
 }
 export interface TechDef {
 	valueset: GLValueSet;
@@ -32,7 +34,10 @@ export default class Technique extends ResourceWrap<null> {
 				if(!resource.checkResource(key))
 					later.push(key);
 			};
-			chk(v.valueset);
+			if(v.valueset instanceof Object) {
+				Assert(v.boolset instanceof Object);
+			} else
+				chk(<string>v.valueset);
 			chk(v.vshader);
 			chk(v.fshader);
 		});
@@ -42,8 +47,19 @@ export default class Technique extends ResourceWrap<null> {
 		const tech:TechDefMap = {};
 		Object.keys(src.technique).forEach((k: string)=> {
 			const v = src.technique[k];
+			let vs:GLValueSet;
+			if(v.valueset instanceof Object) {
+				vs = GLValueSet.FromJSON(
+					{
+						boolset: <string[]>v.boolset,
+						valueset: <{[key: string]: any}>v.valueset
+					}
+				);
+			} else {
+				vs = GLValueSet.FromJSON(resource.getResource(v.valueset).data);
+			}
 			tech[k] = {
-				valueset: GLValueSet.FromJSON(resource.getResource(v.valueset).data),
+				valueset: vs,
 				program: new GLProgram(
 					resource.getResource(v.vshader),
 					resource.getResource(v.fshader)
