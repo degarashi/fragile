@@ -1,5 +1,4 @@
 #version 100
-precision mediump float;
 #define VShader
 #pragma glslify: import(./gaussvalue)
 #pragma glslify: UV9 = require(./uv9)

@@ -1,3 +1,4 @@
+precision mediump float;
 #ifdef VShader
 	attribute vec2 a_position;
 	attribute vec2 a_uv;

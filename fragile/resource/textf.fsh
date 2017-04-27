@@ -1,12 +1,9 @@
 #version 100
-precision mediump float;
+#pragma glslify: import(./textvalue)
 
 uniform sampler2D u_texture;
 uniform float u_time;
 uniform float u_delay;
-varying vec4 v_uv;
-varying float v_time;
-varying float v_alpha;
 
 void main() {
 	float d = texture2D(u_texture, v_uv.xy).w;

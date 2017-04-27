@@ -1,5 +1,4 @@
 #version 100
-precision mediump float;
 #pragma glslify: import(./gaussvalue)
 #pragma glslify: GaussMix9 = require(./gauss_mix9)
 
