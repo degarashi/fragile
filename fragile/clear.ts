@@ -8,7 +8,7 @@ export default class Clear extends DObject {
 		public depth?:number,
 		public stencil?:number
 	) {
-		super();
+		super(null);
 	}
 	onDraw(): void {
 		let flag = 0;

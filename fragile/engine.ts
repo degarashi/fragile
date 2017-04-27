@@ -15,6 +15,7 @@ import ResourceWrap from "./resource_wrap";
 import Size from "./size";
 import Geometry from "./geometry";
 import glc from "./gl_const";
+import DrawTag from "./drawtag";
 
 type UnifMap = {[key: string]: any;};
 export default class Engine {
@@ -24,6 +25,7 @@ export default class Engine {
 	private _size: Size;
 	private _unif: UnifMap;
 	private _active: TechDef;
+	private _activeName: string;
 	static CanvasName: string = "maincanvas";
 
 	private _onResized(): void {
@@ -105,17 +107,33 @@ export default class Engine {
 		if(this._active)
 			this._active.program.unbind();
 		this._active = this._tech[name];
+		this._activeName = name;
 		if(!this._active)
 			throw new Error(`No such technique: ${name}`);
 		this._active.valueset.apply();
 		this._active.program.bind();
 		this._unif = {};
 	}
+	techName(): string {
+		return this._activeName;
+	}
 	technique(): TechDef {
 		return this._active;
 	}
 	program(): GLProgram {
 		return this.technique().program;
+	}
+	applyTag(tag: DrawTag): void {
+		if(tag.technique !== null) {
+			let apl = true;
+			const tech = this.techName();
+			if(tech) {
+				if(tech === tag.technique)
+					apl = false;
+			}
+			if(apl)
+				this.setTechnique(tag.technique);
+		}
 	}
 	drawGeometry(geom: Geometry): void {
 		this.draw(()=> {

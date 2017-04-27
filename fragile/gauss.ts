@@ -9,25 +9,87 @@ import Geometry from "./geometry";
 import ResourceWrap from "./resource_wrap";
 import Vec4 from "./vector4";
 import Refresh from "./refresh";
+import DrawGroup from "./drawgroup";
 
-class Tag {
+class STag {
 	static readonly Source = "source";
+	static readonly Dest = "dest";
+	static readonly FB = "fb";
+}
+class GaussSub extends DObject {
+	coeff: number[];
+	private readonly _rf: Refresh;
+	private readonly _rect: Geometry =  (<ResourceWrap<Geometry>>rgen.get(new RPGeometry("Rect01"))).data;
+	constructor(tech: string) {
+		super(tech);
+		this._rf = new Refresh({
+			[STag.Source]: null,
+			[STag.Dest]: {
+				depend: [STag.Source],
+				func: (prev: GLTexture2DP): GLTexture2DP => {
+					if(!prev)
+						prev = new GLTexture2DP();
+					const ss = this.source().size();
+					const ds = prev.size();
+					if(ds.width < ss.width || ds.height < ss.height) {
+						prev.setLinear(true, true, 0);
+						prev.setWrap(UVWrap.Clamp, UVWrap.Clamp);
+						prev.setData(InterFormat.RGBA, ss.width, ss.height, InterFormat.RGBA, TexDataFormat.UB);
+					}
+					return prev;
+				}
+			},
+			[STag.FB]: {
+				depend: [STag.Dest],
+				func: (prev: GLFramebuffer): GLFramebuffer => {
+					if(!prev)
+						prev = new GLFramebuffer();
+					prev.attach(Attachment.Color0, this.dest());
+					return prev;
+				}
+			}
+		});
+	}
+	setSource(src: GLTexture2DP): void {
+		this._rf.set(STag.Source, src);
+	}
+	source(): GLTexture2DP {
+		return this._rf.get(STag.Source);
+	}
+	dest(): GLTexture2DP {
+		return this._rf.get(STag.Dest);
+	}
+	private _fb(): GLFramebuffer {
+		return this._rf.get(STag.FB);
+	}
+	onDraw(): void {
+		const src = this.source();
+		const coeff = this.coeff;
+		engine.setUniforms({
+			u_weight: coeff,
+			u_mapSize: src.truesize().toVec4(),
+			u_uvrect: src.uvrect().toVec4(),
+			u_texDiffuse: src
+		});
+		this._fb().vp_proc(()=> {
+			engine.drawGeometry(this._rect);
+		});
+	}
+}
+class Tag {
 	static readonly Dispersion = "dispersion";
 	static readonly Coeff = "coeff";
-	static readonly Dest = "dest";
 }
 export default class GaussFilter extends DObject {
-	private _fb: GLFramebuffer[];
-	private _rect: ResourceWrap<Geometry>;
-	private _rf: Refresh;
+	private readonly _pass: DrawGroup;
+	private readonly _sub: GaussSub[];
+	private readonly _rf: Refresh;
 	static Tag = Tag;
-	static TechName: string[] = ["gaussh", "gaussv"];
 
 	// [Horizontal Blur] -> [Vertical Blur]
 	constructor() {
-		super();
+		super(null);
 		this._rf = new Refresh({
-			[Tag.Source]: null,
 			[Tag.Dispersion]: null,
 			[Tag.Coeff]: {
 				depend: [Tag.Dispersion],
@@ -49,65 +111,33 @@ export default class GaussFilter extends DObject {
 					}
 					return ca;
 				}
-			},
-			[Tag.Dest]: {
-				depend: [Tag.Source],
-				func: (prev: GLTexture2DP[])=> {
-					const ss = this._source().size();
-					const ds = prev[0].size();
-					if(ds.width < ss.width || ds.height < ss.height) {
-						for(let i=0 ; i<2 ; i++)
-							prev[i].setData(InterFormat.RGBA, ss.width, ss.height, InterFormat.RGBA, TexDataFormat.UB);
-					}
-					return prev;
-				}
 			}
 		});
-		this._fb = [new GLFramebuffer(), new GLFramebuffer()];
-		const dest = [new GLTexture2DP(), new GLTexture2DP()];
-		this._rf.set(Tag.Dest, dest);
+		this._pass = new DrawGroup();
+		this._sub = [new GaussSub("gaussh"), new GaussSub("gaussv")];
 		for(let i=0 ; i<2 ; i++) {
-			dest[i].setLinear(true, true, 0);
-			dest[i].setWrap(UVWrap.Clamp, UVWrap.Clamp);
-			this._fb[i].attach(Attachment.Color0, dest[i]);
+			this._pass.group.add(this._sub[i]);
 		}
-		this._rect = <ResourceWrap<Geometry>>rgen.get(new RPGeometry("Rect01"));
 	}
 	setSource(src: GLTexture2DP): void {
-		this._rf.set(Tag.Source, src);
-	}
-	private _dest(): GLTexture2DP[] {
-		return this._rf.get(Tag.Dest);
-	}
-	private _source(): GLTexture2DP {
-		return this._rf.get(Tag.Source);
+		this._sub[0].setSource(src);
 	}
 	private _coeff(): number[] {
 		return this._rf.get(Tag.Coeff);
 	}
 	result(): GLTexture2DP {
-		return this._dest()[1];
+		return this._sub[1].dest();
 	}
 	setDispersion(d: number): void {
 		this._rf.set(Tag.Dispersion, d);
 	}
 	onDraw(): void {
-		if(this._source()) {
+		if(this._sub[0].source()) {
 			const coeff = this._coeff();
 			for(let i=0 ; i<2 ; i++) {
-				engine.setTechnique(GaussFilter.TechName[i]);
-				const src = (i===0) ? this._source() : this._dest()[0];
-				engine.setUniforms({
-					u_weight: coeff,
-					u_mapSize: src.truesize().toVec4(),
-					u_uvrect: src.uvrect().toVec4(),
-					u_texDiffuse: src
-				});
-				this._fb[i].attach(Attachment.Color0, this._dest()[i]);
-				this._fb[i].vp_proc(()=> {
-					engine.drawGeometry(this._rect.data);
-				});
+				this._sub[i].coeff = coeff;
 			}
+			this._pass.onDraw();
 		}
 	}
 }

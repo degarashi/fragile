@@ -1,12 +1,16 @@
 import DObject from "./dobject";
 import Group from "./group";
 import {SortAlg} from "./drawsort";
+import {engine} from "./global";
 
 export default class DrawGroup extends DObject {
 	group: Group<DObject> = new Group<DObject>();
 	private _sortAlg: SortAlg;
 	private _bRefr: boolean = true;
 
+	constructor() {
+		super(null);
+	}
 	setSortAlgorithm(a: SortAlg): void {
 		this._sortAlg = a;
 		this._bRefr = true;
@@ -26,7 +30,9 @@ export default class DrawGroup extends DObject {
 		this._proc();
 		const g = this.group.group();
 		for(let i=0 ; i<g.length ; i++) {
-			g[i].onDraw();
+			const obj = g[i];
+			engine.applyTag(obj.drawtag);
+			obj.onDraw();
 		}
 		this._proc();
 	}

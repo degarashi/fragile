@@ -12,7 +12,7 @@ export default class TextDraw extends DObject {
 	readonly delay: number;
 
 	constructor(text: Text, delay: number) {
-		super();
+		super("text");
 		this._text = text;
 		this.timer = new LinearTimer(0, text.length()+delay);
 		this.offset = new Vec2(0,0);
@@ -23,7 +23,6 @@ export default class TextDraw extends DObject {
 		return this.timer.advance(dt);
 	}
 	onDraw(): void {
-		engine.setTechnique("text");
 		this._text.draw(this.offset, this.timer.get(), this.delay, this.alpha);
 	}
 }

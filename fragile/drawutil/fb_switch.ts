@@ -7,7 +7,7 @@ export default class FBSwitch extends DObject implements Drawable {
 	lower: Drawable;
 
 	constructor(public buffer: GLFramebuffer) {
-		super();
+		super(null);
 	}
 	onDraw(): void {
 		if(this.buffer.getAttachment(Attachment.Color0)) {
