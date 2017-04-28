@@ -82,6 +82,12 @@ export default class SceneMgr extends GObject {
 	length(): number {
 		return this._scene.length;
 	}
+	prev(): IScene {
+		const s = this._scene;
+		if(s.length < 2)
+			return undefined;
+		return s[s.length-2];
+	}
 	_empty(): boolean {
 		return this.length() === 0;
 	}
