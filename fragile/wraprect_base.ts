@@ -6,7 +6,10 @@ import GLTexture from "./gl_texture";
 import Geometry from "./geometry";
 import {engine} from "./global";
 import Vec2 from "./vector2";
+import Vec3 from "./vector3";
 import Rect from "./rect";
+import RPBeta from "./resourcegen/beta";
+import GLTexture2D from "./gl_texture2d";
 
 export default class WrapRectBase extends DObject {
 	private _rect = <ResourceWrap<Geometry>>ResourceGen.get(new RPGeometry("Rect01_01"));
@@ -14,15 +17,18 @@ export default class WrapRectBase extends DObject {
 	zoom: number = 1;
 	alpha: number = 1;
 	vflip: boolean = false;
+	color: Vec3 = new Vec3(1);
 
 	constructor(tech: string) {
 		super(tech);
 	}
 	onDraw(): void {
-		if(!this.texture)
-			return;
+		if(!this.texture) {
+			this.texture = <GLTexture2D>ResourceGen.get(new RPBeta(new Vec3(1,1,1)));
+		}
 		engine.setUniform("u_texture", this.texture);
 		engine.setUniform("u_alpha", this.alpha);
+		engine.setUniform("u_color", this.color);
 		const ts = this.texture.truesize();
 		const s = this.texture.size();
 		const uv = new Rect(0, s.height/ts.height, s.width/ts.width, 0);

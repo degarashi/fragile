@@ -21,19 +21,19 @@
 			"vshader": "textv",
 			"fshader": "textf"
 		},
-		"rectAdd": {
-			"boolset": [
-				"Blend"
-			],
+		"rect": {
+			"boolset": ["Blend"],
 			"valueset": {
-				"BlendFunc": ["SrcAlpha", "One"]
+				"BlendFunc": ["SrcAlpha", "OneMinusSrcAlpha"]
 			},
 			"vshader": "rectv",
 			"fshader": "rectf"
 		},
-		"rect": {
-			"boolset": [],
-			"valueset": {},
+		"rectAdd": {
+			"boolset": ["Blend"],
+			"valueset": {
+				"BlendFunc": ["SrcAlpha", "One"]
+			},
 			"vshader": "rectv",
 			"fshader": "rectf"
 		},
