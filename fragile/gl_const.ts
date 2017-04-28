@@ -119,7 +119,7 @@ export enum BlendFunc {
 	OneMinusDstAlpha,
 	ConstantColor,
 	OneMinusConstantColor,
-	ONEMinusConstantAlpha,
+	OneMinusConstantAlpha,
 	SrcAlphaSaturate
 }
 export enum DepthStencilFunc {
