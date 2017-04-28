@@ -5,6 +5,7 @@
 				"Blend", "CullFace", "DepthTest", "DepthMask"
 			],
 			"valueset": {
+				"BlendEquation": ["Add"],
 				"DepthFunc": "LessEqual"
 			},
 			"vshader": "testv",
@@ -16,6 +17,7 @@
 			],
 			"valueset": {
 				"DepthFunc": "LessEqual",
+				"BlendEquation": ["Add"],
 				"BlendFunc": ["SrcAlpha", "OneMinusSrcAlpha"]
 			},
 			"vshader": "textv",
@@ -24,6 +26,7 @@
 		"rect": {
 			"boolset": ["Blend"],
 			"valueset": {
+				"BlendEquation": ["Add"],
 				"BlendFunc": ["SrcAlpha", "OneMinusSrcAlpha"]
 			},
 			"vshader": "rectv",
@@ -32,6 +35,7 @@
 		"rectAdd": {
 			"boolset": ["Blend"],
 			"valueset": {
+				"BlendEquation": ["Add"],
 				"BlendFunc": ["SrcAlpha", "One"]
 			},
 			"vshader": "rectv",
