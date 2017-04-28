@@ -34,6 +34,7 @@ export default class WrapRect extends DObject {
 				uv.height()/2*vf*zi
 			)
 		);
+		engine.setUniform("u_alpha", 1.0);
 		engine.drawGeometry(this._rect.data);
 	}
 }
