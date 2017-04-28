@@ -121,6 +121,7 @@ export default class GaussFilter extends DObject {
 	}
 	setSource(src: GLTexture2DP): void {
 		this._sub[0].setSource(src);
+		this._sub[1].setSource(this._sub[0].dest());
 	}
 	private _coeff(): number[] {
 		return this._rf.get(Tag.Coeff);
