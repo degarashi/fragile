@@ -472,13 +472,14 @@ export default class GLConst {
 		{
 			const t = GLConst.ValueSetting;
 			t.blendcolor = gl.blendColor;
-			const bfc = GLConst.BlendFuncC;
+			const beq = GLConst.BlendEquationC;
 			t.blendequation = function(mode0: string, mode1: string = mode0) {
 				gl.blendEquationSeparate(
-					bfc.fromStringToGL(mode0),
-					bfc.fromStringToGL(mode1)
+					beq.fromStringToGL(mode0),
+					beq.fromStringToGL(mode1)
 				);
 			};
+			const bfc = GLConst.BlendFuncC;
 			t.blendfunc = function(sf0: string, df0: string, sf1: string=sf0, df1: string=df0) {
 				gl.blendFuncSeparate(
 					bfc.fromStringToGL(sf0),
