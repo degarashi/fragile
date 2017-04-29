@@ -1,5 +1,6 @@
 interface Discardable {
-	discard(): void;
-	isDiscarded(): boolean;
+	acquire(): void;
+	discard(cb?: ()=>void): void;
+	count(): number;
 }
 export default Discardable;

@@ -6,7 +6,7 @@ import GLFShader from "./gl_fshader";
 import GLVBuffer from "./gl_vbuffer";
 import Bindable from "./bindable";
 import Vector from "./vector";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 import GLResource from "./gl_resource";
 
 export class ProgramError extends Error {
@@ -30,8 +30,7 @@ class AttribInfo {
 }
 type UniformInfoM = {[key: string]: UniformInfo;};
 type AttribInfoM = {[key: string]: AttribInfo;};
-export default class GLProgram implements GLResource, Bindable {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+export default class GLProgram extends GLResourceBase implements GLResource, Bindable {
 	private _id: WebGLProgram | null = null;
 	private _bBind: boolean = false;
 	private _uniform: UniformInfoM;
@@ -40,6 +39,7 @@ export default class GLProgram implements GLResource, Bindable {
 	private _fs: GLFShader;
 
 	constructor(vs: GLVShader, fs: GLFShader) {
+		super();
 		this._vs = vs;
 		this._fs = fs;
 		glres.add(this);
@@ -104,7 +104,7 @@ export default class GLProgram implements GLResource, Bindable {
 	}
 	// ------------- from Bindable -------------
 	bind(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(!this._bBind, "already binded");
 		gl.useProgram(this.id());
 		this._bBind = true;
@@ -122,24 +122,25 @@ export default class GLProgram implements GLResource, Bindable {
 		cb();
 		this.unbind(prev);
 	}
-	// ------------- from Discardable -------------
-	discard() {
-		Assert(!this._bBind);
-		this.onContextLost();
-		this._rf.discard();
-	}
-	isDiscarded() {
-		return this._rf.isDiscarded();
+	// ------------- from GLResourceBase -------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			Assert(!this._bBind);
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 	// ------------- from GLContext -------------
 	onContextLost(): void {
-		this._rf.onContextLost((): void=> {
+		super.onContextLost((): void=> {
 			gl.deleteProgram(this.id());
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void=> {
+		super.onContextRestored((): void=> {
 			if(this._vs.contextLost())
 				this._vs.onContextRestored();
 			if(this._fs.contextLost())
@@ -183,8 +184,5 @@ export default class GLProgram implements GLResource, Bindable {
 				this._uniform = unif;
 			}
 		});
-	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
 	}
 }

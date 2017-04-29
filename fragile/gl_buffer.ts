@@ -5,7 +5,7 @@ import {DataFormat, DrawType, GLTypeInfoItem, default as glc} from "./gl_const";
 import Vector from "./vector";
 import TypedArray from "./typedarray";
 import GLResource from "./gl_resource";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 
 class GLBufferInfo {
 	constructor(
@@ -19,8 +19,7 @@ class GLBufferInfo {
 		public backup?: ArrayBuffer
 	) {}
 }
-abstract class GLBuffer implements GLResource,  Bindable {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+abstract class GLBuffer extends GLResourceBase implements GLResource, Bindable {
 	private _id: WebGLBuffer|null = null;
 	private _bBind: boolean = false;
 	private _info: GLBufferInfo;
@@ -28,6 +27,7 @@ abstract class GLBuffer implements GLResource,  Bindable {
 	public abstract typeId(): number;
 	public abstract typeQueryId(): number;
 	constructor() {
+		super();
 		glres.add(this);
 	}
 
@@ -112,7 +112,7 @@ abstract class GLBuffer implements GLResource,  Bindable {
 	}
 	// --------- from Bindable ---------
 	bind(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(!this._bBind, "already binded");
 		gl.bindBuffer(this._typeId(), this.id());
 		this._bBind = true;
@@ -130,24 +130,25 @@ abstract class GLBuffer implements GLResource,  Bindable {
 		cb();
 		this.unbind(prev);
 	}
-	// --------- from Discardable ---------
-	discard() {
-		Assert(!this._bBind, "still binding somewhere");
-		this.onContextLost();
-		this._rf.discard();
-	}
-	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
+	// --------- from GLResourceBase ---------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			Assert(!this._bBind, "still binding somewhere");
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 	// --------- from GLContext ---------
 	onContextLost(): void {
-		this._rf.onContextLost((): void => {
+		super.onContextLost((): void => {
 			gl.deleteBuffer(this.id());
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void => {
+		super.onContextRestored((): void => {
 			this._id = gl.createBuffer();
 			if(this._info) {
 				// 必要ならデータを復元
@@ -157,9 +158,6 @@ abstract class GLBuffer implements GLResource,  Bindable {
 				}
 			}
 		});
-	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
 	}
 }
 export default GLBuffer;

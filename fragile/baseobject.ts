@@ -1,18 +1,14 @@
-import Discardable from "./discardable";
+import RefCount from "./refcount";
 
-export default class BaseObject implements Discardable {
+export default class BaseObject extends RefCount {
 	private _bAlive: boolean = true;
 
 	alive(): boolean {
 		return this._bAlive;
 	}
-	// ------------- from Discardable -------------
-	discard(): boolean {
-		const prev = this._bAlive;
+	destroy(): boolean {
+		const ret = this._bAlive;
 		this._bAlive = false;
-		return prev;
-	}
-	isDiscarded(): boolean {
-		return !this._bAlive;
+		return ret;
 	}
 }

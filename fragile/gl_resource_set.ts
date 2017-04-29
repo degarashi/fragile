@@ -1,8 +1,8 @@
 import GLResource from "./gl_resource";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 import {gl} from "./global";
 
-export default class GLResourceSet extends GLResourceFlag {
+export default class GLResourceSet extends GLResourceBase {
 	private readonly _set:Set<GLResource> = new Set<GLResource>();
 
 	onContextLost(): void {

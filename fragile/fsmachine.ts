@@ -42,9 +42,9 @@ export default class FSMachine<T> extends GObject {
 	onUp(): void {
 		this._state.onUp(<T><any>this);
 	}
-	discard(): boolean {
-		if(this.alive()) {
-			super.discard();
+	// --------------- from BaseObject ---------------
+	destroy(): boolean {
+		if(super.destroy()) {
 			this.setState(EndState);
 			this._doSwitchState();
 			return true;

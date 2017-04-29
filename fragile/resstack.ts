@@ -2,7 +2,6 @@
 import {Assert, AssertF} from "./utilfuncs";
 import {ASyncCB, GetResourceInfo, ASyncGet, MoreResource, ResourceLoadDef} from "./resource_aux";
 import ResourceLoader from "./resource_loader";
-import Discardable from "./discardable";
 import Resource from "./resource";
 import ResourceWrap from "./resource_wrap";
 
@@ -33,7 +32,7 @@ namespace RState {
 		popFrame(self: ResStack, n: number): void {
 			AssertF("invalid function call");
 		}
-		discard(self: ResStack): void {
+		discard(self: ResStack, cb?:()=>void): void {
 			AssertF("invalid function call");
 		}
 	}
@@ -154,8 +153,8 @@ namespace RState {
 				--n;
 			}
 		}
-		discard(self: ResStack): void {
-			self._df.discard();
+		discard(self: ResStack, cb?:()=>void): void {
+			self._discard(cb);
 		}
 	}
 	export class LoadingState extends State {
@@ -184,18 +183,19 @@ import "./resource_loaddef/shader";
 import "./resource_loaddef/image";
 import "./resource_loaddef/technique";
 
+import RefCount from "./refcount";
 // リソースをレイヤに分けて格納
-export default class ResStack implements Resource {
-	_df:			ResourceWrap<null> = new ResourceWrap<null>(null);
+export default class ResStack extends RefCount {
 	_resource:		ResLayer[] = [];
 	// リソース探索ベースパス
 	_base:			string;
 	// リソース名 -> リソースパス
-	_alias:			{[key: string]: string;} = {};
+	_alias:			StringMap = {};
 	// 現在のステート
 	_state:	RState.State = new RState.IdleState();
 
 	constructor(base: string) {
+		super();
 		this._base = base;
 		this._pushFrame();
 	}
@@ -270,11 +270,11 @@ export default class ResStack implements Resource {
 			cb(r[k]);
 		});
 	}
-	// ------------ from Discardable ------------
-	discard(): void {
-		this._state.discard(this);
+	_discard(cb?:()=>void): void {
+		super.discard(cb);
 	}
-	isDiscarded(): boolean {
-		return this._df.isDiscarded();
+	// ------------ from RefCount ------------
+	discard(cb?:()=>void): void {
+		this._state.discard(this, cb);
 	}
 }

@@ -1,22 +1,21 @@
 import InputBuff from "./inputbuff";
 import InputFlag from "./inputflag";
-import Discardable from "./discardable";
 import Vec2 from "./vector2";
 import Vec3 from "./vector3";
 import {Assert} from "./utilfuncs";
+import RefCount from "./refcount";
 
-class InputMgr implements Discardable {
+class InputMgr extends RefCount {
 	private _cur: InputBuff;
 	private _prev: InputBuff;
 	private _flag: InputFlag;
 	private _events: {[key: string]: (e:any)=>void;};
-	private _bDiscard: boolean;
 	constructor() {
+		super();
 		this._cur = new InputBuff();
 		this._prev = new InputBuff();
 		this._switchBuff();
 		this._flag = new InputFlag();
-		this._bDiscard = false;
 
 		this._events = {
 			mousedown: (e)=> {
@@ -156,12 +155,13 @@ class InputMgr implements Discardable {
 	wheelDelta(): Vec2 {
 		return this._flag.wheelDelta();
 	}
-	// ---------------- from Discardable ----------------
-	isDiscarded(): boolean {
-		return this._bDiscard;
-	}
-	discard(): void {
-		this._unregisterEvent();
+	// ---------------- from GLResourceBase ----------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(cb)
+				cb();
+			this._unregisterEvent();
+		});
 	}
 }
 export default InputMgr;

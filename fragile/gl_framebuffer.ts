@@ -5,7 +5,7 @@ import {Assert} from "./utilfuncs";
 import {gl, glres} from "./global";
 import {Attachment} from "./gl_const";
 import glc from "./gl_const";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 import GLResource from "./gl_resource";
 import Size from "./size";
 import Rect from "./rect";
@@ -31,14 +31,14 @@ class VPPixel implements VPSet {
 		return this.rect;
 	}
 }
-export default class GLFramebuffer implements Bindable {
-	private readonly _rf: GLResourceFlag = new GLResourceFlag();
+export default class GLFramebuffer extends GLResourceBase implements Bindable {
 	private _id: WebGLFramebuffer|null = null;
 	private _bBind: boolean = false;
 	private readonly _attachment: (GLTexture2D | GLRenderbuffer | null)[] = [];
 	private _vpset: VPSet;
 
 	constructor() {
+		super();
 		glres.add(this);
 		for(let i=0 ; i<glc.AttachmentC.length() ; i++)
 			this._attachment[i] = null;
@@ -116,13 +116,13 @@ export default class GLFramebuffer implements Bindable {
 	}
 	// ---------------- from Binable ----------------
 	bind(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(!this._bBind, "already binded");
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id());
 		this._bBind = true;
 	}
 	unbind(id: WebGLFramebuffer|null = null): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(this._bBind, "not binded yet");
 		gl.bindFramebuffer(gl.FRAMEBUFFER, id);
 		this._bBind = false;
@@ -135,25 +135,26 @@ export default class GLFramebuffer implements Bindable {
 		cb();
 		this.unbind(prev);
 	}
-	// ---------------- from Discardable ----------------
-	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
-	}
-	discard(): void {
-		Assert(!this._bBind, "still binding somewhere");
-		this.onContextLost();
-		this._rf.discard();
+	// ---------------- from GLResourceBase ----------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			Assert(!this._bBind, "still binding somewhere");
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 	// ---------------- from GLContext ----------------
 	onContextLost(): void {
-		this._rf.onContextLost((): void=> {
+		super.onContextLost((): void=> {
 			Assert(!this._bBind);
 			gl.deleteFramebuffer(this._id);
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void=> {
+		super.onContextRestored((): void=> {
 			Assert(!this._bBind);
 			this._id = gl.createFramebuffer();
 			this.proc(()=> {
@@ -162,8 +163,5 @@ export default class GLFramebuffer implements Bindable {
 				}
 			});
 		});
-	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
 	}
 }

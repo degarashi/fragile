@@ -1,34 +1,26 @@
 import {Assert} from "./utilfuncs";
+import RefCount from "./refcount";
 
-export default class GLResourceFlag {
-	private		_bDiscard: boolean = false;
+export default class GLResourceBase extends RefCount {
 	private		_bLost: boolean = true;
 
-	// -------------- from Discardable --------------
-	discard(): void {
-		Assert(!this.isDiscarded());
-		this._bDiscard = true;
-	}
-	isDiscarded(): boolean {
-		return this._bDiscard;
-	}
 	// -------------- from GLContext --------------
 	onContextLost(cb: ()=>void): void {
-		Assert(!this.isDiscarded());
+		Assert(this.count() > 0);
 		if(this._bLost)
 			return;
 		this._bLost = true;
 		cb();
 	}
 	onContextRestored(cb: ()=>void): void {
-		Assert(!this.isDiscarded());
+		Assert(this.count() > 0);
 		if(!this._bLost)
 			return;
 		this._bLost = false;
 		cb();
 	}
 	contextLost(): boolean {
-		Assert(!this.isDiscarded());
+		Assert(this.count() > 0);
 		return this._bLost;
 	}
 }

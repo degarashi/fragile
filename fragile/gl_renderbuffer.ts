@@ -3,18 +3,18 @@ import {Assert} from "./utilfuncs";
 import {gl, glres} from "./global";
 import {RBFormat} from "./gl_const"
 import glc from "./gl_const";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 import GLResource from "./gl_resource";
 import Size from "./size";
 
-export default class GLRenderbuffer implements GLResource, Bindable {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+export default class GLRenderbuffer extends GLResourceBase implements GLResource, Bindable {
 	private _id: WebGLRenderbuffer|null;
 	private _bBind: boolean = false;
 	private _size: Size = new Size(0,0);
 	private _format: RBFormat;
 
 	constructor() {
+		super();
 		glres.add(this);
 	}
 	size(): Size {
@@ -33,18 +33,19 @@ export default class GLRenderbuffer implements GLResource, Bindable {
 			gl.renderbufferStorage(gl.RENDERBUFFER, glc.RBFormatC.convert(fmt), w, h);
 		});
 	}
-	// ------------- from Discardable -------------
-	discard(): void {
-		Assert(!this._bBind, "still binding somewhere");
-		this.onContextLost();
-		this._rf.discard();
-	}
-	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
+	// ------------- from GLResourceBase -------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			Assert(!this._bBind, "still binding somewhere");
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 	// ------------- from Bindable -------------
 	bind(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(!this._bBind, "already binded");
 		gl.bindRenderbuffer(gl.RENDERBUFFER, this.id());
 		this._bBind = true;
@@ -64,19 +65,16 @@ export default class GLRenderbuffer implements GLResource, Bindable {
 	}
 	// ------------- from GLContext -------------
 	onContextLost(): void {
-		this._rf.onContextLost((): void=> {
+		super.onContextLost((): void=> {
 			gl.deleteRenderbuffer(this.id());
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void=> {
+		super.onContextRestored((): void=> {
 			this._id = gl.createRenderbuffer();
 			if(this._format)
 				this.allocate(this._format, this._size.width, this._size.height);
 		});
-	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
 	}
 }

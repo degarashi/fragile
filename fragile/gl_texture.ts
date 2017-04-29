@@ -1,6 +1,6 @@
 import Bindable from "./bindable";
 import GLResource from "./gl_resource";
-import GLResourceFlag from "./gl_resource_flag";
+import GLResourceBase from "./gl_resource_base";
 import {BlockPlace, Assert} from "./utilfuncs";
 import {gl, glres} from "./global";
 import {default as glc, UVWrap, InterFormat, TexDataFormat} from "./gl_const";
@@ -110,8 +110,7 @@ namespace Backup {
 		All = 0xff
 	}
 }
-abstract class GLTexture implements Bindable, GLResource {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+abstract class GLTexture extends GLResourceBase implements Bindable, GLResource {
 	private _id: WebGLTexture|null = null;
 	private _bind: number = 0;
 	private readonly _size:Size = new Size(0,0);
@@ -127,6 +126,7 @@ abstract class GLTexture implements Bindable, GLResource {
 		return glc.TextureQueryC.convert(this.typeQueryId());
 	}
 	constructor() {
+		super();
 		this._param = [
 			null,
 			new Backup.Filter(false, false, 0),
@@ -232,31 +232,28 @@ abstract class GLTexture implements Bindable, GLResource {
 		});
 	}
 	bind_loose(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		gl.bindTexture(this._typeId(), this.id());
 		++this._bind;
 	}
 	// ----------------- from GLContext -----------------
 	onContextLost(): void {
-		this._rf.onContextLost((): void=> {
+		super.onContextLost((): void=> {
 			gl.deleteTexture(this._id);
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void=> {
+		super.onContextRestored((): void=> {
 			this._id = gl.createTexture();
 			this.proc(()=> {
 				this._applyParams(Backup.Flag.All);
 			});
 		});
 	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
-	}
 	// ----------------- from Bindable -----------------
 	bind(): void {
-		Assert(!this.isDiscarded(), "already discarded");
+		Assert(this.count() > 0, "already discarded");
 		Assert(this._bind === 0, "already binded");
 		gl.bindTexture(this._typeId(), this.id());
 		++this._bind;
@@ -274,14 +271,15 @@ abstract class GLTexture implements Bindable, GLResource {
 		cb();
 		this.unbind(prev);
 	}
-	// ----------------- from Discardable -----------------
-	discard(): void {
-		Assert(!this._bind, "still binding somewhere");
-		this.onContextLost();
-		this._rf.discard();
-	}
-	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
+	// ----------------- from GLResourceBase -----------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			Assert(!this._bind, "still binding somewhere");
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 }
 export default GLTexture;

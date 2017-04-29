@@ -138,7 +138,7 @@ export function CharPlaceLines(fp: FontChar[], lineH: number, width: number): Ch
 // 指定された矩形に文字列を配置
 export function CharPlace(fp: FontChar[], lineH: number, size: Size, from: number=0, to:number=fp.length): CharPlaceResult {
 	// {[texture]: PlaneSingle}
-	const vi = new Map();
+	const vi = new Map<GLTexture2D, PlaneSingle>();
 	const cur = new Vec2(0,0);
 	const nl = ()=> {
 		cur.x = 0;
@@ -165,12 +165,13 @@ export function CharPlace(fp: FontChar[], lineH: number, size: Size, from: numbe
 					break Place;
 				}
 			}
-			let ps;
-			if(vi.has(f.texture))
-				ps = vi.get(f.texture);
+			const tex = <GLTexture2D>f.texture;
+			let ps:PlaneSingle;
+			if(vi.has(tex))
+				ps = <PlaneSingle>vi.get(tex);
 			else {
-				ps = new PlaneSingle(<GLTexture2D>f.texture);
-				vi.set(f.texture, ps);
+				ps = new PlaneSingle(tex);
+				vi.set(tex, ps);
 			}
 			ps.add(cur, f, time++);
 			cur.x += <number>f.width;

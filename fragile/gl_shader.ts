@@ -2,8 +2,8 @@ import {PaddingString, AddLineNumber, Assert} from "./utilfuncs";
 import {gl, glres} from "./global";
 import {ShaderType} from "./gl_const";
 import glc from "./gl_const";
-import GLResourceFlag from "./gl_resource_flag";
 import GLResource from "./gl_resource";
+import GLResourceBase from "./gl_resource_base";
 
 export class ShaderError extends Error {
 	constructor(id: WebGLShader|null) {
@@ -21,13 +21,13 @@ export class ShaderError extends Error {
 		return "ShaderError";
 	}
 }
-abstract class GLShader implements GLResource {
-	private _rf: GLResourceFlag = new GLResourceFlag();
+abstract class GLShader extends GLResourceBase implements GLResource {
 	private _id: WebGLShader | null = null;
 	private _source: string;
 
 	abstract typeId(): ShaderType;
 	constructor(src: string) {
+		super();
 		this._source = src;
 		glres.add(this);
 	}
@@ -36,13 +36,13 @@ abstract class GLShader implements GLResource {
 	}
 	// --------------- from GLContext ---------------
 	onContextLost(): void {
-		this._rf.onContextLost((): void=> {
+		super.onContextLost((): void=> {
 			gl.deleteShader(this._id);
 			this._id = null;
 		});
 	}
 	onContextRestored(): void {
-		this._rf.onContextRestored((): void=> {
+		super.onContextRestored((): void=> {
 			// シェーダーを読み込んでコンパイル
 			const id = gl.createShader(glc.ShaderTypeC.convert(this.typeId()));
 			gl.shaderSource(id, this._source);
@@ -54,16 +54,14 @@ abstract class GLShader implements GLResource {
 			}
 		});
 	}
-	contextLost(): boolean {
-		return this._rf.contextLost();
-	}
-	// --------------- from Discardable ---------------
-	isDiscarded(): boolean {
-		return this._rf.isDiscarded();
-	}
-	discard(): void {
-		this.onContextLost();
-		this._rf.discard();
+	// --------------- from GLResourceBase ---------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(cb)
+				cb();
+			this.onContextLost();
+			glres.remove(this);
+		});
 	}
 }
 export default GLShader;
