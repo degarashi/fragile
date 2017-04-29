@@ -1,6 +1,8 @@
-type CBAdd<T> = (obj: T, g: Group<T>)=>void;
-type CBSort<T> = (a:T, b:T)=>number;
-export default class Group<T> {
+import Discardable from "./discardable";
+
+type CBAdd<T extends Discardable> = (obj: T, g: Group<T>)=>void;
+type CBSort<T extends Discardable> = (a:T, b:T)=>number;
+export default class Group<T extends Discardable> {
 	private _group: T[] = [];
 	private _add: T[] | null = null;
 	private _remove: T[] | null = null;
@@ -23,8 +25,10 @@ export default class Group<T> {
 		const g = this._group;
 		const len = g.length;
 		for(let i=0 ; i<len ; i++) {
-			if(g[i] === obj)
+			if(g[i] === obj) {
+				g[i].discard();
 				g.splice(i, 1);
+			}
 		}
 	}
 	private _doRemove(): boolean {
@@ -50,9 +54,10 @@ export default class Group<T> {
 				this._sort(cbSort);
 		}
 	}
-	add(obj: any): void {
+	add(obj: T): void {
 		if(!this._add)
 			this._add = [];
+		obj.acquire();
 		this._add.push(obj);
 	}
 	remove(obj: T): void {
