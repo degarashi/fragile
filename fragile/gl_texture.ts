@@ -189,6 +189,8 @@ abstract class GLTexture implements Bindable, GLResource {
 		const base = <Backup.Base>this._param[Backup.Index.Base];
 		base.writeSubData(this.truesize().width, rect.left, rect.bottom, rect.width(), pixels);
 		this.proc(()=> {
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 			gl.texSubImage2D(
 				this._typeId(),
 				0,
@@ -213,6 +215,8 @@ abstract class GLTexture implements Bindable, GLResource {
 	setSubImage(x:number, y:number, srcFmt:InterFormat, srcFmtType:TexDataFormat, obj:HTMLImageElement): void {
 		Assert(srcFmtType === TexDataFormat.UB);
 		this.proc(()=> {
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 			gl.texSubImage2D(
 				this._typeId(),
 				0, x, y,
