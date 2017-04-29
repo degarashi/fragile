@@ -179,6 +179,11 @@ namespace RState {
 	}
 }
 
+import "./resource_loaddef/json";
+import "./resource_loaddef/shader";
+import "./resource_loaddef/image";
+import "./resource_loaddef/technique";
+
 // リソースをレイヤに分けて格納
 export default class ResStack implements Resource {
 	_df:			ResourceWrap<null> = new ResourceWrap<null>(null);
