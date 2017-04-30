@@ -125,6 +125,12 @@ class VectorImpl<T extends Vector> implements Vector {
 	minus(): T {
 		return this.mul(-1);
 	}
+	dist_sq(v: Vector): number {
+		return this.sub(v).len_sq();
+	}
+	distance(v: Vector): number {
+		return Math.sqrt(this.dist_sq(v));
+	}
 	toString(): string {
 		const n = this.dim();
 		let ret = `Vector${n}:[`;
