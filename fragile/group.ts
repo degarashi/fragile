@@ -1,8 +1,9 @@
 import Discardable from "./discardable";
+import RefCount from "./refcount";
 
 type CBAdd<T extends Discardable> = (obj: T, g: Group<T>)=>void;
 type CBSort<T extends Discardable> = (a:T, b:T)=>number;
-export default class Group<T extends Discardable> {
+export default class Group<T extends Discardable> extends RefCount {
 	private _group: T[] = [];
 	private _add: T[] | null = null;
 	private _remove: T[] | null = null;
@@ -64,5 +65,24 @@ export default class Group<T extends Discardable> {
 		if(!this._remove)
 			this._remove = [];
 		this._remove.push(obj);
+	}
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(cb)
+				cb();
+			const g = this._group;
+			for(let i=0 ; i<g.length ; i++) {
+				g[i].discard();
+			}
+			this._group = [];
+			const a = this._add;
+			if(a) {
+				for(let i=0 ; i<a.length ; i++) {
+					a[i].discard();
+				}
+				this._add = null;
+			}
+			this._remove = null;
+		});
 	}
 }

@@ -36,4 +36,11 @@ export default class DrawGroup extends DObject {
 		}
 		this._proc();
 	}
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(cb)
+				cb();
+			this.group.discard();
+		});
+	}
 }

@@ -31,4 +31,12 @@ export default class UpdGroup extends GObject {
 		this._doAddRemove();
 		return true;
 	}
+	// ------------ from GObject ------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(cb)
+				cb();
+			this.group.discard();
+		});
+	}
 }
