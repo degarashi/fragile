@@ -19,6 +19,7 @@ export default class SceneMgr extends GObject {
 	constructor(firstScene: IScene) {
 		super();
 
+		firstScene.acquire();
 		this.push(firstScene, false);
 		firstScene.onUp();
 		this._proceed();
@@ -32,6 +33,7 @@ export default class SceneMgr extends GObject {
 		// popした後に積むのも禁止
 		Assert(this._nPop === 0);
 
+		scene.acquire();
 		this._nextScene = scene;
 		this._bSwitch = bPop;
 		this._nPop = bPop ? 1 : 0;
@@ -55,8 +57,7 @@ export default class SceneMgr extends GObject {
 			--this._nPop;
 			b = true;
 
-			const t = <IScene>this._scene.pop();
-			t.discard();
+			(<IScene>this._scene.pop()).discard();
 			if(this._scene.length === 0) {
 				this._nPop = 0;
 				break;
@@ -114,5 +115,16 @@ export default class SceneMgr extends GObject {
 			OutputError("scenemgr::ondraw()", e.message);
 		}
 		this._state = SceneMgrState.Idle;
+	}
+	// -------------- from GObject --------------
+	discard(cb?:()=>void): void {
+		super.discard(()=>{
+			if(this._nextScene)
+				this._nextScene.discard();
+			const s = this._scene;
+			for(let i=0 ; i<s.length ; i++)
+				s[i].discard();
+			this._scene = [];
+		});
 	}
 }
