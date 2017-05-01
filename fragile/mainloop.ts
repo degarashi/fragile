@@ -52,7 +52,7 @@ export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IS
 
 	let prev = new Date().getTime();
 	RequestAnimationFrame(function Loop() {
-		RequestAnimationFrame(Loop);
+		const id = RequestAnimationFrame(Loop);
 
 		const now = new Date().getTime();
 		// 最大50msまでの経過時間
@@ -60,9 +60,11 @@ export function MainLoop_RF<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IS
 		prev = now;
 
 		G.input.update();
-		G.scene.onUpdate(tick / 1000);
+		let bDead = !G.scene.onUpdate(tick / 1000);
 		if(gl.isContextLost())
 			return;
-		G.scene.onDraw();
+		bDead = bDead || !G.scene.onDraw();
+		if(bDead)
+			CancelAnimationFrame(id);
 	});
 }
