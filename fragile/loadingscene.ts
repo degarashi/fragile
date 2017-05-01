@@ -21,7 +21,7 @@ export default class LoadingScene extends Scene<LoadingScene> {
 			res,
 			{
 				completed: ()=> {
-					scene.push(nextScene(), true);
+					scene.push(nextScene(), true, true);
 				},
 				error: (msg: string)=> {
 					scene.pop(1, new LoadFailed(msg));

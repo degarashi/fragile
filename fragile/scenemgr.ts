@@ -17,15 +17,14 @@ export default class SceneMgr extends GObject implements Drawable {
 	private _state: SceneMgrState = SceneMgrState.Idle;
 	private _bSwitch: boolean = false;
 	private _return: any;
-	constructor(firstScene: IScene) {
+	constructor(firstScene: IScene, bUnique: boolean) {
 		super();
 
-		firstScene.acquire();
-		this.push(firstScene, false);
+		this.push(firstScene, false, bUnique);
 		firstScene.onUp();
 		this._proceed();
 	}
-	push(scene: IScene, bPop: boolean): void {
+	push(scene: IScene, bPop: boolean, bUnique: boolean): void {
 		Assert(scene instanceof Scene);
 		// 描画メソッドでのシーン変更は禁止
 		Assert(this._state !== SceneMgrState.Draw);
@@ -34,7 +33,8 @@ export default class SceneMgr extends GObject implements Drawable {
 		// popした後に積むのも禁止
 		Assert(this._nPop === 0);
 
-		scene.acquire();
+		if(!bUnique)
+			scene.acquire();
 		this._nextScene = scene;
 		this._bSwitch = bPop;
 		this._nPop = bPop ? 1 : 0;

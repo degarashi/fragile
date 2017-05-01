@@ -15,7 +15,7 @@ function _MainLoop<T>(base: string, cbAlias: ()=>void, cbMakeScene: ()=>IScene) 
 	cbAlias();
 	G.SetEngine(new Engine());
 	G.SetInput(new InputMgr());
-	G.SetScene(new SceneMgr(cbMakeScene()));
+	G.SetScene(new SceneMgr(cbMakeScene(), true));
 	G.SetGLRes(new GLResourceSet());
 	G.glres.onContextRestored();
 }
