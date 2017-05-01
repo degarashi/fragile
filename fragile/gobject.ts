@@ -10,5 +10,4 @@ export default class GObject extends BaseObject {
 	}
 	onDown(ret: any): void {}
 	onUp(): void {}
-	onConnected(g: UpdGroup): void {}
 }

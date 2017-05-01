@@ -9,9 +9,7 @@ export default class UpdGroup extends GObject {
 		super(p);
 	}
 	private _doAddRemove(): void {
-		const cbAdd = (obj: GObject, g: Group<GObject>): void => {
-			obj.onConnected(<UpdGroup><any>g);
-		};
+		const cbAdd = (obj: GObject, g: Group<GObject>): void => {};
 		const cbSort = (a: GObject, b: GObject): number => {
 			if(a.priority > b.priority)
 				return 1;
