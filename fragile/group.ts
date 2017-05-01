@@ -55,10 +55,11 @@ export default class Group<T extends Discardable> extends RefCount {
 				this._sort(cbSort);
 		}
 	}
-	add(obj: T): void {
+	add(obj: T, bUnique: boolean): void {
 		if(!this._add)
 			this._add = [];
-		obj.acquire();
+		if(!bUnique)
+			obj.acquire();
 		this._add.push(obj);
 	}
 	remove(obj: T): void {

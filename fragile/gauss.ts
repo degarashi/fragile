@@ -116,7 +116,7 @@ export default class GaussFilter extends DObject {
 		this._pass = new DrawGroup();
 		this._sub = [new GaussSub("gaussh"), new GaussSub("gaussv")];
 		for(let i=0 ; i<2 ; i++) {
-			this._pass.group.add(this._sub[i]);
+			this._pass.group.add(this._sub[i], false);
 		}
 	}
 	setSource(src: GLTexture2DP): void {
