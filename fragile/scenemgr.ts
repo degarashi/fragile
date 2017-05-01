@@ -3,13 +3,14 @@ import {IScene} from "./scene";
 import GObject from "./gobject";
 import {Assert} from "./utilfuncs";
 import {OutputError} from "./output";
+import Drawable from "./drawable";
 
 export enum SceneMgrState {
 	Idle,
 	Draw,
 	Proc
 }
-export default class SceneMgr extends GObject {
+export default class SceneMgr extends GObject implements Drawable {
 	private _scene: IScene[] = [];
 	private _nextScene: IScene|null = null;
 	private _nPop: number = 0;
@@ -106,15 +107,19 @@ export default class SceneMgr extends GObject {
 		}
 		return !this._empty();
 	}
-	onDraw(): void {
+	onDraw(): boolean {
 		Assert(this._state === SceneMgrState.Idle);
 		this._state = SceneMgrState.Draw;
+		const t = this.top();
+		if(!t)
+			return false;
 		try {
-			(<Scene<undefined>>this.top()).onDraw();
+			(<Scene<undefined>>t).onDraw();
 		} catch(e) {
 			OutputError("scenemgr::ondraw()", e.message);
 		}
 		this._state = SceneMgrState.Idle;
+		return true;
 	}
 	// -------------- from GObject --------------
 	discard(cb?:()=>void): void {

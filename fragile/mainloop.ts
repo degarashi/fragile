@@ -4,7 +4,7 @@ import SceneMgr from "./scenemgr";
 import {IScene} from "./scene";
 import Loop from "./loop";
 import ResStack from "./resstack";
-import {RequestAnimationFrame} from "./utilfuncs";
+import {RequestAnimationFrame, CancelAnimationFrame} from "./utilfuncs";
 import * as G from "./global";
 import GLResourceSet from "./gl_resource_set";
 import {gl} from "./global";
@@ -27,10 +27,12 @@ export function MainLoop<T>(alias: Alias_t, base: string, cbMakeScene: ()=>IScen
 	}, cbMakeScene);
 
 	RequestAnimationFrame(function Loop() {
-		RequestAnimationFrame(Loop);
+		const id = RequestAnimationFrame(Loop);
 		if(gl.isContextLost())
 			return;
-		G.scene.onDraw();
+		if(!G.scene.onDraw()) {
+			CancelAnimationFrame(id);
+		}
 	});
 	const loop = new Loop();
 	loop.start(60, (tick: number) => {

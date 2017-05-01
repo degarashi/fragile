@@ -215,15 +215,15 @@ export function IsMatrix(m: any): m is Matrix {
 export function IsVM(vm: any): boolean {
 	return IsVector(vm) || IsMatrix(vm);
 }
-export const RequestAnimationFrame =
+export const RequestAnimationFrame:(callback: ()=>void)=>number =
 	window.requestAnimationFrame
 	|| (function(){
 		return window.webkitRequestAnimationFrame ||
 			function(cb: ()=>void) {
-				window.setTimeout(cb, 1000/60);
+				return window.setTimeout(cb, 1000/60);
 			};
 	})();
-export const CancelAnimationFrame =
+export const CancelAnimationFrame:(id: number)=>void =
 	window.cancelAnimationFrame
 	|| (function(){
 		return window.webkitCancelAnimationFrame ||
