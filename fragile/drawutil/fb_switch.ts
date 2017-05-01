@@ -9,11 +9,16 @@ export default class FBSwitch extends DObject implements Drawable {
 	constructor(public buffer: GLFramebuffer) {
 		super(null);
 	}
-	onDraw(): void {
-		if(this.buffer.getAttachment(Attachment.Color0)) {
-			this.buffer.vp_proc(()=> {
-				this.lower.onDraw();
-			});
-		}
+	onDraw(): boolean {
+		return super.aliveCB(()=>{
+			if(this.buffer.getAttachment(Attachment.Color0)) {
+				let res:boolean = false;
+				this.buffer.vp_proc(()=> {
+					res = this.lower.onDraw();
+				});
+				if(!res)
+					this.destroy();
+			}
+		});
 	}
 }

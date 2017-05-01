@@ -22,7 +22,9 @@ export default class TextDraw extends DObject {
 	advance(dt: number): boolean {
 		return this.timer.advance(dt);
 	}
-	onDraw(): void {
-		this._text.draw(this.offset, this.timer.get(), this.delay, this.alpha);
+	onDraw(): boolean {
+		return super.aliveCB(()=>{
+			this._text.draw(this.offset, this.timer.get(), this.delay, this.alpha);
+		});
 	}
 }

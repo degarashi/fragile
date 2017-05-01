@@ -1,6 +1,6 @@
 import Discardable from "./discardable";
 
 interface Drawable extends Discardable {
-	onDraw(): void;
+	onDraw(): boolean;
 }
 export default Drawable;

@@ -10,6 +10,6 @@ abstract class DObject extends BaseObject implements Drawable {
 		this.drawtag.technique = tech;
 		this.drawtag.priority = priority;
 	}
-	abstract onDraw(): void;
+	abstract onDraw(): boolean;
 }
 export default DObject;

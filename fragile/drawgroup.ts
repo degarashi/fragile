@@ -26,15 +26,18 @@ export default class DrawGroup extends DObject {
 		this.group.proc(cbAdd, cbSort, this._bRefr);
 		this._bRefr = false;
 	}
-	onDraw(): void {
+	onDraw(): boolean {
 		this._proc();
 		const g = this.group.group();
 		for(let i=0 ; i<g.length ; i++) {
 			const obj = g[i];
 			engine.applyTag(obj.drawtag);
-			obj.onDraw();
+			if(!obj.onDraw()) {
+				this.group.remove(obj);
+			}
 		}
 		this._proc();
+		return true;
 	}
 	discard(cb?:()=>void): void {
 		super.discard(()=>{

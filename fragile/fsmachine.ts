@@ -30,11 +30,10 @@ export default class FSMachine<T> extends GObject {
 		this._nextState = st;
 	}
 	onUpdate(dt: number): boolean {
-		if(this.alive()) {
+		return super.aliveCB(()=>{
 			this._state.onUpdate(<T><any>this, dt);
 			this._doSwitchState();
-		}
-		return this.alive();
+		});
 	}
 	onDown(ret: any): void {
 		this._state.onDown(<T><any>this, ret);

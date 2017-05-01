@@ -62,17 +62,19 @@ class GaussSub extends DObject {
 	private _fb(): GLFramebuffer {
 		return this._rf.get(STag.FB);
 	}
-	onDraw(): void {
-		const src = this.source();
-		const coeff = this.coeff;
-		engine.setUniforms({
-			u_weight: coeff,
-			u_mapSize: src.truesize().toVec4(),
-			u_uvrect: src.uvrect().toVec4(),
-			u_texDiffuse: src
-		});
-		this._fb().vp_proc(()=> {
-			engine.drawGeometry(this._rect);
+	onDraw(): boolean {
+		return super.aliveCB(()=>{
+			const src = this.source();
+			const coeff = this.coeff;
+			engine.setUniforms({
+				u_weight: coeff,
+				u_mapSize: src.truesize().toVec4(),
+				u_uvrect: src.uvrect().toVec4(),
+				u_texDiffuse: src
+			});
+			this._fb().vp_proc(()=> {
+				engine.drawGeometry(this._rect);
+			});
 		});
 	}
 }
@@ -132,13 +134,15 @@ export default class GaussFilter extends DObject {
 	setDispersion(d: number): void {
 		this._rf.set(Tag.Dispersion, d);
 	}
-	onDraw(): void {
-		if(this._sub[0].source()) {
-			const coeff = this._coeff();
-			for(let i=0 ; i<2 ; i++) {
-				this._sub[i].coeff = coeff;
+	onDraw(): boolean {
+		return super.aliveCB(()=>{
+			if(this._sub[0].source()) {
+				const coeff = this._coeff();
+				for(let i=0 ; i<2 ; i++) {
+					this._sub[i].coeff = coeff;
+				}
+				this._pass.onDraw();
 			}
-			this._pass.onDraw();
-		}
+		});
 	}
 }

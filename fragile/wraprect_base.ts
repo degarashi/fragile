@@ -28,26 +28,28 @@ export default class WrapRectBase extends DObject {
 			tex.acquire();
 		this._texture = tex;
 	}
-	onDraw(): void {
-		if(!this._texture) {
-			this.setTexture(<GLTexture2D>ResourceGen.get(new RPBeta(new Vec3(1,1,1))));
-		}
-		engine.setUniform("u_texture", this._texture);
-		engine.setUniform("u_alpha", this.alpha);
-		engine.setUniform("u_color", this.color);
-		const ts = this._texture.truesize();
-		const s = this._texture.size();
-		const uv = new Rect(0, s.height/ts.height, s.width/ts.width, 0);
-		engine.setUniform("u_uvcenter", uv.center());
-		const vf = this.vflip ? -1 : 1;
-		const zi = 1/this.zoom;
-		engine.setUniform(
-			"u_uvratio",
-			new Vec2(
-				uv.width()/2*zi,
-				uv.height()/2*vf*zi
-			)
-		);
-		engine.drawGeometry(this._rect.data);
+	onDraw(): boolean {
+		return super.aliveCB(()=>{
+			if(!this._texture) {
+				this.setTexture(<GLTexture2D>ResourceGen.get(new RPBeta(new Vec3(1,1,1))));
+			}
+			engine.setUniform("u_texture", this._texture);
+			engine.setUniform("u_alpha", this.alpha);
+			engine.setUniform("u_color", this.color);
+			const ts = this._texture.truesize();
+			const s = this._texture.size();
+			const uv = new Rect(0, s.height/ts.height, s.width/ts.width, 0);
+			engine.setUniform("u_uvcenter", uv.center());
+			const vf = this.vflip ? -1 : 1;
+			const zi = 1/this.zoom;
+			engine.setUniform(
+				"u_uvratio",
+				new Vec2(
+					uv.width()/2*zi,
+					uv.height()/2*vf*zi
+				)
+			);
+			engine.drawGeometry(this._rect.data);
+		});
 	}
 }

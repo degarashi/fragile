@@ -9,15 +9,14 @@ import SharedPtr from "./shared_ptr";
 
 type Upd_SP = SharedPtr<Updatable>;
 type Draw_SP = SharedPtr<Drawable>;
-export interface IScene extends GObject {
+export interface IScene extends GObject, Drawable {
 	updateTarget: Upd_SP;
 	drawTarget: Draw_SP;
-	onDraw(): void;
 
 	asUpdateGroup(): UpdGroup;
 	asDrawGroup(): DrawGroup;
 }
-export default class Scene<T> extends FSMachine<T> implements IScene, Drawable, Updatable {
+export default class Scene<T> extends FSMachine<T> implements IScene, Updatable {
 	updateTarget: Upd_SP = new SharedPtr<Updatable>(new UpdGroup(0));
 	drawTarget: Draw_SP = new SharedPtr<Drawable>(new DrawGroup());
 
@@ -34,8 +33,9 @@ export default class Scene<T> extends FSMachine<T> implements IScene, Drawable, 
 		(<Updatable>this.updateTarget.get()).onUpdate(dt);
 		return true;
 	}
-	onDraw(): void {
+	onDraw(): boolean {
 		(<Drawable>this.drawTarget.get()).onDraw();
+		return true;
 	}
 	// ----------------- from Drawable|Updatable -----------------
 	discard(cb?:()=>void): void {

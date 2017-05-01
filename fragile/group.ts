@@ -71,19 +71,22 @@ export default class Group<T extends Discardable> extends RefCount {
 		super.discard(()=>{
 			if(cb)
 				cb();
-			const g = this._group;
-			for(let i=0 ; i<g.length ; i++) {
-				g[i].discard();
-			}
-			this._group = [];
-			const a = this._add;
-			if(a) {
-				for(let i=0 ; i<a.length ; i++) {
-					a[i].discard();
-				}
-				this._add = null;
-			}
-			this._remove = null;
+			this.clear();
 		});
+	}
+	clear(): void {
+		const g = this._group;
+		for(let i=0 ; i<g.length ; i++) {
+			g[i].discard();
+		}
+		this._group = [];
+		const a = this._add;
+		if(a) {
+			for(let i=0 ; i<a.length ; i++) {
+				a[i].discard();
+			}
+			this._add = null;
+		}
+		this._remove = null;
 	}
 }
