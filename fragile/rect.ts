@@ -34,16 +34,16 @@ class Rect implements Clonable {
 		this.bottom = r.bottom;
 		return this;
 	}
-	shrinkAt(s: number, pos: Vec2): Rect {
+	shrinkAt(s: Vec2, pos: Vec2): Rect {
 		return new Rect(
-			(this.left - pos.x) * s + pos.x,
-			(this.top - pos.y) * s + pos.y,
-			(this.right - pos.x) * s + pos.x,
-			(this.bottom - pos.y) * s + pos.y
+			(this.left - pos.x) * s.x + pos.x,
+			(this.top - pos.y) * s.y + pos.y,
+			(this.right - pos.x) * s.x + pos.x,
+			(this.bottom - pos.y) * s.y + pos.y
 		);
 	}
 	// 指定の倍率で拡縮
-	shrink(s: number): Rect {
+	shrink(s: Vec2): Rect {
 		return this.shrinkAt(s, this.center());
 	}
 	// 左下の座標
