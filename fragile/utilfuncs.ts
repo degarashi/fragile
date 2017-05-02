@@ -255,4 +255,6 @@ export function GetPowValue(v: number): number {
 	--v;
 	return (v & ~LowBits32(v>>>1)) << 1;
 }
-
+export function Lerp(v0: number, v1: number, t: number) {
+	return (v1-v0)*t + v0;
+}
