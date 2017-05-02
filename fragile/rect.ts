@@ -23,6 +23,17 @@ class Rect implements Clonable {
 			lb.y
 		);
 	}
+	static FromVec4(v: Vec4): Rect {
+		const va = v.value;
+		return new Rect(va[0], va[1], va[2], va[3]);
+	}
+	set(r: Rect): Rect {
+		this.left = r.left;
+		this.top = r.top;
+		this.right = r.right;
+		this.bottom = r.bottom;
+		return this;
+	}
 	shrinkAt(s: number, pos: Vec2): Rect {
 		return new Rect(
 			(this.left - pos.x) * s + pos.x,
@@ -93,6 +104,11 @@ class Rect implements Clonable {
 			this.right,
 			this.bottom
 		);
+	}
+	lerp(r: Rect, t: number): Rect {
+		const v0 = this.toVec4(),
+				v1 = r.toVec4();
+		return Rect.FromVec4(v0.lerp(v1, t));
 	}
 }
 export default Rect;
