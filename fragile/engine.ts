@@ -158,13 +158,19 @@ export default class Engine {
 				gl.disableVertexAttribArray(idxL[i]);
 		});
 	}
-	getScreenCoord(pos: Vec2) {
-		pos = pos.clone();
+	getScreenCoord(pos: Vec2): Vec2 {
+		pos = this.getScreenVector(pos);
+		pos.x -= 1;
+		pos.y = pos.y + 1;
+		return pos;
+	}
+	getScreenVector(dir: Vec2): Vec2 {
 		const s = this.size();
 		const w2 = s.width/2,
 			h2 = s.height/2;
-		pos.x = pos.x/w2 - 1;
-		pos.y = -pos.y/h2 + 1;
-		return pos;
+		return new Vec2(
+			dir.x / w2,
+			-dir.y / h2
+		);
 	}
 }
