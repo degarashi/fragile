@@ -143,6 +143,12 @@ class InputMgr extends RefCount {
 	hideState(code: number): void {
 		this._flag.hideState(code);
 	}
+	tapped(): Vec2|null {
+		return this._flag.tapped();
+	}
+	dragging(): Vec2|null {
+		return this._flag.dragging();
+	}
 	positionDelta(): Vec2 {
 		return this._flag.positionDelta();
 	}

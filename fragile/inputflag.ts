@@ -19,6 +19,57 @@ export default class InputFlag {
 	private _dblClick: boolean = false;
 	private _positionDelta: Vec2 = new Vec2(0);
 
+	// ボタンが押された時刻(Date)
+	private _tapBegin: number|null = null;
+	// ボタンが押された時の座標(Screen)
+	private _tapPos: Vec2|null = null;
+	// 前回判定時の座標
+	private _tapPrevPos: Vec2|null = null;
+	// タップ判定の結果
+	private _tapped: Vec2|null = null;
+	// ドラッグ判定の結果
+	private _dragging: Vec2|null = null;
+	static readonly TapTime = 1000;
+	static readonly TapDistance = 10;
+
+	private _checkTapEvent(ns: InputBuff): void {
+		this._dragging = null;
+		this._tapped = null;
+
+		const pos = this._pos.clone();
+		const press = this.isMKeyPressing(0);
+		const time = new Date().getTime();
+		if(this._tapBegin === null) {
+			if(press) {
+				this._tapBegin = time;
+				this._tapPrevPos = this._tapPos = pos;
+			}
+		} else {
+			const diff = time - this._tapBegin;
+			// タップ判定
+			if(!press) {
+				// 押下開始から1秒経つまでに離された
+				if(diff < InputFlag.TapTime) {
+					// 押下開始地点から一定の距離範囲内
+					const dist = pos.distance(<Vec2>this._tapPos);
+					if(dist < InputFlag.TapDistance)
+						this._tapped = pos;
+				}
+				this._tapBegin = null;
+				this._tapPos = this._tapPrevPos = null;
+			} else {
+				// ドラッグ判定
+				// 押下開始地点から一定の距離範囲外
+				const dist = pos.distance(<Vec2>this._tapPos);
+				const diff = pos.sub(<Vec2>this._tapPrevPos);
+				const bD = diff.len_sq() > 0;
+				this._tapPrevPos = pos;
+				if(dist >= InputFlag.TapDistance && bD)
+					this._dragging = diff;
+			}
+		}
+	}
+
 	update(ns: InputBuff): void {
 		const Proc = function(m0: KeyCount, m1: KeyBool) {
 			for(let k in m0) {
@@ -54,6 +105,8 @@ export default class InputFlag {
 			this._pos = ns.pos.clone();
 		this._keyMask = {};
 		this._mkeyMask = {};
+
+		this._checkTapEvent(ns);
 	}
 	private _getMMask(code: number): boolean {
 		return !Boolean(this._mkeyMask[code]);
@@ -85,6 +138,16 @@ export default class InputFlag {
 	}
 	isKeyClicked(code: number): boolean {
 		return this._getMask(code) && (this._key[code] === -1);
+	}
+	tapped(): Vec2|null {
+		if(this._getMMask(0))
+			return this._tapped;
+		return null;
+	}
+	dragging(): Vec2|null {
+		if(this._getMMask(0))
+			return this._dragging;
+		return null;
 	}
 	position(): Vec2 {
 		return this._pos;
