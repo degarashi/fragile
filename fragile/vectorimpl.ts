@@ -87,21 +87,35 @@ class VectorImpl<T extends Vector> implements Vector {
 	subSelf(v: Vector): T {
 		return this.set(this.sub(v));
 	}
-	mul(s: number): T {
+	mul(v: Vector|number): T {
 		const n = this.dim();
 		const ret = this.clone();
-		for(let i=0 ; i<n ; i++)
-			ret.value[i] = this.value[i] * s;
+		if(typeof v === "number") {
+			for(let i=0 ; i<n ; i++)
+				ret.value[i] = this.value[i] * v;
+		} else {
+			for(let i=0 ; i<n ; i++)
+				ret.value[i] = this.value[i] * v.value[i];
+		}
 		return ret;
 	}
-	mulSelf(s: number): T {
-		return this.set(this.mul(s));
+	mulSelf(v: Vector|number): T {
+		return this.set(this.mul(v));
 	}
-	div(s: number): T {
-		return this.mul(1/s);
+	div(v: Vector|number): T {
+		const n = this.dim();
+		const ret = this.clone();
+		if(typeof v === "number") {
+			for(let i=0 ; i<n ; i++)
+				ret.value[i] = this.value[i] / v;
+		} else {
+			for(let i=0 ; i<n ; i++)
+				ret.value[i] = this.value[i] / v.value[i];
+		}
+		return ret;
 	}
-	divSelf(s: number): T {
-		return this.set(this.div(s));
+	divSelf(v: Vector|number): T {
+		return this.set(this.div(v));
 	}
 	len_sq(): number {
 		return this.dot(this);
