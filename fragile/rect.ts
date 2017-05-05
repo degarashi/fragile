@@ -12,7 +12,7 @@ class Rect implements Clonable {
 	) {}
 	// 左下とサイズを指定して矩形を生成
 	static FromPointSize(lb: Vec2, s: Size) {
-		return Rect.FromPoints(lb, lb.add(s.toVec2()));
+		return Rect.FromPoints(lb, lb.add(s));
 	}
 	// 左下と右上の座標から矩形を生成
 	static FromPoints(lb: Vec2, rt: Vec2) {
