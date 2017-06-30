@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "my tiny library",
   "main": "dist/main.js",
+  "repository": {},
   "dependencies": {},
   "devDependencies": {
     "babel-preset-es2015-rollup": "^3.0.0",
