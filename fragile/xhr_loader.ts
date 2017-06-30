@@ -12,7 +12,7 @@ export default class XHRLoader implements ResourceLoader {
 	constructor(url: string, type: string) {
 		const xhr = new XMLHttpRequest();
 		xhr.open("GET", url);
-		xhr.responseType = type;
+		xhr.responseType = <XMLHttpRequestResponseType>type;
 		xhr.onprogress = (e: ProgressEvent)=> {
 			if(e.lengthComputable) {
 				this._cb.progress(e.loaded, e.total);
