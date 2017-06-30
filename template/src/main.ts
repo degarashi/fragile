@@ -11,7 +11,7 @@ class StDefault extends State<MyScene> {
 	onUp(self: MyScene): void {
 		const cls = new Clear(new Vec4(0,0,0,1));
 		cls.drawtag.priority = 0;
-		self.asDrawGroup().group.add(cls);
+		self.asDrawGroup().group.add(cls, true);
 		self.asDrawGroup().setSortAlgorithm(DrawSort.Priority);
 	}
 	onUpdate(self: MyScene, dt: number): void {
