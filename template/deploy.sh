@@ -21,7 +21,8 @@ function Copy() {
 
 SRC="./src"
 DST="./dist"
-cp ./inter/fragile/arrayfunc.js ${DST}
+INTER="./inter"
+cp ${INTER}/fragile/arrayfunc.js ${DST}
 cp ${SRC}/*.html ${DST}
 cp ${SRC}/*.css ${DST}
 
