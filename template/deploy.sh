@@ -29,4 +29,4 @@ cp ${SRC}/*.css ${DST}
 Copy "${SRC}/resource" "${DST}/resource" png jpg def prog
 Copy "${SRC}/fragile/resource" "${DST}/fragile/resource" png jpg def prog
 
-rsync -rlOtcv --delete ${DST}/ pi@raspi:/var/www/gl/
+rsync -rlOtcv --delete ${DST}/ /var/www/html
