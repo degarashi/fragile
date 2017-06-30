@@ -1,14 +1,15 @@
 const gulp = require("gulp");
+const srcDir = "./src";
 const interDir = "./inter";
 const distDir = "./dist";
 
 // ------------ makealias ------------
 const makealias = require("./makealias");
 gulp.task("makealias", function(){
-	return makealias("src/resource", "resource", "src/_alias.ts");
+	return makealias(srcDir+"/resource", "resource", srcDir+"/_alias.ts");
 });
 gulp.task("makealias-f", function(){
-	return makealias("src/fragile/resource", "fragile/resource", "src/fragile/_alias.ts");
+	return makealias(srcDir+"/fragile/resource", "fragile/resource", srcDir+"/fragile/_alias.ts");
 });
 gulp.task("makealiases", ["makealias", "makealias-f"], function(){});
 
@@ -17,11 +18,11 @@ const ts = require("gulp-typescript");
 const tsConfig = require("./tsconfig.json");
 const tsProj = ts.createProject(tsConfig.compilerOptions);
 
-const tssrc = ["src/**/*.ts", "src/**/*/*.ts"];
+const tssrc = [srcDir+"/**/*.ts", srcDir+"/**/*/*.ts"];
 gulp.task("ts", ["makealiases"], function(){
 	return gulp.src(tssrc)
-	.pipe(tsProj())
-	.pipe(gulp.dest(interDir));
+		.pipe(tsProj())
+		.pipe(gulp.dest(interDir));
 });
 // ----------------- typescript-watch -----------------
 gulp.task("watch", function(){
@@ -37,12 +38,12 @@ const incpath = require("rollup-plugin-includepaths");
 const rollup_plugins_incpath =
 	incpath(
 		{
-			paths: ["inter/fragile"]
+			paths: [interDir + "/fragile"]
 		}
 	);
 
-const jssrc = "./inter/**/*.js";
-const jssrc_main = "./inter/main.js";
+const jssrc = interDir + "/**/*.js";
+const jssrc_main = interDir + "/main.js";
 const rollup_plugins_buble =
 	buble(
 		{
@@ -68,37 +69,37 @@ const rollup_pipe = function(plugins) {
 };
 gulp.task("rollup", ["ts"], function(){
 	gulp.src(jssrc_main)
-			.pipe(rollup_pipe([]))
-			.pipe(gulp.dest(distDir));
+		.pipe(rollup_pipe([]))
+		.pipe(gulp.dest(distDir));
 });
 gulp.task("rollup-b", ["ts"], function(){
 	gulp.src(jssrc)
-			.pipe(rollup_pipe([rollup_plugins_buble]))
-			.pipe(gulp.dest(distDir));
+		.pipe(rollup_pipe([rollup_plugins_buble]))
+		.pipe(gulp.dest(distDir));
 });
 gulp.task("rollup-bu", ["ts"], function(){
 	gulp.src(jssrc)
-			.pipe(rollup_pipe([
-				rollup_plugins_buble,
-				rollup_plugins_uglify
-			]))
-			.pipe(gulp.dest(distDir));
+		.pipe(rollup_pipe([
+			rollup_plugins_buble,
+			rollup_plugins_uglify
+		]))
+		.pipe(gulp.dest(distDir));
 });
 gulp.task("rollup-a", ["ts"], function(){
 	gulp.src(jssrc)
-			.pipe(rollup_pipe([
-				rollup_plugins_babel
-			]))
-			.pipe(gulp.dest(distDir));
+		.pipe(rollup_pipe([
+			rollup_plugins_babel
+		]))
+		.pipe(gulp.dest(distDir));
 });
 
 // ------------ glslify ------------
-const glslsrc = ["src/**/resource/*.{vsh,fsh}", "src/**/fragile/resource/*.{vsh,fsh}"];
+const glslsrc = [srcDir+"/**/resource/*.{vsh,fsh}", srcDir+"/**/fragile/resource/*.{vsh,fsh}"];
 const glslify = require("gulp-glslify");
 gulp.task("glslify", function(){
 	gulp.src(glslsrc)
 		.pipe(glslify())
-		.pipe(gulp.dest("./dist"));
+		.pipe(gulp.dest(distDir));
 });
 
 gulp.task("package", ["rollup", "glslify"]);
@@ -107,9 +108,9 @@ gulp.task("package", ["rollup", "glslify"]);
 const shell = require("gulp-shell");
 gulp.task("deploy", ["package"], function(){
 	return gulp.src("./deploy.sh")
-			.pipe(shell([
-				"<%= file.path %>"
-			]));
+		.pipe(shell([
+			"<%= file.path %>"
+		]));
 });
 
 gulp.task("default", ["package"]);
