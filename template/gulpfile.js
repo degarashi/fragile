@@ -1,7 +1,31 @@
 const gulp = require("gulp");
+const cache = require("gulp-cached");
+const plumber = require("gulp-plumber");
+
 const srcDir = "./src";
 const interDir = "./inter";
 const distDir = "./dist";
+const docDir = "./doc";
+
+// ------------- document -------------
+const typedoc = require("gulp-typedoc");
+// typedocに入力するファイル
+const docSrc = [srcDir + "/fragile/**/!(_)*.ts"];
+const projectName = "Fragile";
+gulp.task("doc", function(){
+	const td = typedoc({
+		module: "es6",
+		target: "es6",
+
+		out: docDir,
+		name: projectName,
+		ignoreCompileErrors: false,
+		version: true
+	});
+	return gulp.src(docSrc)
+		.pipe(plumber())
+		.pipe(td);
+});
 
 // ------------ makealias ------------
 const makealias = require("./makealias");
@@ -11,23 +35,37 @@ gulp.task("makealias", function(){
 gulp.task("makealias-f", function(){
 	return makealias(srcDir+"/fragile/resource", "fragile/resource", srcDir+"/fragile/_alias.ts");
 });
-gulp.task("makealiases", ["makealias", "makealias-f"], function(){});
+gulp.task("makealiases", ["makealias", "makealias-f"]);
 
 // ----------------- typescript -----------------
 const ts = require("gulp-typescript");
 const tsConfig = require("./tsconfig.json");
 const tsProj = ts.createProject(tsConfig.compilerOptions);
 
-const tssrc = [srcDir+"/**/*.ts", srcDir+"/**/*/*.ts"];
+const tsSrc = [srcDir+"/**/*.ts", srcDir+"/**/*/*.ts"];
+const tsSrc_na = [srcDir+"/**/!(_)*.ts"];
 gulp.task("ts", ["makealiases"], function(){
-	return gulp.src(tssrc)
+	return gulp.src(tsSrc)
+		.pipe(cache("ts"))
+		.pipe(plumber())
 		.pipe(tsProj())
 		.pipe(gulp.dest(interDir));
 });
-// ----------------- typescript-watch -----------------
-gulp.task("watch", function(){
-	gulp.watch(tssrc, ["ts"]);
+
+// ----------------- watch -----------------
+// ソールファイル編集を検知してコンパイル実行
+const glslExt = ["vsh", "glsl", "fsh"];
+const glslExtStr = `{${glslExt.join(",")}}`;
+const glslSrc = [
+	srcDir+"/**/resource/*." + glslExtStr,
+	srcDir+"/**/fragile/resource/*." + glslExtStr
+];
+gulp.task("watch", ["package", "doc"], function(){
+	gulp.watch(tsSrc_na, ["rollup"]);
+	gulp.watch(glslSrc, ["glslify"]);
+	gulp.watch(docSrc, ["doc"]);
 });
+gulp.task("default", ["watch"]);
 
 // ----------------- rollup -----------------
 const rollup = require("gulp-rollup");
@@ -67,26 +105,36 @@ const rollup_pipe = function(plugins) {
 		allowRealFiles: true
 	});
 };
-gulp.task("rollup", ["ts"], function(){
-	gulp.src(jssrc_main)
+
+const variant = ["", "-b", "-bu", "-a"];
+// モジュール統合のみ
+gulp.task("rollup" + variant[0], ["ts"], function(){
+	return gulp.src(jssrc)
+		.pipe(plumber())
 		.pipe(rollup_pipe([]))
 		.pipe(gulp.dest(distDir));
 });
-gulp.task("rollup-b", ["ts"], function(){
-	gulp.src(jssrc)
+// bubleによるトランスパイル
+gulp.task("rollup" + variant[1], ["ts"], function(){
+	return gulp.src(jssrc)
+		.pipe(plumber())
 		.pipe(rollup_pipe([rollup_plugins_buble]))
 		.pipe(gulp.dest(distDir));
 });
-gulp.task("rollup-bu", ["ts"], function(){
-	gulp.src(jssrc)
+// buble + uglify
+gulp.task("rollup" + variant[2], ["ts"], function(){
+	return gulp.src(jssrc)
+		.pipe(plumber())
 		.pipe(rollup_pipe([
 			rollup_plugins_buble,
 			rollup_plugins_uglify
 		]))
 		.pipe(gulp.dest(distDir));
 });
-gulp.task("rollup-a", ["ts"], function(){
-	gulp.src(jssrc)
+// babelによるトランスパイル
+gulp.task("rollup" + variant[3], ["ts"], function(){
+	return gulp.src(jssrc)
+		.pipe(plumber())
 		.pipe(rollup_pipe([
 			rollup_plugins_babel
 		]))
@@ -94,23 +142,36 @@ gulp.task("rollup-a", ["ts"], function(){
 });
 
 // ------------ glslify ------------
-const glslsrc = [srcDir+"/**/resource/*.{vsh,fsh}", srcDir+"/**/fragile/resource/*.{vsh,fsh}"];
 const glslify = require("gulp-glslify");
 gulp.task("glslify", function(){
-	gulp.src(glslsrc)
+	return gulp.src(glslSrc)
+		.pipe(cache("glslify"))
+		.pipe(plumber())
 		.pipe(glslify())
 		.pipe(gulp.dest(distDir));
 });
 
-gulp.task("package", ["rollup", "glslify"]);
+const defPkg = (aux="")=> {
+	gulp.task("package" + aux, ["rollup" + aux, "glslify"],
+		function(cb){ cb(); });
+};
+variant.forEach(function(elem){
+	defPkg(elem);
+});
 
 // ------------ deployスクリプトの実行 ------------
 const shell = require("gulp-shell");
-gulp.task("deploy", ["package"], function(){
-	return gulp.src("./deploy.sh")
+function Deploy() {
+	gulp.src("./deploy.sh")
 		.pipe(shell([
 			"<%= file.path %>"
 		]));
-});
+}
+gulp.task("deploy", Deploy);
 
-gulp.task("default", ["package"]);
+const defAll = (aux="")=> {
+	gulp.task("all" + aux, ["package" + aux], Deploy);
+};
+variant.forEach(function(elem){
+	defAll(elem);
+});

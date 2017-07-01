@@ -1,5 +1,6 @@
 dist/
 inter/
+doc/
 node_modules/
 typings/
 src/_alias.ts
