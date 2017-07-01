@@ -9,7 +9,7 @@ module.exports = function(readPath, base, writePath){
 		const ret = {};
 		files.forEach(function(file){
 			if(fs.statSync(`${readPath}/${file}`)) {
-				const r = /([^\.]+)\..+$/.exec(file);
+				const r = /([^.]+)\..+$/.exec(file);
 				if(r) {
 					const path = r[0];
 					const alias = r[1];
