@@ -23,6 +23,7 @@
     "typescript": "^2.2.2"
   },
   "scripts": {
+    "gulp": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "degarashi",
